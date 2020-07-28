@@ -1,6 +1,9 @@
 package cn.edu.njnu.geoproblemsolving.domain.reproducibility.context;
 
+import cn.edu.njnu.geoproblemsolving.domain.reproducibility.context.output.OutputResource;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * @Author Zhiyi
@@ -9,10 +12,10 @@ import lombok.Data;
  */
 @Data
 public class ContextDefinition {
-    String theme;
+    List<String> themes;
     String purpose;
     String simulationObject;//sumulation object
     String methods;
-    String expectedResults;//expected results
-    String drawbacks;
+    String discussion;
+    OutputResource outputResource;
 }

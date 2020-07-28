@@ -1,9 +1,10 @@
 package cn.edu.njnu.geoproblemsolving.domain.reproducibility.map;
 
-import cn.edu.njnu.geoproblemsolving.domain.reproducibility.map.support.Nodes;
+import cn.edu.njnu.geoproblemsolving.domain.reproducibility.map.support.Node;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @Author Zhiyi
@@ -12,6 +13,7 @@ import java.util.List;
  */
 @Data
 public class ConceptMap {
-    List<Nodes> nodes;
+    List<Node> nodes;
     String conceptXml;
+    Optional<String> constraint;
 }
