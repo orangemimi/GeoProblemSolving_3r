@@ -127,6 +127,7 @@ export default {
           `/GeoProblemSolving/task/uploadFileForm`,
           this.uploadFileForm
         );
+        
         this.$message({
           message: "Upload Successfully!",
           type: "success"
