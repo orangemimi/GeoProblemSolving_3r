@@ -47,6 +47,7 @@ export default {
   data() {
     return {
       list: this.message,
+       isOpenTool: true
     };
   },
   watch: {

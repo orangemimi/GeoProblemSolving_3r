@@ -69,17 +69,10 @@ public class ModelTaskService {
             throw new MyException(ResultEnum.ERROR);
         }
         JSONObject result = jsonObjectResponseEntity.getBody().getJSONObject("data");
-
-        String md5 = result.getString("md5");
-        String modelname = result.getString("name");
-//        String mdl = result.getString("mdl");
-        JSONObject mdlJson = JSON.parseObject(JSONObject.toJSONString(result.get("mdlJson")));
-        JSONObject behavior = mdlJson.getJSONArray("ModelClass").getJSONObject(0).getJSONArray("Behavior").getJSONObject(0).getJSONArray("StateGroup").getJSONObject(0);
-        JSONObject result2 = JSON.parseObject(JSONObject.toJSONString(behavior));
         return result;
     }
 
-    public JSONObject createTask(String pid ,String userId) {
+    public JSONObject createTask(String pid, String userId) {
         // 获得任务服务器
         RestTemplate restTemplate = new RestTemplate();
         String urlStr = "http://" + managerServerIpAndPort + "/GeoModeling/taskNode/getServiceTask/" + pid; ////Step0:根据MD5获取可用的任务服务器
@@ -92,7 +85,6 @@ public class ModelTaskService {
         String ip = result.getString("host");
         String port = result.getString("port");
 
-//        Map<String, Object> createTaskJson = new HashMap<>();
         JSONObject initTaskJson = new JSONObject();
         initTaskJson.put("ip", ip);
         initTaskJson.put("port", port);
@@ -138,9 +130,9 @@ public class ModelTaskService {
         form.add("userId", 2);
         form.add("ogmsdata", resource);
         form.add("name", "zzyTest");
-        form.add("origination","GeoProblemSolving");
+        form.add("origination", "GeoProblemSolving");
 
-     String urlStr = "http://111.229.14.128:8899/data";
+        String urlStr = "http://111.229.14.128:8899/data";
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<JSONObject> jsonObjectResponseEntity = restTemplate.postForEntity(urlStr, form, JSONObject.class);
         if (!jsonObjectResponseEntity.getStatusCode().is2xxSuccessful()) {
@@ -155,21 +147,21 @@ public class ModelTaskService {
         MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
         for (Part part : parts) {
             String header = part.getHeader("Content-Disposition");
-            String filename2 = header.substring(header.indexOf("filename=\"") + 10,header.lastIndexOf("\""));//filename=" (整个字符串长度为10，所以要加10)
+            String filename2 = header.substring(header.indexOf("filename=\"") + 10, header.lastIndexOf("\""));//filename=" (整个字符串长度为10，所以要加10)
             // 获取文件名
             String fileName = part.getName();
             //  获取文件后缀名
-            String suffix ="." + FilenameUtils.getExtension(filename2);
-            File file=File.createTempFile(part.getName(),suffix);//创建临时文件
-            FileUtils.copyInputStreamToFile(part.getInputStream(),file);
-            FileSystemResource fileSystemResource=new FileSystemResource(file);
-            form.add("ogmsdata",fileSystemResource);
+            String suffix = "." + FilenameUtils.getExtension(filename2);
+            File file = File.createTempFile(part.getName(), suffix);//创建临时文件
+            FileUtils.copyInputStreamToFile(part.getInputStream(), file);
+            FileSystemResource fileSystemResource = new FileSystemResource(file);
+            form.add("ogmsdata", fileSystemResource);
         }
 
         form.add("serverNode", "china");
         form.add("userId", "2");
         form.add("name", "");
-        form.add("origination","GeoProblemSolving");
+        form.add("origination", "GeoProblemSolving");
 
         String urlStr = "http://111.229.14.128:8899/data";
         RestTemplate restTemplate = new RestTemplate();
@@ -211,7 +203,7 @@ public class ModelTaskService {
 
             JSONArray eventList = state.getJSONArray("eventList");
             for (int j = 0; j < eventList.size(); j++) {
-                if(eventList.getJSONObject(j).getString("url") != "" && eventList.getJSONObject(j).getString("url") != null ){
+                if (eventList.getJSONObject(j).getString("url") != "" && eventList.getJSONObject(j).getString("url") != null) {
                     //筛选出有url的event
                     JSONObject input = new JSONObject();
                     input.put("statename", state.getString("name"));//获得statename字段

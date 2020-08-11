@@ -122,11 +122,6 @@
 import file from "./../dataTemplate/File";
 
 export default {
-  mounted() {
-    this.getStepInfo();
-    this.getUserInfo();
-  },
-
   data() {
     return {
       doi: this.$route.params.doi,
@@ -152,8 +147,8 @@ export default {
             statename: "",
             event: "",
             url: "",
-            tag: ""
-          }
+            tag: "",
+          },
         ],
         outputs: [
           {
@@ -161,17 +156,17 @@ export default {
             event: "",
             template: {
               type: "", //id|none
-              value: "" //if tyoe=none value=""
-            }
-          }
-        ]
+              value: "", //if tyoe=none value=""
+            },
+          },
+        ],
       },
       status: true,
       record: {},
       // page info
       pageParams: { pageId: "", userId: "", userName: "" },
       userInfo: {},
-      bindFileName: ""
+      bindFileName: "",
     };
   },
 
@@ -213,6 +208,7 @@ export default {
 
     getUserInfo() {
       this.userInfo = JSON.parse(sessionStorage.getItem("userInfo"));
+      console.log(this.userInfo);
       if (this.userInfo == {}) {
         this.axios
           .get(
@@ -222,12 +218,12 @@ export default {
               "&value=" +
               this.pageParams.userId
           )
-          .then(res => {
+          .then((res) => {
             if (res.data != "Fail" && res.data != "None") {
               this.$set(this, "userInfo", res.data);
             }
           })
-          .catch(err => {});
+          .catch((err) => {});
       }
     },
 
@@ -289,7 +285,7 @@ export default {
               }
             } else {
               //如果是output --对应template
-              let outputTemplate = datasetItem.filter(dataset => {
+              let outputTemplate = datasetItem.filter((dataset) => {
                 return (
                   dataset.name ===
                   events[j].DispatchParameter[0].datasetReference
@@ -357,7 +353,7 @@ export default {
       let outList = this.stateList;
       outList.forEach((state, index) => {
         state.Event.forEach((event, eventIndex) => {
-          outputUrl.forEach(el => {
+          outputUrl.forEach((el) => {
             if (el.statename == state.name && el.event == event.name) {
               this.$set(this.stateList[index].Event[eventIndex], "url", el.url);
             }
@@ -371,7 +367,7 @@ export default {
     },
 
     dataURItoBlob(event) {
-      this.urlToBlob(event.url, blob => {
+      this.urlToBlob(event.url, (blob) => {
         let file = new File([blob], this.bindFileName);
         let formData = new FormData();
 
@@ -384,16 +380,16 @@ export default {
 
         this.axios
           .post("/GeoProblemSolving/folder/uploadToFolder", formData)
-          .then(res => {
+          .then((res) => {
             console.log(res);
             if (res.data.uploaded != null) {
               this.$message({
                 message: "You have binded the resource Successfully!",
-                type: "success"
+                type: "success",
               });
             }
           })
-          .catch(function(err) {
+          .catch(function (err) {
             console.log(err);
           });
       });
@@ -404,7 +400,7 @@ export default {
       xhr.open("get", the_url, true);
       xhr.send();
       var that = this;
-      xhr.onreadystatechange = function() {
+      xhr.onreadystatechange = function () {
         if (this.readyState === 4) {
           let headers = xhr.getAllResponseHeaders();
           //打印文件名，这里打印的是编码（因为兼容不同语言的数据文件名字）后的，前端用unescape('xxx')去解码，解码后是对应的名字
@@ -412,7 +408,7 @@ export default {
         }
       };
 
-      xhr.onload = function() {
+      xhr.onload = function () {
         if (this.status == 200) {
           if (callback) {
             callback(this.response);
@@ -426,13 +422,13 @@ export default {
     },
 
     inEventList(state) {
-      return state.Event.filter(value => {
+      return state.Event.filter((value) => {
         return value.type === "response";
       });
     },
 
     outEventList(state) {
-      return state.Event.filter(value => {
+      return state.Event.filter((value) => {
         return value.type === "noresponse";
       });
     },
@@ -442,7 +438,7 @@ export default {
         lock: true,
         text: "Calculating",
         spinner: "el-icon-loading",
-        background: "rgba(0, 0, 0, 0.7)"
+        background: "rgba(0, 0, 0, 0.7)",
       });
     },
     initLoading() {
@@ -450,7 +446,7 @@ export default {
         lock: true,
         text: "Initialization",
         spinner: "el-icon-loading",
-        background: "rgba(0, 0, 0, 0.7)"
+        background: "rgba(0, 0, 0, 0.7)",
       });
     },
 
@@ -460,7 +456,7 @@ export default {
         {
           modelInstanceId: modelInstanceId,
           userId: this.userId,
-          stepId: this.stepId
+          stepId: this.stepId,
         }
       );
     },
@@ -489,9 +485,10 @@ export default {
         console.log("返回记录失败");
       }
       console.log(this.recordList);
-    }
+    },
   },
   mounted() {
+    debugger;
     this.getStepInfo();
     this.getUserInfo();
     this.init();
@@ -501,8 +498,8 @@ export default {
     clearInterval(this.timer);
   },
   components: {
-    file
-  }
+    file,
+  },
 };
 </script>
 
