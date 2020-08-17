@@ -38,7 +38,12 @@ const routes = [{
       }, {
         path: 'r2/:projectId/test',
         name: 'test',
-        component: resolve => (require(["@/components/r2/test"], resolve))
+        component: resolve => (require(["@/components/r2/test"], resolve)),
+        children: [{
+          path: 'modelItemInfo/:doi',
+          name: 'modelItemInfo',
+          component: () => import("@/components/r2/components/modelItemInfo"),
+        }]
       },
       {
         path: 'project/:id/permission',

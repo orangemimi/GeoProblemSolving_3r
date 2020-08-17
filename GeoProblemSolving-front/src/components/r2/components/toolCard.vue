@@ -2,7 +2,7 @@
 <template>
   <div class>
     <Card class="cardBody">
-      <div style="text-align:center" >
+      <div style="text-align:center">
         <Tooltip placement="bottom" max-width="600">
           <avatar
             :username="item.toolName"
@@ -56,6 +56,15 @@ export default {
     },
   },
 
+  watch: {
+    toolFrom: {
+      handler(val) {
+        this.item = val;
+      },
+      deep: true,
+    },
+  },
+
   components: { Avatar, toolPreview },
   data() {
     return {
@@ -66,9 +75,7 @@ export default {
     };
   },
 
-  methods: {
-   
-  },
+  methods: {},
   // closeToolPreview() {
   //   this.openTool = false;
   // },

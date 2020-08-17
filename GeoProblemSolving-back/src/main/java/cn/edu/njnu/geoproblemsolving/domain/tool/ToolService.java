@@ -53,7 +53,7 @@ public class ToolService  {
     }
 
     public List<Tool> findAllByProvider(String provider) {
-        return toolRepository.findAllByProvider(provider);
+        return toolRepository.findAllByProviderAndPrivacy(provider,"Private");
     }
 
     public Object updateTool(String tid, UpdateToolDTO update) {

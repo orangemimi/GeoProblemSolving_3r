@@ -14,6 +14,6 @@ import java.util.Optional;
  */
 public interface ToolRepository extends MongoRepository<Tool,String> {
     Optional<Tool> findFirstByTid(String tid);
-    List<Tool> findAllByProvider(String provider);
+    List<Tool> findAllByProviderAndPrivacy(String provider,String privacy );
     Optional<Tool> findFirstByToolName(String toolName);
 }

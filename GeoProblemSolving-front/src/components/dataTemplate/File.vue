@@ -22,31 +22,32 @@
 </template>
 <script>
 import X2JS from "x2js"; //xml数据处理插件
+import { get, del, post, put } from "../../axios";
 export default {
   props: {
     disabled: {
       type: Boolean,
-      default: true
+      default: true,
     },
 
     fileIndex: {
-      type: Object
+      type: Object,
     },
 
     initEventUrl: {
-      type: Object //Object&&数组可双向绑定
+      type: Object, //Object&&数组可双向绑定
     },
 
     initStateList: {
       //传入的没有erl的stateList
-      type: Array
+      type: Array,
     },
     stateIndex: {
-      type: Object
+      type: Object,
     },
     datasetItem: {
-      type: Array
-    }
+      type: Array,
+    },
   },
   data() {
     return {
@@ -58,10 +59,10 @@ export default {
       stateList: this.initStateList,
       stateEventIndex: {
         stateIndex: this.fileIndex.stateIndex,
-        eventIndex: this.fileIndex.eventIndex
+        eventIndex: this.fileIndex.eventIndex,
       },
       datasetItems: this.datasetItem,
-      configFile: null
+      configFile: null,
     };
   },
 
@@ -87,11 +88,11 @@ export default {
       let fileEvent = this.stateList[this.stateEventIndex.stateIndex].Event[
         this.stateEventIndex.eventIndex
       ];
-      let datasets = this.datasetItems;
-      let itemData = datasets.filter(item => {
-        return item.name == fileEvent.ResponseParameter[0].datasetReference;
-      });
-      let data = itemData[0];
+      // let datasets = this.datasetItems;
+      // let itemData = datasets.filter((item) => {
+      //   return item.name == fileEvent.ResponseParameter[0].datasetReference;
+      // });
+      // let data = itemData[0];
       // this.createXmlFromJosn(data.UdxDeclaration);
 
       let configContent = "<UDXZip><Name>";
@@ -102,39 +103,40 @@ export default {
       configContent += "</DataTemplate>";
       configContent += "</UDXZip>";
       let configFile = new File([configContent], "config.udxcfg", {
-        type: "text/plain"
+        type: "text/plain",
       });
       this.configFile = configFile;
       this.uploadFileForm.append("files", configFile);
     },
-    
-    onBeforeUpload(){
+
+    onBeforeUpload() {
       this.createAndUploadParamFile();
     },
 
     //上传文件到服务器
     async submitUpload(data) {
+      this.uploadFileForm = new FormData();
+      this.createAndUploadParamFile();
       this.uploadFileForm.append("files", this.fileList[0].raw);
       if (this.uploadFileForm.getAll("files").length === 0) {
         this.$message({
           message: "请先选择文件",
-          type: "warning"
+          type: "warning",
         });
       } else {
-        // this.fileData.append('pathId', fieldData.id);  // 添加机构id
-        // this.fileData.append('loginToken', this.loginToken);  // 添加token
-        let data = await this.axios.post(
-          `/GeoProblemSolving/task/uploadFileForm`,
+        let data = await post(
+          `/GeoProblemSolving/modelTask/uploadFileForm`,
           this.uploadFileForm
         );
-        
+        // console.log(data);
+
         this.$message({
           message: "Upload Successfully!",
-          type: "success"
+          type: "success",
         });
         let stateIndex = this.stateEventIndex.stateIndex;
         let eventIndex = this.stateEventIndex.eventIndex;
-        let resultId = `http://111.229.14.128:8899/data?uid=${data.data.data}`;
+        let resultId = `http://111.229.14.128:8899/data?uid=${data}`;
         this.$set(
           this.stateList[stateIndex].Event[eventIndex],
           "url",
@@ -142,10 +144,10 @@ export default {
         );
         this.$emit("newStateList", this.stateList);
       }
-    }
+    },
   },
 
-  watch: {}
+  watch: {},
 };
 </script>
 

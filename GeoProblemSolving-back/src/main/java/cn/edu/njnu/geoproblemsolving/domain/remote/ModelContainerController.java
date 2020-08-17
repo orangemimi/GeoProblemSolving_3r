@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(value = "/modelItem")
 public class ModelContainerController {
-    @Autowired
+
     ModelItemService modelItemService;
 
     @RequestMapping(value = "/getModelItem/{id}",method = RequestMethod.GET)

@@ -2,6 +2,7 @@ package cn.edu.njnu.geoproblemsolving.domain.reproducibility.support;
 
 import cn.edu.njnu.geoproblemsolving.domain.reproducibility.context.ContextDefinition;
 import cn.edu.njnu.geoproblemsolving.domain.reproducibility.map.ConceptMap;
+import cn.edu.njnu.geoproblemsolving.domain.reproducibility.resource.Resource;
 import cn.edu.njnu.geoproblemsolving.domain.support.BaseEntity;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -21,6 +22,7 @@ public class DocumentationInfo extends BaseEntity {
     String author;
     Boolean isPublished;
     ContextDefinition contextDefinition;
+    Resource resourceCollection;
     ConceptMap conceptMap;
     String version; //版本号
 

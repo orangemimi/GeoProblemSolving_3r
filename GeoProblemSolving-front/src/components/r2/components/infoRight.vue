@@ -53,7 +53,6 @@ export default {
     projectInfo: {
       handler(val) {
         this.scopeInfo = val;
-        console.log(val);
       },
       deep: true,
     },

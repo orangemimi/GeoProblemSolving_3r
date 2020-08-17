@@ -1,6 +1,6 @@
 package cn.edu.njnu.geoproblemsolving.domain.reproducibility.context;
 
-import cn.edu.njnu.geoproblemsolving.domain.reproducibility.context.output.OutputResource;
+import cn.edu.njnu.geoproblemsolving.domain.reproducibility.map.support.resource.output.OutputResource;
 import lombok.Data;
 
 import java.util.List;

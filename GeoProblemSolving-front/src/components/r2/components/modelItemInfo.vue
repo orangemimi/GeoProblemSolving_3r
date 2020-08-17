@@ -1,6 +1,6 @@
 <template>
   <div class="main">
-    <el-button @click="createFilefromParam">test</el-button>
+    <!-- <el-button @click="createFilefromParam">test</el-button> -->
     <el-row class="title">
       <el-col>{{modelIntroduction.name}}</el-col>
     </el-row>
@@ -15,13 +15,7 @@
         </el-button>
       </el-col>
     </el-row>
-    <!-- <el-row>
-      <el-col :span="2" :offset="18" class="save-btn">
-        <el-button plain type="primary" @click="saveRecords">
-          <i class="el-icon-setting"></i>&nbsp;save
-        </el-button>
-      </el-col>
-    </el-row>-->
+
     <el-divider></el-divider>
     <el-row class="state-container" v-for="(state,index) in stateList" :key="index">
       <el-col class="leftContainer" :span="5">
@@ -55,13 +49,20 @@
                 </el-col>
 
                 <el-col :span="6" :offset="1" v-if="modelInEvent.datasetItem[0].type != `internal`">
-                  <file
-                    @newStateList="getNewStateList"
-                    :fileIndex="{'stateIndex':index,'eventIndex':inEventIndex}"
-                    :initStateList="stateList"
-                    :disabled="!status"
-                    :datasetItem="datasetItem"
-                  ></file>
+                  <el-select
+                    v-model="modelInEvent.url"
+                    clearable
+                    placeholder="Please select data"
+                    @change="selectDatatoModel($event,index,inEventIndex)"
+                  >
+                    <el-option
+                      v-for="(item,dataIndex) in dataList"
+                      :key="dataIndex"
+                      :label="item.name"
+                      :value="item.url"
+                    ></el-option>
+                    <!-- {{item.value}} -->
+                  </el-select>
                 </el-col>
               </el-row>
               <el-row v-if="modelInEvent.datasetItem[0].type == `internal`">
@@ -132,12 +133,38 @@
 </template>
 
 <script>
-import file from "./../dataTemplate/File";
-import { get, del, post, put } from "../../axios";
+import file from "@/components/dataTemplate/File";
+import { get, del, post, put } from "../../../axios";
 export default {
+  props: {
+    pageParamsFrom: {
+      type: Object,
+    },
+    modelDoi: {
+      type: String,
+    },
+    selectedData: {
+      type: Array,
+    },
+  },
+  watch: {
+    modelDoi: {
+      handler(val) {
+        this.doi = val;
+      },
+      deep: true,
+    },
+    selectedData: {
+      handler(val) {
+        this.dataList = val;
+        console.log(val);
+      },
+      deep: true,
+    },
+  },
   data() {
     return {
-      doi: this.$route.params.doi,
+      doi: this.modelDoi,
       modelIntroduction: {},
       ordinaryStateList: {},
       modelInstance: {},
@@ -175,11 +202,13 @@ export default {
       status: true,
       record: {},
       // page info
-      pageParams: { pageId: "", userId: "", userName: "" },
+      pageParams: this.pageParamsFrom,
       userInfo: {},
       bindFileName: "",
       paramInput: "",
       uploadFileForm: new FormData(),
+      dataList: this.selectedData,
+      selectDataValue: "",
       // internalEvents: [],
     };
   },
@@ -189,8 +218,8 @@ export default {
       let datasetItem = this.datasetItem;
       for (let i = 0; i < stateList.length; i++) {
         let events = stateList[i].Event;
-        
         for (let j = 0; j < events.length; j++) {
+          //   events[j]["url"] = "";
           if (events[j].type == "response") {
             let template = datasetItem.filter((dataset) => {
               return (
@@ -597,6 +626,12 @@ export default {
         console.log("返回记录失败");
       }
       console.log(this.recordList);
+    },
+
+    selectDatatoModel(value, stateIndex, eventIndex) {
+      //   console.log(value, index);
+      this.$set(this.stateList[stateIndex].Event[eventIndex], "url", value);
+      this.newStateList();
     },
   },
 

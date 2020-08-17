@@ -1,7 +1,9 @@
-package cn.edu.njnu.geoproblemsolving.domain.remote;
+package cn.edu.njnu.geoproblemsolving.domain.datacontainer;
 
 import cn.edu.njnu.geoproblemsolving.Enums.ResultEnum;
 import cn.edu.njnu.geoproblemsolving.Exception.MyException;
+import cn.edu.njnu.geoproblemsolving.Utils.ResultUtils;
+import cn.edu.njnu.geoproblemsolving.domain.support.JsonResult;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -23,15 +25,15 @@ import java.io.File;
  */
 @Service
 public class DataItemService {
-    @Value("${sunlingzhiIp}")
-    private String sunlingzhiIp;
+    @Value("${dataContainer}")
+    private String dataContainer;
 
     public JSONObject addDataItem(File file){
         FileSystemResource resource = new FileSystemResource(file);      //临时文件
         MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
         form.add("file", resource);
         RestTemplate restTemplate = new RestTemplate();
-        String urlStr = "http://" + sunlingzhiIp  + ":8081" + "/dataitem/addByStorage" ; ////Step0:根据MD5获取可用的任务服务器
+        String urlStr = "http://" + dataContainer  + ":8081" + "/dataitem/addByStorage" ; ////Step0:根据MD5获取可用的任务服务器
 
         ResponseEntity<JSONObject> jsonObjectResponseEntity = restTemplate.postForEntity(urlStr,form, JSONObject.class);//虚拟http请求
         if (!jsonObjectResponseEntity.getStatusCode().is2xxSuccessful()) {
@@ -43,10 +45,29 @@ public class DataItemService {
 
     public ResponseEntity<byte[]> download(String id) {
         RestTemplate restTemplate = new RestTemplate();
-        String urlStr = "http://" + sunlingzhiIp  + ":8081" + "/storage/downloadByDataItemId/" + id ;
-
+        String urlStr = "http://" + dataContainer + ":8082/data?uid=" + id;
         ResponseEntity<byte []> response = restTemplate.exchange(urlStr, HttpMethod.GET,
                 null, byte[].class);
         return  response;
+    }
+
+    public String upload(File file, String userId, String userName) {
+        FileSystemResource resource = new FileSystemResource(file);      //临时文件
+        MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
+        form.add("serverNode", "china");
+        form.add("userId", userId);
+        form.add("ogmsdata", resource);
+        form.add("name", userName);
+        form.add("origination", "GeoProblemSolving_3r");
+
+        String urlStr = "http://" + dataContainer + ":8082/dataNoneConfig";
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<JSONObject> jsonObjectResponseEntity = restTemplate.postForEntity(urlStr, form, JSONObject.class);
+        if (!jsonObjectResponseEntity.getStatusCode().is2xxSuccessful()) {
+            throw new MyException(ResultEnum.ERROR);
+        }
+        JSONObject result = jsonObjectResponseEntity.getBody();//获得上传数据的URL
+        String urlResult = result.getJSONObject("data").getString("source_store_id");
+        return urlResult;
     }
 }

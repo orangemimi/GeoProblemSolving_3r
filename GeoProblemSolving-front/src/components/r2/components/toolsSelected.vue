@@ -5,18 +5,11 @@
     </el-select>
     <div class="toolList" :style="{height:contentHeight+'px'}">
       <vue-scroll :ops="ops">
-        <el-row>publicTools</el-row>
+        <el-row>Tools selected</el-row>
         <el-row class="tool_card">
-          <el-col :span="8" v-for="tool in filterPublicTools" :key="tool.index">
+          <el-col :span="8" v-for="tool in filterSelectedTools" :key="tool.index">
             <div style="margin: 5px" @click="useTool(tool)">
-              <tool-card :toolFrom="tool" :isOpenTool="isOpenTool"></tool-card>
-            </div>
-          </el-col>
-        </el-row>
-        <el-row>personalTools</el-row>
-        <el-row class="tool_card">
-          <el-col :span="8" v-for="tool in filterPersonalTools" :key="tool.index">
-            <div style="margin: 5px" @click="useTool(tool)">
+              <!-- {{tool}} -->
               <tool-card :toolFrom="tool" :isOpenTool="isOpenTool"></tool-card>
             </div>
           </el-col>
@@ -27,16 +20,16 @@
 </template>
 
 <script>
-import { get, del, post, put } from "../../axios";
-import toolCard from "./components/toolCard";
+import { get, del, post, put } from "../../../axios";
+import toolCard from "./toolCard";
 export default {
   props: {},
 
   components: { toolCard },
 
   computed: {
-    filterPersonalTools() {
-      let tools = this.personalTools;
+    filterSelectedTools() {
+      let tools = this.selectedTools;
       let type = this.typeSelected;
       if (type == "All") {
         return tools;
@@ -47,17 +40,17 @@ export default {
       }
     },
 
-    filterPublicTools() {
-      let tools = this.publicTools;
-      let type = this.typeSelected;
-      if (type == "All") {
-        return tools;
-      } else {
-        return tools.filter((tool) => {
-          return tool.recomStep.includes(type);
-        });
-      }
-    },
+    // filterPublicTools() {
+    //   let tools = this.publicTools;
+    //   let type = this.typeSelected;
+    //   if (type == "All") {
+    //     return tools;
+    //   } else {
+    //     return tools.filter((tool) => {
+    //       return tool.recomStep.includes(type);
+    //     });
+    //   }
+    // },
   },
 
   data() {
@@ -66,9 +59,8 @@ export default {
       contentHeight: 0,
       userInfo: this.$store.getters.userInfo,
       projectId: this.$route.params.projectId,
-      publicTools: [],
-      personalTools: [],
-      showMenuItem: "publicTools",
+
+      selectedTools: [],
       ops: {
         bar: {
           background: "#808695",
@@ -96,23 +88,15 @@ export default {
 
   methods: {
     initSize() {
-      //   this.contentWidth = window.innerWidth - 450;
       this.contentHeight = window.innerHeight - 250;
-      console.log(this.contentHeight);
-    },
-    async getPublicTools() {
-      let data = await get(
-        "/GeoProblemSolving/tool/inquiry/?key=privacy&value=Public"
-      );
-      this.$set(this, "publicTools", data);
     },
 
-    async getPersonalTools() {
-      let data = await get(
-        `/GeoProblemSolving/tool/findByProvider/${this.userInfo.userId}`
+    async getSelectedTools() {
+      let { data } = await get(
+        `/GeoProblemSolving/r/resource/get/${this.projectId}`
       );
-      this.$set(this, "personalTools", data);
-      // this.filterShowListByType();
+      this.$set(this, "selectedTools", data.toolItemList);
+      console.log(this.selectedTools);
     },
 
     useTool(toolInfo) {
@@ -174,9 +158,9 @@ export default {
     this.initSize();
   },
   mounted() {
-    this.getPublicTools();
+    // this.getPublicTools();
     if (this.userInfo) {
-      this.getPersonalTools();
+      this.getSelectedTools();
     }
   },
 };

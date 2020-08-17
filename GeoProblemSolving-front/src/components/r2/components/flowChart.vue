@@ -166,6 +166,9 @@
         >Go to this workspace</Button>
       </div>
     </Modal>
+    <!-- <Modal v-model="resourceCollectionModal" :mask-closable="false" style="height:500px">
+      <data-upload @uploadDataList="uploadDataList"></data-upload>
+    </Modal> -->
     <Modal
       width="800px"
       v-model="createStepModal"
@@ -206,6 +209,7 @@
 </template>
 <script>
 import echarts from "echarts";
+// import dataUpload from "./dataUpload";
 export default {
   props: {
     userRole: {
@@ -215,6 +219,7 @@ export default {
       type: Object,
     },
   },
+  // components: { dataUpload },
 
   watch: {
     projectInfo: {
@@ -268,6 +273,7 @@ export default {
       workspaceName: "",
       typeList: [
         "Context definition & Protocal",
+        "Resource collection",
         "Data processing",
         "Data visualization",
         "Model construction",
@@ -286,6 +292,9 @@ export default {
       gotoworkModal: false,
       // 双击展示活动信息
       activityInfoModal: false,
+
+      resourceCollectionModal: false,
+
       showActivityInfo: {},
       //资源继承
       existingResources: [],
@@ -305,6 +314,7 @@ export default {
       resetProjectTypeNotice: false,
       resetProjectTypeModel: false,
       categroy: 0,
+      uploadList:[]
     };
   },
   created() {
@@ -480,6 +490,10 @@ export default {
               icon: "circle",
             },
             {
+              name: "Resource collection",
+              icon: "circle",
+            },
+            {
               name: "Data processing",
               icon: "circle",
             },
@@ -520,6 +534,9 @@ export default {
             categories: [
               {
                 name: "Context definition & Protocal",
+              },
+              {
+                name: "Resource collection",
               },
               {
                 name: "Data processing",
@@ -630,14 +647,21 @@ export default {
       this.stepChart.on("dblclick", function (params) {
         if (_this.procedureDrag) {
           // _this.enterStep(params.data.category, params.data.stepId);
-          _this.activityInfoModal = true;
+
           let stepType = _this.getStepType(params.data.category);
           let activity = {
             stepID: params.data.stepId,
             name: params.data.name,
             type: stepType,
           };
-          _this.showActivityInfo = activity;
+          _this.$emit("dblclick",activity);
+
+          // if (stepType == "Resource collection") {
+          //   _this.resourceCollectionModal = true;
+          // } else {
+          //   _this.activityInfoModal = true;
+          //   _this.showActivityInfo = activity;
+          // }
         }
       });
     },
@@ -713,14 +737,16 @@ export default {
       if (category == 0) {
         type = "Context definition & Protocal";
       } else if (category == 1) {
-        type = "Data processing";
+        type = "Resource collection";
       } else if (category == 2) {
-        type = "Data visualization";
+        type = "Data processing";
       } else if (category == 3) {
-        type = "Model construction";
+        type = "Data visualization";
       } else if (category == 4) {
-        type = "Result analysis";
+        type = "Model construction";
       } else if (category == 5) {
+        type = "Result analysis";
+      } else if (category == 6) {
         type = "Result presentation";
       }
       return type;
@@ -730,16 +756,18 @@ export default {
       let category;
       if (type == "Context definition & Protocal") {
         category = 0;
-      } else if (type == "Data processing") {
+      } else if (type == "Resource collection") {
         category = 1;
-      } else if (type == "Data visualization") {
+      } else if (type == "Data processing") {
         category = 2;
-      } else if (type == "Model construction") {
+      } else if (type == "Data visualization") {
         category = 3;
-      } else if (type == "Result analysis") {
+      } else if (type == "Model construction") {
         category = 4;
-      } else if (type == "Result presentation") {
+      } else if (type == "Result analysis") {
         category = 5;
+      } else if (type == "Result presentation") {
+        category = 6;
       }
       this.category = category;
     },
@@ -844,7 +872,7 @@ export default {
       // 获取可继承的资源
       //   this.getInheritResource();
       // 创建步骤模态框
-      if (this.processStructure.length > 0) {
+      if (this.processStructure.length >= 0) {
         this.createStepModal = true;
       }
     },
@@ -985,7 +1013,7 @@ export default {
           activeStatus: true,
         };
 
-        let newNode;
+        const newNode = {};
         newNode.stepID = id;
 
         this.processStructure.push(newStepNode);
@@ -1319,6 +1347,10 @@ export default {
       this.getStepCategroy(type);
       this.enterStep(this.category, stepID);
     },
+
+    // uploadDataList(list){
+    //   console.log(list);
+    // }
   },
 
   beforeRouteLeave(to, from, next) {
