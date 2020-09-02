@@ -82,6 +82,9 @@ export default {
     userId: {
       type: String,
     },
+    initTools: {
+      type: Array,
+    },
   },
   components: { toolCard, draggable },
   watch: {
@@ -91,7 +94,14 @@ export default {
       },
       deep: true,
     },
+    initTools: {
+      handler(val) {
+        this.initToolItems = this.initTools;
+      },
+      deep: true,
+    },
   },
+
   data() {
     return {
       publicTools: [],
@@ -118,6 +128,7 @@ export default {
         "Others",
       ],
       switchValue: true,
+      initToolItems: this.initTools,
     };
   },
 
@@ -126,6 +137,14 @@ export default {
       get() {
         let tools = this.publicTools;
         let type = this.typeSelected;
+        let initTools = this.initToolItems;
+
+        tools = tools.filter(
+          (item) => !initTools.some((e) => e.toolName === item.toolName)
+        );
+        this.publicTools = tools;
+        this.$set(this, "publicTools", tools);
+
         if (type == "All") {
           return tools;
         } else {
@@ -150,6 +169,12 @@ export default {
       get() {
         let tools = this.personalTools;
         let type = this.typeSelected;
+        let initTools = this.initToolItems;
+
+        tools = tools.filter(
+          (item) => !initTools.some((e) => e.toolName === item.toolName)
+        );
+        this.$set(this, "personalTools", tools);
         if (type == "All") {
           return tools;
         } else {
@@ -174,11 +199,18 @@ export default {
   },
 
   mounted() {
-    this.getPublicTools();
-    this.getPersonalTools();
+    this.init();
   },
-
+  async created() {
+    await this.getPublicTools();
+    await this.getPersonalTools();
+  },
   methods: {
+    init() {
+      this.sentTools = this.initToolItems;
+
+    },
+
     async getPublicTools() {
       let data = await get(
         "/GeoProblemSolving/tool/inquiry/?key=privacy&value=Public"
@@ -191,6 +223,7 @@ export default {
         `/GeoProblemSolving/tool/findByProvider/${this.userId}`
       );
       this.$set(this, "personalTools", data);
+      console.log(this.personalTools);
 
       // this.filterShowListByType();
     },
@@ -215,6 +248,7 @@ export default {
       }
     },
     removeSelectedTools(index) {
+      this.initToolItems = [];
       var removeToolInfo = this.sentTools[index];
       this.sentTools.splice(index, 1);
       // this.publicTools.push(removeToolInfo);

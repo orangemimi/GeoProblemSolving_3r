@@ -11,4 +11,5 @@ import lombok.Data;
 public class DataItem {
     String name;
     String url;
+    Boolean isDirect;//false--中间处理数据 //true--直接上传数据
 }

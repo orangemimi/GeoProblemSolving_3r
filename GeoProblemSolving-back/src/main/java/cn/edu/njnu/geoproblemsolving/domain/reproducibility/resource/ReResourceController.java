@@ -24,7 +24,7 @@ public class ReResourceController {
         return ResultUtils.success(resourceService.getResources(pid));
     }
 
-    @RequestMapping(value = "/update/{tid}", produces = {"application/json;charset=UTF-8"},method = RequestMethod.POST)
+    @RequestMapping(value = "/update/{pid}", produces = {"application/json;charset=UTF-8"},method = RequestMethod.POST)
     public JsonResult updateResources(@PathVariable("pid") String pid,@RequestBody UpdateResourceDTO UpdateResourceDTO){
         return ResultUtils.success(resourceService.updateResources(pid,UpdateResourceDTO));
     }

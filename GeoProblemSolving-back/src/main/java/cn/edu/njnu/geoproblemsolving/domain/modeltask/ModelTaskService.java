@@ -100,82 +100,82 @@ public class ModelTaskService {
         return result;
     }
 
-    public String upload(File file,String userId) {
-        FileSystemResource resource = new FileSystemResource(file);      //临时文件
-        MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
-        form.add("serverNode", "china");
-        form.add("userId", 2);
-        form.add("ogmsdata", resource);
-        form.add("name", userId);
-        form.add("origination", "GeoProblemSolving_3r");
-
-        String urlStr = "http://221.226.60.2:8082/data";
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<JSONObject> jsonObjectResponseEntity = restTemplate.postForEntity(urlStr, form, JSONObject.class);
-        if (!jsonObjectResponseEntity.getStatusCode().is2xxSuccessful()) {
-            throw new MyException(ResultEnum.ERROR);
-        }
-        JSONObject result = jsonObjectResponseEntity.getBody();//获得上传数据的URL
-        String urlResult = result.getJSONObject("data").getString("url");
-        return urlResult;
-    }
-
-    public String uploadFileForm(Collection<Part> parts , String userId) throws IOException {
-        MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
-        for (Part part : parts) {
-            String header = part.getHeader("Content-Disposition");
-            String filename2 = header.substring(header.indexOf("filename=\"") + 10, header.lastIndexOf("\""));//filename=" (整个字符串长度为10，所以要加10)
-            // 获取文件名
-//            String fileName = part.getName();
-            //  获取文件后缀名
-            String suffix = "." + FilenameUtils.getExtension(filename2);
-            File file = File.createTempFile(part.getName(), suffix);//创建临时文件
-            FileUtils.copyInputStreamToFile(part.getInputStream(), file);
-            FileSystemResource fileSystemResource = new FileSystemResource(file);
-            form.add("ogmsdata", fileSystemResource);
-        }
-
-        form.add("serverNode", "china");
-        form.add("userId", "2");
-        form.add("name", userId);
-        form.add("origination", "GeoProblemSolving");
-
-        String urlStr = "http://111.229.14.128:8899/data";
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<JSONObject> jsonObjectResponseEntity = restTemplate.postForEntity(urlStr, form, JSONObject.class);
-        if (!jsonObjectResponseEntity.getStatusCode().is2xxSuccessful()) {
-            throw new MyException(ResultEnum.ERROR);
-        }
-        JSONObject result = jsonObjectResponseEntity.getBody();//获得上传数据的URL
-        String resultId = result.getJSONObject("data").getString("source_store_id");
-        return resultId;
-    }
-
-
-
-    public ArrayList<Object> getInvokeItem(JSONObject obj) {
-        ArrayList<Object> inputList = new ArrayList<>();
-        JSONArray stateList = obj.getJSONArray("stateList");
-        for (int i = 0; i < stateList.size(); i++) {
-            JSONObject state = stateList.getJSONObject(i);
-
-            JSONArray eventList = state.getJSONArray("eventList");
-            for (int j = 0; j < eventList.size(); j++) {
-                if (eventList.getJSONObject(j).getString("url") != "" && eventList.getJSONObject(j).getString("url") != null) {
-                    //筛选出有url的event
-                    JSONObject input = new JSONObject();
-                    input.put("statename", state.getString("name"));//获得statename字段
-                    input.put("event", eventList.getJSONObject(j).getString("name"));//获得event字段
-                    input.put("url", eventList.getJSONObject(j).getString("url"));//获得url
-                    input.put("tag", eventList.getJSONObject(j).getString("name"));//tag
-                    inputList.add(input);
-                } else {
-                    continue;
-                }
-            }
-        }
-        return inputList;
-    }
+//    public String upload(File file,String userId) {
+//        FileSystemResource resource = new FileSystemResource(file);      //临时文件
+//        MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
+//        form.add("serverNode", "china");
+//        form.add("userId", 2);
+//        form.add("ogmsdata", resource);
+//        form.add("name", userId);
+//        form.add("origination", "GeoProblemSolving_3r");
+//
+//        String urlStr = "http://221.226.60.2:8082/data";
+//        RestTemplate restTemplate = new RestTemplate();
+//        ResponseEntity<JSONObject> jsonObjectResponseEntity = restTemplate.postForEntity(urlStr, form, JSONObject.class);
+//        if (!jsonObjectResponseEntity.getStatusCode().is2xxSuccessful()) {
+//            throw new MyException(ResultEnum.ERROR);
+//        }
+//        JSONObject result = jsonObjectResponseEntity.getBody();//获得上传数据的URL
+//        String urlResult = result.getJSONObject("data").getString("url");
+//        return urlResult;
+//    }
+//
+//    public String uploadFileForm(Collection<Part> parts , String userId) throws IOException {
+//        MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
+//        for (Part part : parts) {
+//            String header = part.getHeader("Content-Disposition");
+//            String filename2 = header.substring(header.indexOf("filename=\"") + 10, header.lastIndexOf("\""));//filename=" (整个字符串长度为10，所以要加10)
+//            // 获取文件名
+////            String fileName = part.getName();
+//            //  获取文件后缀名
+//            String suffix = "." + FilenameUtils.getExtension(filename2);
+//            File file = File.createTempFile(part.getName(), suffix);//创建临时文件
+//            FileUtils.copyInputStreamToFile(part.getInputStream(), file);
+//            FileSystemResource fileSystemResource = new FileSystemResource(file);
+//            form.add("ogmsdata", fileSystemResource);
+//        }
+//
+//        form.add("serverNode", "china");
+//        form.add("userId", "2");
+//        form.add("name", userId);
+//        form.add("origination", "GeoProblemSolving");
+//
+//        String urlStr = "http://111.229.14.128:8899/data";
+//        RestTemplate restTemplate = new RestTemplate();
+//        ResponseEntity<JSONObject> jsonObjectResponseEntity = restTemplate.postForEntity(urlStr, form, JSONObject.class);
+//        if (!jsonObjectResponseEntity.getStatusCode().is2xxSuccessful()) {
+//            throw new MyException(ResultEnum.ERROR);
+//        }
+//        JSONObject result = jsonObjectResponseEntity.getBody();//获得上传数据的URL
+//        String resultId = result.getJSONObject("data").getString("source_store_id");
+//        return resultId;
+//    }
+//
+//
+//
+//    public ArrayList<Object> getInvokeItem(JSONObject obj) {
+//        ArrayList<Object> inputList = new ArrayList<>();
+//        JSONArray stateList = obj.getJSONArray("stateList");
+//        for (int i = 0; i < stateList.size(); i++) {
+//            JSONObject state = stateList.getJSONObject(i);
+//
+//            JSONArray eventList = state.getJSONArray("eventList");
+//            for (int j = 0; j < eventList.size(); j++) {
+//                if (eventList.getJSONObject(j).getString("url") != "" && eventList.getJSONObject(j).getString("url") != null) {
+//                    //筛选出有url的event
+//                    JSONObject input = new JSONObject();
+//                    input.put("statename", state.getString("name"));//获得statename字段
+//                    input.put("event", eventList.getJSONObject(j).getString("name"));//获得event字段
+//                    input.put("url", eventList.getJSONObject(j).getString("url"));//获得url
+//                    input.put("tag", eventList.getJSONObject(j).getString("name"));//tag
+//                    inputList.add(input);
+//                } else {
+//                    continue;
+//                }
+//            }
+//        }
+//        return inputList;
+//    }
 
 //    public Object add() {
 //        ComputableModelDaoImpl modelItemDao = new ComputableModelDaoImpl(mongoTemplate);

@@ -17,118 +17,262 @@
     </el-row>
 
     <el-divider></el-divider>
-    <el-row class="state-container" v-for="(state,index) in stateList" :key="index">
-      <el-col class="leftContainer" :span="5">
-        <el-col :offset="1" :span="22">
-          <div class="modelState">
-            <p class="state-name">{{state.name}}</p>
-            <p class="state-desc">{{state.description}}</p>
+    <div v-if="stateListFolk==undefined||stateListFolk==''">
+      <el-row class="state-container" v-for="(state,index) in stateList" :key="index">
+        <el-col class="leftContainer" :span="5">
+          <el-col :offset="1" :span="22">
+            <div class="modelState">
+              <p class="state-name">{{state.name}}</p>
+              <p class="state-desc">{{state.description}}</p>
+            </div>
+          </el-col>
+        </el-col>
+        <el-col class="dataContainer" :span="18" :offset="1">
+          <div class="_params-group">
+            <el-row v-if="inEventList(state).length!==0" class="stateTitle">Input</el-row>
+            <el-divider class="stateTitleDivider"></el-divider>
+            <div class="events">
+              <el-row
+                v-for="(modelInEvent,inEventIndex) in inEventList(state)"
+                :key="inEventIndex"
+                class="event"
+              >
+                <el-row>
+                  <el-col :span="17" class="_event-desc">
+                    <span class="event_name" :title="modelInEvent.name">
+                      <span v-show="modelInEvent.optional=='False'" style="color:red">*</span>
+                      {{modelInEvent.name}}
+                    </span>
+                    <p
+                      class="event_desc"
+                      :title="modelInEvent.description"
+                    >{{modelInEvent.description}}</p>
+                  </el-col>
+
+                  <el-row v-if="modelInEvent.datasetItem[0].type == `internal` ">
+                    <div v-if="filterUdxNode(modelInEvent)">
+                      <el-table border :data="filterUdxNode(modelInEvent)[0].UdxNode">
+                        <el-table-column prop="name" label="Parameter" width="180"></el-table-column>
+                        <el-table-column prop="description" label="Description" width="180"></el-table-column>
+                        <el-table-column prop="type" label="Type"></el-table-column>
+                        <el-table-column label="Value">
+                          <template slot-scope="scope">
+                            <el-input v-model="scope.row.value"></el-input>
+                          </template>
+                        </el-table-column>
+                      </el-table>
+                    </div>
+                    <div v-else>
+                      <el-select
+                        v-model="modelInEvent.url"
+                        clearable
+                        placeholder="Please select data"
+                        @change="selectDatatoModel($event,index,inEventIndex)"
+                      >
+                        <el-option
+                          v-for="(item,dataIndex) in dataList"
+                          :key="dataIndex"
+                          :label="item.name"
+                          :value="item.url"
+                        ></el-option>
+                      </el-select>
+                    </div>
+                  </el-row>
+                  <el-col :span="6" :offset="1" v-else>
+                    <el-select
+                      v-model="modelInEvent.url"
+                      clearable
+                      placeholder="Please select data"
+                      @change="selectDatatoModel($event,index,inEventIndex)"
+                    >
+                      <el-option
+                        v-for="(item,dataIndex) in dataList"
+                        :key="dataIndex"
+                        :label="item.name"
+                        :value="item.url"
+                      ></el-option>
+                    </el-select>
+                  </el-col>
+                </el-row>
+                <el-row>
+                  <el-divider class="eventDivider"></el-divider>
+                </el-row>
+              </el-row>
+            </div>
+          </div>
+
+          <div class="_params-group">
+            <el-row v-if="outEventList(state).length!==0" class="stateTitle">Output</el-row>
+            <div class="events">
+              <el-row
+                v-for="(modelOutEvent,outEventIndex) in outEventList(state)"
+                :key="outEventIndex"
+                class="event"
+              >
+                <el-row>
+                  <el-col :span="17" class="_event-desc">
+                    <span class="event_name" :title="modelOutEvent.name">{{modelOutEvent.name}}</span>
+                    <p
+                      class="event_desc"
+                      :title="modelOutEvent.eventDesc"
+                    >{{modelOutEvent.description}}</p>
+                  </el-col>
+                  <el-col :span="6" :offset="1">
+                    <div class="_btn-group">
+                      <el-button
+                        size="small"
+                        plain
+                        round
+                        type="warning"
+                        @click="download(modelOutEvent)"
+                        :disabled="status"
+                      >Download</el-button>
+
+                      <el-button
+                        size="small"
+                        plain
+                        round
+                        type="warning"
+                        @click="bind(modelOutEvent)"
+                        :disabled="status"
+                      >Bind</el-button>
+                    </div>
+                  </el-col>
+                </el-row>
+              </el-row>
+            </div>
           </div>
         </el-col>
-      </el-col>
-      <el-col class="dataContainer" :span="18" :offset="1">
-        <div class="_params-group">
-          <el-row v-if="inEventList(state).length!==0" class="stateTitle">Input</el-row>
-          <el-divider class="stateTitleDivider"></el-divider>
-          <div class="events">
-            <el-row
-              v-for="(modelInEvent,inEventIndex) in inEventList(state)"
-              :key="inEventIndex"
-              class="event"
-            >
-              <el-row>
-                <el-col :span="17" class="_event-desc">
-                  <span class="event_name" :title="modelInEvent.name">
-                    <span v-show="modelInEvent.optional=='False'" style="color:red">*</span>
-                    {{modelInEvent.name}}
-                  </span>
-                  <p
-                    class="event_desc"
-                    :title="modelInEvent.description"
-                  >{{modelInEvent.description}}</p>
-                </el-col>
+      </el-row>
+    </div>
+    <div v-else>
+      <el-row class="state-container" v-for="(state,index) in stateListFolk" :key="index">
+        <el-col class="leftContainer" :span="5">
+          <el-col :offset="1" :span="22">
+            <div class="modelState">
+              <p class="state-name">{{state.name}}</p>
+              <p class="state-desc">{{state.description}}</p>
+            </div>
+          </el-col>
+        </el-col>
+        <el-col class="dataContainer" :span="18" :offset="1">
+          <div class="_params-group">
+            <el-row v-if="inEventList(state).length!==0" class="stateTitle">Input</el-row>
+            <el-divider class="stateTitleDivider"></el-divider>
+            <div class="events">
+              <el-row
+                v-for="(modelInEvent,inEventIndex) in inEventList(state)"
+                :key="inEventIndex"
+                class="event"
+              >
+                <el-row>
+                  <el-col :span="17" class="_event-desc">
+                    <span class="event_name" :title="modelInEvent.name">
+                      <span v-show="modelInEvent.optional=='False'" style="color:red">*</span>
+                      {{modelInEvent.name}}
+                    </span>
+                    <p
+                      class="event_desc"
+                      :title="modelInEvent.description"
+                    >{{modelInEvent.description}}</p>
+                  </el-col>
 
-                <el-col :span="6" :offset="1" v-if="modelInEvent.datasetItem[0].type != `internal`">
-                  <el-select
-                    v-model="modelInEvent.url"
-                    clearable
-                    placeholder="Please select data"
-                    @change="selectDatatoModel($event,index,inEventIndex)"
-                  >
-                    <el-option
-                      v-for="(item,dataIndex) in dataList"
-                      :key="dataIndex"
-                      :label="item.name"
-                      :value="item.url"
-                    ></el-option>
-                    <!-- {{item.value}} -->
-                  </el-select>
-                </el-col>
+                  <el-row v-if="modelInEvent.datasetItem[0].type == `internal` ">
+                    <div v-if="filterUdxNode(modelInEvent)">
+                      <el-table border :data="filterUdxNode(modelInEvent)[0].UdxNode">
+                        <el-table-column prop="name" label="Parameter" width="180"></el-table-column>
+                        <el-table-column prop="description" label="Description" width="180"></el-table-column>
+                        <el-table-column prop="type" label="Type"></el-table-column>
+                        <el-table-column label="Value">
+                          <template slot-scope="scope">
+                            <el-input v-model="scope.row.value"></el-input>
+                          </template>
+                        </el-table-column>
+                      </el-table>
+                    </div>
+                    <div v-else>
+                      <el-select
+                        v-model="modelInEvent.url"
+                        clearable
+                        placeholder="Please select data"
+                        @change="selectDatatoModel($event,index,inEventIndex)"
+                      >
+                        <el-option
+                          v-for="(item,dataIndex) in dataList"
+                          :key="dataIndex"
+                          :label="item.name"
+                          :value="item.url"
+                        ></el-option>
+                      </el-select>
+                    </div>
+                  </el-row>
+                  <el-col :span="6" :offset="1" v-else>
+                    <el-select
+                      v-model="modelInEvent.url"
+                      clearable
+                      placeholder="Please select data"
+                      @change="selectDatatoModel($event,index,inEventIndex)"
+                    >
+                      <el-option
+                        v-for="(item,dataIndex) in dataList"
+                        :key="dataIndex"
+                        :label="item.name"
+                        :value="item.url"
+                      ></el-option>
+                    </el-select>
+                  </el-col>
+                </el-row>
+                <el-row>
+                  <el-divider class="eventDivider"></el-divider>
+                </el-row>
               </el-row>
-              <el-row v-if="modelInEvent.datasetItem[0].type == `internal`">
-                <div v-if="filterUdxNode(modelInEvent)">
-                  <el-table border :data="filterUdxNode(modelInEvent)[0].UdxNode">
-                    <el-table-column prop="name" label="Parameter" width="180"></el-table-column>
-                    <el-table-column prop="description" label="Description" width="180"></el-table-column>
-                    <el-table-column prop="type" label="Type"></el-table-column>
-                    <el-table-column label="Value">
-                      <template slot-scope="scope">
-                        <el-input v-model="scope.row.value"></el-input>
-                      </template>
-                    </el-table-column>
-                  </el-table>
-                </div>
-              </el-row>
-              <el-row>
-                <el-divider class="eventDivider"></el-divider>
-              </el-row>
-            </el-row>
+            </div>
           </div>
-        </div>
 
-        <div class="_params-group">
-          <el-row v-if="outEventList(state).length!==0" class="stateTitle">Output</el-row>
-          <div class="events">
-            <el-row
-              v-for="(modelOutEvent,outEventIndex) in outEventList(state)"
-              :key="outEventIndex"
-              class="event"
-            >
-              <el-row>
-                <el-col :span="17" class="_event-desc">
-                  <span class="event_name" :title="modelOutEvent.name">{{modelOutEvent.name}}</span>
-                  <p
-                    class="event_desc"
-                    :title="modelOutEvent.eventDesc"
-                  >{{modelOutEvent.description}}</p>
-                </el-col>
-                <el-col :span="6" :offset="1">
-                  <div class="_btn-group">
-                    <el-button
-                      size="small"
-                      plain
-                      round
-                      type="warning"
-                      @click="download(modelOutEvent)"
-                      :disabled="status"
-                    >Download</el-button>
+          <div class="_params-group">
+            <el-row v-if="outEventList(state).length!==0" class="stateTitle">Output</el-row>
+            <div class="events">
+              <el-row
+                v-for="(modelOutEvent,outEventIndex) in outEventList(state)"
+                :key="outEventIndex"
+                class="event"
+              >
+                <el-row>
+                  <el-col :span="17" class="_event-desc">
+                    <span class="event_name" :title="modelOutEvent.name">{{modelOutEvent.name}}</span>
+                    <p
+                      class="event_desc"
+                      :title="modelOutEvent.eventDesc"
+                    >{{modelOutEvent.description}}</p>
+                  </el-col>
+                  <el-col :span="6" :offset="1">
+                    <div class="_btn-group">
+                      <el-button
+                        size="small"
+                        plain
+                        round
+                        type="warning"
+                        @click="download(modelOutEvent)"
+                        :disabled="status"
+                      >Download</el-button>
 
-                    <el-button
-                      size="small"
-                      plain
-                      round
-                      type="warning"
-                      @click="bind(modelOutEvent)"
-                      :disabled="status"
-                    >Bind</el-button>
-                  </div>
-                </el-col>
+                      <el-button
+                        size="small"
+                        plain
+                        round
+                        type="warning"
+                        @click="bind(modelOutEvent)"
+                        :disabled="status"
+                      >Bind</el-button>
+                    </div>
+                  </el-col>
+                </el-row>
               </el-row>
-            </el-row>
+            </div>
           </div>
-        </div>
-      </el-col>
-    </el-row>
+        </el-col>
+      </el-row>
+    </div>
   </div>
 </template>
 
@@ -140,31 +284,59 @@ export default {
     pageParamsFrom: {
       type: Object,
     },
-    modelDoi: {
-      type: String,
+    currentModelInfo: {
+      type: Object,
     },
-    selectedData: {
-      type: Array,
+
+    selectedResources: {
+      type: Object,
     },
+    instanceFolk: { type: Object },
   },
   watch: {
-    modelDoi: {
+    currentModelInfo: {
       handler(val) {
-        this.doi = val;
+        // console.log(val);
+        if (val != "") {
+          this.currentModel = val;
+          this.status = false;
+          this.init();
+        }
       },
       deep: true,
     },
-    selectedData: {
+
+    selectedResources: {
       handler(val) {
-        this.dataList = val;
-        console.log(val);
+        this.resources = val;
+        this.dataList = val.dataItemList;
+        this.toolList = val.toolItemList;
+      },
+      deep: true,
+    },
+    pageParamsFrom: {
+      handler(val) {
+        this.pageParams = val;
+      },
+      deep: true,
+    },
+    instanceFolk: {
+      async handler(val) {
+        this.instanceFolkData = val;
+        this.currentModel.tid = val.tid;
+        this.currentModel.toolUrl = val.toolUrl;
+        // await this.init();
+        this.status = false;
+        this.getFolkData();
+        // console.log(this.currentModelInfo);
       },
       deep: true,
     },
   },
   data() {
     return {
-      doi: this.modelDoi,
+      doi: "",
+      currentModel: this.currentModelInfo,
       modelIntroduction: {},
       ordinaryStateList: {},
       modelInstance: {},
@@ -207,8 +379,18 @@ export default {
       bindFileName: "",
       paramInput: "",
       uploadFileForm: new FormData(),
-      dataList: this.selectedData,
+      dataList: this.selectedResources.dataItemList,
+      toolList: this.selectedResources.toolItemList,
+      resources: this.selectedResources,
       selectDataValue: "",
+      resourceInfo: {
+        pid: "",
+        userId: "",
+        dataItemList: [],
+        toolItemList: [],
+      },
+      instanceFolkData: {},
+      stateListFolk: [],
       // internalEvents: [],
     };
   },
@@ -216,20 +398,33 @@ export default {
     stateList() {
       let stateList = this.ordinaryStateList;
       let datasetItem = this.datasetItem;
+
       for (let i = 0; i < stateList.length; i++) {
         let events = stateList[i].Event;
         for (let j = 0; j < events.length; j++) {
           //   events[j]["url"] = "";
           if (events[j].type == "response") {
-            let template = datasetItem.filter((dataset) => {
-              return (
-                dataset.name === events[j].ResponseParameter[0].datasetReference
-              );
-            });
+            let event = events[j];
+            let template = {};
+            if (event.hasOwnProperty("ResponseParameter")) {
+              template = datasetItem.filter((dataset) => {
+                return (
+                  dataset.name === event.ResponseParameter[0].datasetReference
+                );
+              });
+            } else if (event.hasOwnProperty("ControlParameter")) {
+              template = datasetItem.filter((dataset) => {
+                return (
+                  dataset.name === event.ControlParameter[0].datasetReference
+                );
+              });
+            }
             events[j]["datasetItem"] = template;
           }
         }
       }
+      // console.log(stateList);
+
       return stateList;
     },
   },
@@ -237,6 +432,10 @@ export default {
   methods: {
     test() {
       this.save();
+    },
+    getModelDoi(currentModel) {
+      let arr = currentModel.toolUrl.split("/");
+      this.doi = arr[arr.length - 1];
     },
 
     getStepInfo() {
@@ -291,6 +490,7 @@ export default {
     },
 
     async init() {
+      this.getModelDoi(this.currentModel);
       this.initLoading();
       let data = await get(
         `/GeoProblemSolving/modelTask/getModelBehavior/${this.doi}`
@@ -302,22 +502,20 @@ export default {
       this.datasetItem =
         data.mdlJson.ModelClass[0].Behavior[0].RelatedDatasets[0].DatasetItem;
       //预处理过程 STEP0
-      let data2 = await this.axios.get(
+
+      // if (this.pageParams.userId == undefined) {
+      //   // this.$store.commit("userLogout");
+      //   this.$router.push({ name: "Login" });
+      // } else {
+      let data2 = await get(
         `/GeoProblemSolving/modelTask/createTask/${this.md5}/${this.pageParams.userId}`
       );
-      let creatTaskResult = data2.data.data;
-
-      this.invokeForm.ip = creatTaskResult.ip;
-      this.invokeForm.port = creatTaskResult.port;
-      this.invokeForm.pid = creatTaskResult.pid;
+      this.invokeForm.ip = data2.ip;
+      this.invokeForm.port = data2.port;
+      this.invokeForm.pid = data2.pid;
       this.invokeForm.username = this.pageParams.userId;
+      // }
       this.fullscreenLoading.close();
-    },
-
-    //获得上传到数据容器的数据的id
-    getNewStateList(data) {
-      this.stateList = data;
-      this.getStateEvent();
     },
 
     //invoke --form表单创建
@@ -373,7 +571,8 @@ export default {
 
     async invokeTest() {
       this.loading();
-      this.createFilefromParam();
+      await this.createFilefromParam();
+      this.getStateEvent();
       //测试数据没有弄 直接运行 根据ip+id
       //invoke
       let { data } = await this.axios.post(
@@ -394,53 +593,52 @@ export default {
       for (let i = 0; i < stateList.length; i++) {
         let events = stateList[i].Event;
         for (let j = 0; j < events.length; j++) {
+          //判断如果是参数的话，重新绑定成为一个文件 之后上传 返回url绑定到mdl中去
           if (
             events[j].type == "response" &&
             events[j].datasetItem[0].hasOwnProperty("UdxDeclaration") &&
-            events[j].datasetItem[0].UdxDeclaration[0].UdxNode != ""
+            events[j].datasetItem[0].UdxDeclaration[0].UdxNode != "" &&
+            !events[
+              j
+            ].datasetItem[0].UdxDeclaration[0].UdxNode[0].UdxNode[0].hasOwnProperty(
+              "UdxNode"
+            )
           ) {
             let content = "";
-            this.uploadFileForm = new FormData();
+            let uploadFileForm = new FormData();
 
             let udxNodeList =
               events[j].datasetItem[0].UdxDeclaration[0].UdxNode[0].UdxNode;
             for (let k = 0; k < udxNodeList.length; k++) {
-              content += `<XDO name="${udxNodeList[k].name}" kernelType="${udxNodeList[k].type}" value="${udxNodeList[k].value}" />`;
+              if (udxNodeList[k].hasOwnProperty("value")) {
+                // content += `<XDO name="${udxNodeList[k].name}" kernelType="${udxNodeList[k].type}" value="${udxNodeList[k].value}" />`;
+                content += `<XDO name="${udxNodeList[k].name}" kernelType="string" value="${udxNodeList[k].value}" />`;
+              }
             }
+            if (content != "") {
+              content = "<Dataset> " + content + " </Dataset>";
+              let file = new File([content], events[j].name + ".xml", {
+                type: "text/plain",
+              });
+              uploadFileForm.append("file", file);
 
-            content = "<Dataset> " + content + " </Dataset>";
-
-            let file = new File([content], events[j].name + ".xml", {
-              type: "text/plain",
-            });
-            this.uploadFileForm.append("files", file);
-            this.createConfigFile();
-            await this.submitUpload(i, j);
+              // this.createConfigFile();
+              await this.submitUpload(i, j, uploadFileForm);
+            }
           }
         }
       }
     },
-    createConfigFile() {
-      let configContent = "<UDXZip><Name>";
-      configContent += "<add value='" + file.name + "' />";
-      configContent += "</Name>";
-      // let data = event.data[0];
-      configContent += "<DataTemplate type='none'>";
-      configContent += "</DataTemplate>";
-      configContent += "</UDXZip>";
-      let configFile = new File([configContent], "config.udxcfg", {
-        type: "text/plain",
-      });
-      this.uploadFileForm.append("files", configFile);
-    },
 
-    async submitUpload(stateIndex, eventIndex) {
+    async submitUpload(stateIndex, eventIndex, uploadFileForm) {
+      console.log(uploadFileForm.getAll("file"));
       let data = await post(
-        `/GeoProblemSolving/modelTask/uploadFileForm`,
-        this.uploadFileForm
+        `/GeoProblemSolving/dataItem/uploadSingle`,
+        uploadFileForm
       );
+      console.log(data);
 
-      let resultId = `http://111.229.14.128:8899/data?uid=${data}`;
+      let resultId = `http://221.226.60.2:8082/data?uid=${data}`;
       this.$set(this.stateList[stateIndex].Event[eventIndex], "url", resultId);
       console.log(this.stateList);
     },
@@ -452,20 +650,20 @@ export default {
           this.fullscreenLoading.close();
           clearInterval(this.timer);
           let outputUrl = this.record.outputs;
+          // this.$emit("outputRecords", this.record.outputs);
           this.getStateEventOut(outputUrl);
           return;
         } else {
-          let { data } = await this.axios.post(
+          let { data } = await post(
             "/GeoProblemSolving/modelTask/getRecord",
             refreshForm
           );
-          this.record = data.data.data;
+          this.record = data;
         }
       }, 2000);
     },
 
     getStateEventOut(outputUrl) {
-      console.log(outputUrl);
       let outList = this.stateList;
       outList.forEach((state, index) => {
         state.Event.forEach((event, eventIndex) => {
@@ -475,66 +673,54 @@ export default {
             }
           });
         });
+        // let createTime = new Date();
+        // state["createTime"] = createTime; // add create time
       });
+      let outList2 = {};
+      outList2["states"] = JSON.stringify(outList);
+      outList2["name"] = this.modelIntroduction.name;
+      outList2["description"] = this.modelIntroduction.description;
+      outList2["tid"] = this.currentModel.tid;
+      outList2["toolUrl"] = this.currentModel.toolUrl;
+
+      this.$emit("modelInstance", outList2);
+    },
+
+    getFolkData() {
+      console.log(this.instanceFolkData.statesJson, this.stateList);
+      let folkList = this.instanceFolkData.statesJson;
+      this.stateListFolk = this.instanceFolkData.statesJson;
+      console.log(this.stateListFolk);
+      // this.stateList = this.instanceFolkData.statesJson;
     },
 
     download(event) {
       window.open(event.url);
     },
-
-    dataURItoBlob(event) {
-      this.urlToBlob(event.url, (blob) => {
-        let file = new File([blob], this.bindFileName);
-        let formData = new FormData();
-
-        formData.append("file", file);
-        formData.append("description", event.description);
-        formData.append("type", "toolData");
-        formData.append("uploaderId", this.pageParams.userId);
-        formData.append("privacy", "private");
-        formData.append("folderId", this.pageParams.pageId);
-
-        this.axios
-          .post("/GeoProblemSolving/folder/uploadToFolder", formData)
-          .then((res) => {
-            console.log(res);
-            if (res.data.uploaded != null) {
-              this.$message({
-                message: "You have binded the resource Successfully!",
-                type: "success",
-              });
-            }
-          })
-          .catch(function (err) {
-            console.log(err);
-          });
-      });
-    },
-
-    urlToBlob(the_url, callback) {
-      let xhr = new XMLHttpRequest();
-      xhr.open("get", the_url, true);
-      xhr.send();
-      var that = this;
-      xhr.onreadystatechange = function () {
-        if (this.readyState === 4) {
-          let headers = xhr.getAllResponseHeaders();
-          //打印文件名，这里打印的是编码（因为兼容不同语言的数据文件名字）后的，前端用unescape('xxx')去解码，解码后是对应的名字
-          that.bindFileName = headers.split(";")[1].split("=")[1];
-        }
-      };
-
-      xhr.onload = function () {
-        if (this.status == 200) {
-          if (callback) {
-            callback(this.response);
-          }
-        }
-      };
-    },
+    getCreateTime() {},
 
     async bind(event) {
-      this.dataURItoBlob(event);
+      // this.dataURItoBlob(event);
+      let resource = this.resources;
+      let url = event.url;
+      let fileName = event.name;
+      this.transationDataItemList = {
+        url: event.url,
+        name: event.name,
+        isDirect: false,
+      };
+      resource.dataItemList.push(this.transationDataItemList);
+
+      let data = await post(
+        `/GeoProblemSolving/r/resource/update/${resource.pid}`,
+        resource
+      );
+      if (data.msg == "成功") {
+        this.$message({
+          message: "You have collect your resource successfully",
+          type: "success",
+        });
+      }
     },
 
     inEventList(state) {
@@ -550,29 +736,20 @@ export default {
     },
     filterUdxNode(event) {
       if (event.datasetItem[0].hasOwnProperty("UdxDeclaration")) {
-        let udxNode = event.datasetItem[0].UdxDeclaration[0].UdxNode;
-        return udxNode;
+        if (event.datasetItem[0].UdxDeclaration[0].UdxNode != "") {
+          if (
+            event.datasetItem[0].UdxDeclaration[0].UdxNode[0].UdxNode[0].hasOwnProperty(
+              "UdxNode"
+            )
+          ) {
+            return false;
+          } else {
+            let udxNode = event.datasetItem[0].UdxDeclaration[0].UdxNode;
+            return udxNode;
+          }
+        }
       }
     },
-
-    // internalEventList(event) {
-    //   let datasetItem = this.datasetItem;
-    //   return datasetItem.filter((dataset) => {
-    //     return (
-    //       dataset.name === event.ResponseParameter[0].datasetReference &&
-    //       dataset.type === "internal"
-    //     );
-    //   });
-    // },
-    // otherEventList(event) {
-    //   let datasetItem = this.datasetItem;
-    //   return datasetItem.filter((dataset) => {
-    //     return (
-    //       dataset.name === event.ResponseParameter[0].datasetReference &&
-    //       dataset.type === "external"
-    //     );
-    //   });
-    // },
 
     loading() {
       this.fullscreenLoading = this.$loading({
@@ -612,26 +789,26 @@ export default {
         console.log("返回记录成功");
         // this.recordList = data.data.data;
         let recordList = data.data.data;
-        console.log(recordList);
+        // console.log(recordList);
         for (let i = 0; i < recordList.length; i++) {
           let modelInstanceId = recordList[i].modelInstanceId;
-          console.log(modelInstanceId);
+          // console.log(modelInstanceId);
           let item = await this.axios.get(
             `/GeoProblemSolving/modelItem/getModelInstance/${modelInstanceId}`
           );
-          console.log(item);
+          // console.log(item);
           this.recordList.push(item);
         }
       } else {
         console.log("返回记录失败");
       }
-      console.log(this.recordList);
+      // console.log(this.recordList);
     },
 
     selectDatatoModel(value, stateIndex, eventIndex) {
       //   console.log(value, index);
       this.$set(this.stateList[stateIndex].Event[eventIndex], "url", value);
-      this.newStateList();
+      //   this.newStateList();
     },
   },
 
@@ -639,7 +816,10 @@ export default {
     // debugger;
     this.getStepInfo();
     this.getUserInfo();
-    this.init();
+    // console.log(this.currentModel,this.currentModelInfo);
+    // if (this.currentModel != "") {
+    //   this.init();
+    // }
   },
 
   beforeDestroy() {

@@ -19,6 +19,7 @@ public class ReResourceService {
     private ReResourceRepository resourceRepository;
     public JsonResult getResources(String pid) {
         Resource resource =resourceRepository.findFirstByPid(pid).orElseThrow(MyException::noObject);
+
         return  ResultUtils.success(resource);
     }
 

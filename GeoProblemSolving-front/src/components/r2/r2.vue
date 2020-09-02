@@ -16,16 +16,21 @@
       title="Please upload the file"
       class="resourceDialog"
     >
-      <el-steps :active="1" finish-status="success" simple style="margin-top: 20px">
+      <el-steps :active="active" finish-status="success" simple style="margin-top: 20px">
         <el-step title="Select Model"></el-step>
         <el-step title="Upload Data"></el-step>
       </el-steps>
 
       <div v-show="active==0" style="height:600px">
-        <manage-tools :userId="userInfo.userId" @selectTools="selectTools" footer-hide></manage-tools>
+        <manage-tools
+          :userId="userInfo.userId"
+          @selectTools="selectTools"
+          footer-hide
+          :initTools="initResource.toolItemList"
+        ></manage-tools>
       </div>
       <div v-show="active==1">
-        <data-upload @uploadDataList="uploadDataList"></data-upload>
+        <data-upload @uploadDataList="uploadDataList" :initDataItems="initDirectResource"></data-upload>
       </div>
       <div class="stepBtn">
         <el-button @click="nextStep" v-show="active!=1">Next</el-button>
@@ -57,21 +62,23 @@ export default {
   data() {
     return {
       projectId: this.$route.params.projectId,
-      userInfo: JSON.parse(sessionStorage.getItem("userInfo")),
+      userInfo: this.$store.getters.userInfo,
       projectInfo: {},
       userRole: "Visitor",
       contentWidth: 0,
       contentHeight: 0,
       resourceCollectionModal: false,
-      dataList: [],
       active: 0,
-      toolList: [{}],
       resourceInfo: {
         pid: "",
         userId: "",
         dataItemList: [],
         toolItemList: [],
       },
+      initResource: { toolItemList: [], toolItemList: [] },
+      initDirectResource: [],
+      update: false,
+      stepInfo: {},
     };
   },
 
@@ -106,19 +113,30 @@ export default {
 
           this.$store.commit("setProjectInfo", data[0]);
         } else {
-          console.log(data);
+          // console.log(data);
         }
       } else {
         this.identifyUserRole();
       }
     },
-    // async getResources() {
-    //   let data = await get(
-    //     `/GeoProblemSolving/r/resource/get/${this.projectId}`
-    //   );
-    //   console.log(data);
-    //    this.stepInfo.toolList = data.toolIds;
-    // },
+
+    async getResources() {
+      let { data } = await this.axios.get(
+        `/GeoProblemSolving/r/resource/get/${this.projectId}`
+      );
+      if (data.data == null) {
+        this.initResource.toolItemList = [];
+        this.initResource.dataItemList = [];
+        this.initDirectResource = [];
+        this.update = false;
+      } else {
+        this.initResource = data.data.data;
+        this.initDirectResource = this.filterDirectData(
+          this.initResource.dataItemList
+        );
+        this.update = true;
+      }
+    },
 
     identifyUserRole() {
       //Manager|Member|Visitor
@@ -144,18 +162,29 @@ export default {
     },
 
     doubleClick(val) {
-      console.log(val);
+      this.stepInfo = val;
+      // console.log(val);
       if (val.type == "Resource collection") {
         this.resourceCollectionModal = true;
-        // this.$router.push({
-        //   name: "r_dataProcessing",
-        //   params: { stepId: stepId },
-        // });
+     
+      } else if (val.type == "Model construction") {
+        this.$router.push({
+          name: "modelConstruction",
+          params: {
+            projectId: this.projectId,
+            stepName: val.name,
+            stepId: val.stepID,
+            stepType: val.type,
+          },
+        });
       }
     },
+
     uploadDataList(list) {
-      this.dataList = list;
-      console.log(this.dataList);
+      this.initResource.dataItemList = list;
+      this.initDirectResource = this.filterDirectData(
+        this.initResource.dataItemList
+      );
     },
     nextStep() {
       this.active += 1;
@@ -165,31 +194,51 @@ export default {
     },
 
     selectTools(val) {
-      this.toolList = val;
+      this.initResource.toolItemList = val;
       // console.log(this.toolList);
     },
 
     async submitResource() {
       let resource = this.resourceInfo;
-      resource["pid"] = this.projectId;
-      resource["userId"] = this.userInfo.userId;
-      resource["dataItemList"] = this.dataList;
-      resource["toolItemList"] = this.toolList;
-      let data = await post(`/GeoProblemSolving/r/resource/save`, resource);
-      console.log(data);
-      if (data.msg == "成功") {
-        this.$message({
-          message: "You have collect your resource successfully",
-          type: "success",
-        });
-        this.resourceCollectionModal = false;
+      resource["dataItemList"] = this.initResource.dataItemList;
+      resource["toolItemList"] = this.initResource.toolItemList;
+      if (this.update == false) {
+        resource["pid"] = this.projectId;
+        resource["userId"] = this.userInfo.userId;
+        let data = await post(`/GeoProblemSolving/r/resource/save`, resource);
+        if (data.msg == "成功") {
+          this.$message({
+            message: "You have collect your resource successfully",
+            type: "success",
+          });
+        }
+        this.active == 0;
+      } else {
+        let data = await post(
+          `/GeoProblemSolving/r/resource/update/${this.projectId}`,
+          resource
+        );
+        if (data.msg == "成功") {
+          this.$message({
+            message: "You have update your resource successfully",
+            type: "success",
+          });
+          this.active == 0;
+        }
       }
+      this.resourceCollectionModal = false;
+    },
+    filterDirectData(list) {
+      return list.filter((item) => {
+        return item.isDirect == true;
+      });
     },
   },
-  created() {
+  async created() {
     this.getUserInfo();
     this.getProjectInfo();
     this.initSize();
+    this.getResources();
   },
   mounted() {},
 };

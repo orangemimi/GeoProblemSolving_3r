@@ -106,7 +106,7 @@ export default {
         type: "text/plain",
       });
       this.configFile = configFile;
-      this.uploadFileForm.append("files", configFile);
+      this.uploadFileForm.append("file", configFile);
     },
 
     onBeforeUpload() {
@@ -117,15 +117,15 @@ export default {
     async submitUpload(data) {
       this.uploadFileForm = new FormData();
       this.createAndUploadParamFile();
-      this.uploadFileForm.append("files", this.fileList[0].raw);
-      if (this.uploadFileForm.getAll("files").length === 0) {
+      this.uploadFileForm.append("file", this.fileList[0].raw);
+      if (this.uploadFileForm.getAll("file").length === 0) {
         this.$message({
           message: "请先选择文件",
           type: "warning",
         });
       } else {
         let data = await post(
-          `/GeoProblemSolving/modelTask/uploadFileForm`,
+         `/GeoProblemSolving/dataItem/uploadSingle`,
           this.uploadFileForm
         );
         // console.log(data);
@@ -136,7 +136,7 @@ export default {
         });
         let stateIndex = this.stateEventIndex.stateIndex;
         let eventIndex = this.stateEventIndex.eventIndex;
-        let resultId = `http://111.229.14.128:8899/data?uid=${data}`;
+        let resultId = `http://221.226.60.2:8082/data?uid=${data}`;
         this.$set(
           this.stateList[stateIndex].Event[eventIndex],
           "url",

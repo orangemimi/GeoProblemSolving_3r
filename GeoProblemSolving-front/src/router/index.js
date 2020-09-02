@@ -36,9 +36,9 @@ const routes = [{
         name: 'r_dataProcessing',
         component: resolve => (require(["@/components/r2/conceptMap"], resolve))
       }, {
-        path: 'r2/:projectId/test',
-        name: 'test',
-        component: resolve => (require(["@/components/r2/test"], resolve)),
+        path: 'r2/:projectId/modelConstruction',
+        name: 'modelConstruction',
+        component: resolve => (require(["@/components/r2/modelConstruction"], resolve)),
         children: [{
           path: 'modelItemInfo/:doi',
           name: 'modelItemInfo',

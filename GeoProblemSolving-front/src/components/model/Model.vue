@@ -54,7 +54,30 @@
                   >{{modelInEvent.description}}</p>
                 </el-col>
 
-                <el-col :span="6" :offset="1" v-if="modelInEvent.datasetItem[0].type != `internal`">
+                <el-row v-if="modelInEvent.datasetItem[0].type == `internal`">
+                  <div v-if="filterUdxNode(modelInEvent)">
+                    <el-table border :data="filterUdxNode(modelInEvent)[0].UdxNode">
+                      <el-table-column prop="name" label="Parameter" width="180"></el-table-column>
+                      <el-table-column prop="description" label="Description" width="180"></el-table-column>
+                      <el-table-column prop="type" label="Type"></el-table-column>
+                      <el-table-column label="Value">
+                        <template slot-scope="scope">
+                          <el-input v-model="scope.row.value"></el-input>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                  </div>
+                  <el-col :span="6" :offset="1" v-else>
+                    <file
+                      @newStateList="getNewStateList"
+                      :fileIndex="{'stateIndex':index,'eventIndex':inEventIndex}"
+                      :initStateList="stateList"
+                      :disabled="!status"
+                      :datasetItem="datasetItem"
+                    ></file>
+                  </el-col>
+                </el-row>
+                <el-col :span="6" :offset="1" v-else>
                   <file
                     @newStateList="getNewStateList"
                     :fileIndex="{'stateIndex':index,'eventIndex':inEventIndex}"
@@ -64,20 +87,7 @@
                   ></file>
                 </el-col>
               </el-row>
-              <el-row v-if="modelInEvent.datasetItem[0].type == `internal`">
-                <div v-if="filterUdxNode(modelInEvent)">
-                  <el-table border :data="filterUdxNode(modelInEvent)[0].UdxNode">
-                    <el-table-column prop="name" label="Parameter" width="180"></el-table-column>
-                    <el-table-column prop="description" label="Description" width="180"></el-table-column>
-                    <el-table-column prop="type" label="Type"></el-table-column>
-                    <el-table-column label="Value">
-                      <template slot-scope="scope">
-                        <el-input v-model="scope.row.value"></el-input>
-                      </template>
-                    </el-table-column>
-                  </el-table>
-                </div>
-              </el-row>
+
               <el-row>
                 <el-divider class="eventDivider"></el-divider>
               </el-row>
@@ -187,20 +197,33 @@ export default {
     stateList() {
       let stateList = this.ordinaryStateList;
       let datasetItem = this.datasetItem;
+
       for (let i = 0; i < stateList.length; i++) {
         let events = stateList[i].Event;
-        
         for (let j = 0; j < events.length; j++) {
+          //   events[j]["url"] = "";
           if (events[j].type == "response") {
-            let template = datasetItem.filter((dataset) => {
-              return (
-                dataset.name === events[j].ResponseParameter[0].datasetReference
-              );
-            });
+            let event = events[j];
+            let template = {};
+            if (event.hasOwnProperty("ResponseParameter")) {
+              template = datasetItem.filter((dataset) => {
+                return (
+                  dataset.name === event.ResponseParameter[0].datasetReference
+                );
+              });
+            } else if (event.hasOwnProperty("ControlParameter")) {
+              template = datasetItem.filter((dataset) => {
+                return (
+                  dataset.name === event.ControlParameter[0].datasetReference
+                );
+              });
+            }
             events[j]["datasetItem"] = template;
           }
         }
       }
+      console.log(stateList);
+
       return stateList;
     },
   },
@@ -360,58 +383,101 @@ export default {
       this.getOutputs(refreshForm);
     },
 
+    // async createFilefromParam() {
+    //   let stateList = this.stateList;
+    //   for (let i = 0; i < stateList.length; i++) {
+    //     let events = stateList[i].Event;
+    //     for (let j = 0; j < events.length; j++) {
+    //       if (
+    //         events[j].type == "response" &&
+    //         events[j].datasetItem[0].hasOwnProperty("UdxDeclaration") &&
+    //         events[j].datasetItem[0].UdxDeclaration[0].UdxNode != ""
+    //       ) {
+    //         let content = "";
+    //         this.uploadFileForm = new FormData();
+
+    //         let udxNodeList =
+    //           events[j].datasetItem[0].UdxDeclaration[0].UdxNode[0].UdxNode;
+    //         for (let k = 0; k < udxNodeList.length; k++) {
+    //           content += `<XDO name="${udxNodeList[k].name}" kernelType="${udxNodeList[k].type}" value="${udxNodeList[k].value}" />`;
+    //         }
+
+    //         content = "<Dataset> " + content + " </Dataset>";
+
+    //         let file = new File([content], events[j].name + ".xml", {
+    //           type: "text/plain",
+    //         });
+    //         this.uploadFileForm.append("files", file);
+    //         this.createConfigFile();
+    //         await this.submitUpload(i, j);
+    //       }
+    //     }
+    //   }
+    // },
+    // createConfigFile() {
+    //   let configContent = "<UDXZip><Name>";
+    //   configContent += "<add value='" + file.name + "' />";
+    //   configContent += "</Name>";
+    //   // let data = event.data[0];
+    //   configContent += "<DataTemplate type='none'>";
+    //   configContent += "</DataTemplate>";
+    //   configContent += "</UDXZip>";
+    //   let configFile = new File([configContent], "config.udxcfg", {
+    //     type: "text/plain",
+    //   });
+    //   this.uploadFileForm.append("files", configFile);
+    // },
     async createFilefromParam() {
       let stateList = this.stateList;
       for (let i = 0; i < stateList.length; i++) {
         let events = stateList[i].Event;
         for (let j = 0; j < events.length; j++) {
+          //判断如果是参数的话，重新绑定成为一个文件 之后上传 返回url绑定到mdl中去
           if (
             events[j].type == "response" &&
             events[j].datasetItem[0].hasOwnProperty("UdxDeclaration") &&
-            events[j].datasetItem[0].UdxDeclaration[0].UdxNode != ""
+            events[j].datasetItem[0].UdxDeclaration[0].UdxNode != "" &&
+            !events[
+              j
+            ].datasetItem[0].UdxDeclaration[0].UdxNode[0].UdxNode[0].hasOwnProperty(
+              "UdxNode"
+            )
           ) {
             let content = "";
-            this.uploadFileForm = new FormData();
+            let uploadFileForm = new FormData();
 
             let udxNodeList =
               events[j].datasetItem[0].UdxDeclaration[0].UdxNode[0].UdxNode;
             for (let k = 0; k < udxNodeList.length; k++) {
-              content += `<XDO name="${udxNodeList[k].name}" kernelType="${udxNodeList[k].type}" value="${udxNodeList[k].value}" />`;
+              if (udxNodeList[k].hasOwnProperty("value")) {
+                // content += `<XDO name="${udxNodeList[k].name}" kernelType="${udxNodeList[k].type}" value="${udxNodeList[k].value}" />`;
+                content += `<XDO name="${udxNodeList[k].name}" kernelType="string" value="${udxNodeList[k].value}" />`;
+              }
             }
+            if (content != "") {
+              content = "<Dataset> " + content + " </Dataset>";
+              let file = new File([content], events[j].name + ".xml", {
+                type: "text/plain",
+              });
+              uploadFileForm.append("file", file);
 
-            content = "<Dataset> " + content + " </Dataset>";
-
-            let file = new File([content], events[j].name + ".xml", {
-              type: "text/plain",
-            });
-            this.uploadFileForm.append("files", file);
-            this.createConfigFile();
-            await this.submitUpload(i, j);
+              // this.createConfigFile();
+              await this.submitUpload(i, j, uploadFileForm);
+            }
           }
         }
       }
     },
-    createConfigFile() {
-      let configContent = "<UDXZip><Name>";
-      configContent += "<add value='" + file.name + "' />";
-      configContent += "</Name>";
-      // let data = event.data[0];
-      configContent += "<DataTemplate type='none'>";
-      configContent += "</DataTemplate>";
-      configContent += "</UDXZip>";
-      let configFile = new File([configContent], "config.udxcfg", {
-        type: "text/plain",
-      });
-      this.uploadFileForm.append("files", configFile);
-    },
 
-    async submitUpload(stateIndex, eventIndex) {
+    async submitUpload(stateIndex, eventIndex, uploadFileForm) {
+      console.log(uploadFileForm.getAll("file"));
       let data = await post(
-        `/GeoProblemSolving/modelTask/uploadFileForm`,
-        this.uploadFileForm
+        `/GeoProblemSolving/dataItem/uploadSingle`,
+        uploadFileForm
       );
+      console.log(data);
 
-      let resultId = `http://111.229.14.128:8899/data?uid=${data}`;
+      let resultId = `http://221.226.60.2:8082/data?uid=${data}`;
       this.$set(this.stateList[stateIndex].Event[eventIndex], "url", resultId);
       console.log(this.stateList);
     },
@@ -521,29 +587,20 @@ export default {
     },
     filterUdxNode(event) {
       if (event.datasetItem[0].hasOwnProperty("UdxDeclaration")) {
-        let udxNode = event.datasetItem[0].UdxDeclaration[0].UdxNode;
-        return udxNode;
+        if (event.datasetItem[0].UdxDeclaration[0].UdxNode != "") {
+          if (
+            event.datasetItem[0].UdxDeclaration[0].UdxNode[0].UdxNode[0].hasOwnProperty(
+              "UdxNode"
+            )
+          ) {
+            return false;
+          } else {
+            let udxNode = event.datasetItem[0].UdxDeclaration[0].UdxNode;
+            return udxNode;
+          }
+        }
       }
     },
-
-    // internalEventList(event) {
-    //   let datasetItem = this.datasetItem;
-    //   return datasetItem.filter((dataset) => {
-    //     return (
-    //       dataset.name === event.ResponseParameter[0].datasetReference &&
-    //       dataset.type === "internal"
-    //     );
-    //   });
-    // },
-    // otherEventList(event) {
-    //   let datasetItem = this.datasetItem;
-    //   return datasetItem.filter((dataset) => {
-    //     return (
-    //       dataset.name === event.ResponseParameter[0].datasetReference &&
-    //       dataset.type === "external"
-    //     );
-    //   });
-    // },
 
     loading() {
       this.fullscreenLoading = this.$loading({

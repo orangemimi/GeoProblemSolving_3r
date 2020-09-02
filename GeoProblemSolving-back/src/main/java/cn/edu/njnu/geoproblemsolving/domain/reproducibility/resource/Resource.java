@@ -21,5 +21,6 @@ public class Resource extends BaseEntity {
     String pid;
     List<DataItem> dataItemList;
     List<ToolItem> toolItemList;
+    List<DataItem> intermediateDataItemList;
 
 }

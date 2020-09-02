@@ -176,19 +176,19 @@ export default {
   props: ["stepInfo", "userRole", "projectInfo"],
   components: {
     manageTools,
-    Avatar
+    Avatar,
   },
   watch: {
     stepInfo(val) {
       this.getAllTools();
-    }
+    },
   },
   data() {
     return {
       ops: {
         bar: {
-          background: "#808695"
-        }
+          background: "#808695",
+        },
       },
       userInfo: this.$store.getters.userInfo,
       toolList: [],
@@ -197,13 +197,13 @@ export default {
       toolsetToolList: [],
       showToolsetToolsModal: false,
       panelList: [],
-      jupyterModal: false
+      jupyterModal: false,
     };
   },
   mounted() {
     this.getAllTools();
 
-    Date.prototype.Format = function(fmt) {
+    Date.prototype.Format = function (fmt) {
       var o = {
         "M+": this.getMonth() + 1, //月份
         "d+": this.getDate(), //日
@@ -211,7 +211,7 @@ export default {
         "m+": this.getMinutes(), //分
         "s+": this.getSeconds(), //秒
         "q+": Math.floor((this.getMonth() + 3) / 3), //季度
-        "S+": this.getMilliseconds() //毫毛
+        "S+": this.getMilliseconds(), //毫毛
       };
       if (/(y+)/.test(fmt))
         fmt = fmt.replace(
@@ -253,7 +253,7 @@ export default {
         }
       }
     },
-    
+
     getAllTools() {
       if (
         this.stepInfo.toolList != null &&
@@ -277,7 +277,7 @@ export default {
         let data = await get(
           `/GeoProblemSolving/tool/inquiry?key=tid&value=${toolIds[i]}`
         );
-        console.log(data);
+        // console.log(data);
         ToolInfos.push(data[0]);
         if (--flagCount < 1) {
           var sortTools = [];
@@ -306,7 +306,7 @@ export default {
               "&value=" +
               toolsetIds[i]
           )
-          .then(res => {
+          .then((res) => {
             if (res.data == "Offline") {
               this.$store.commit("userLogout");
               this.$router.push({ name: "Login" });
@@ -330,7 +330,7 @@ export default {
               }
             }
           })
-          .catch(err => {
+          .catch((err) => {
             console.log(err);
           });
       }
@@ -353,10 +353,10 @@ export default {
       form["userId"] = this.$store.getters.userId;
       this.axios
         .post("/GeoProblemSolving/history/save", form)
-        .then(res => {
+        .then((res) => {
           console.log(res.data);
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err.data);
         });
     },
@@ -367,7 +367,7 @@ export default {
         time: new Date().Format("yyyy-MM-dd HH:mm:ss"),
         who: this.userInfo.userName,
         content: "used a tool",
-        toolType: toolInfo.toolName
+        toolType: toolInfo.toolName,
       };
       this.$emit("toolBehavior", toolRecords);
       this.addHistoryEvent(this.stepInfo.stepId, toolRecords);
@@ -378,7 +378,7 @@ export default {
       }
 
       var toolURL =
-        '<iframe src="' +
+        '<iframe src="http://' +
         toolInfo.toolUrl +
         "?userName=" +
         this.userInfo.userName +
@@ -387,6 +387,7 @@ export default {
         "&groupID=" +
         this.stepInfo.stepId +
         '" style="width: 100%;height:100%;" frameborder="0"></iframe>';
+      console.log(toolURL);
 
       var demoPanelTimer = null;
       var panel = jsPanel.create({
@@ -397,12 +398,12 @@ export default {
         content: toolURL,
         disableOnMaximized: true,
         dragit: {
-          containment: 5
+          containment: 5,
         },
         closeOnEscape: true,
-        onclosed: function(panel, status, closedByUser) {
+        onclosed: function (panel, status, closedByUser) {
           window.clearTimeout(demoPanelTimer);
-        }
+        },
       });
       // panel.resizeit("disable");
       $(".jsPanel-content").css("font-size", "0");
@@ -415,14 +416,14 @@ export default {
           "/GeoProblemSolving/jupyter/inquiry?projectId=" +
             this.projectInfo.projectId
         )
-        .then(res => {
+        .then((res) => {
           if (res.data == "None") {
             this.prepareJupyter();
           } else {
             this.jupyterLogin(res.data[0].jupyterUserId);
           }
         })
-        .catch(err => {});
+        .catch((err) => {});
     },
     jupyterLogin(jupyterUserId) {
       let jupyterUrl = "";
@@ -438,7 +439,7 @@ export default {
       let loginInfo = {
         JupyterUser: jupyterUserId,
         userId: this.userInfo.userId,
-        projectId: this.projectInfo.projectId
+        projectId: this.projectInfo.projectId,
       };
       let info = JSON.stringify(loginInfo);
 
@@ -446,11 +447,11 @@ export default {
       data.append("login-info", info);
       this.axios
         .post(jupyterUrl + "/hub/login?next=/hub/user/" + jupyterUserId, data)
-        .then(res => {
+        .then((res) => {
           let url = jupyterUrl + "/hub/user/" + jupyterUserId;
           window.open(url);
         })
-        .catch(err => {
+        .catch((err) => {
           let url = jupyterUrl + "/hub/user/" + jupyterUserId;
           window.open(url);
         });
@@ -475,33 +476,33 @@ export default {
           { name: name_jupyterhub },
           {
             headers: {
-              Authorization: "token 50e3fa2f34c74d36b09e967733a621b0"
-            }
+              Authorization: "token 50e3fa2f34c74d36b09e967733a621b0",
+            },
           }
         )
-        .then(res => {
+        .then((res) => {
           this.createJupyterUser(name_jupyterhub);
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err);
         });
     },
     createJupyterUser(name_jupyterhub) {
       let data = {
         projectId: this.projectInfo.projectId,
-        jupyterUserId: name_jupyterhub
+        jupyterUserId: name_jupyterhub,
       };
       this.axios
         .post("/GeoProblemSolving/jupyter/create", data)
-        .then(res => {
+        .then((res) => {
           if (res.data == "Success") {
             this.$Notice.info({
-              desc: "Create Jupyter notebook successfully. It can be used now."
+              desc: "Create Jupyter notebook successfully. It can be used now.",
             });
           }
         })
-        .catch(err => {});
-    }
-  }
+        .catch((err) => {});
+    },
+  },
 };
 </script>

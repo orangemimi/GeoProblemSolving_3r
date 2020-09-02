@@ -16,9 +16,6 @@
             <el-button round size="small" type="primary">Choose Files</el-button>
           </el-upload>
         </el-col>
-        <el-col>
-          <el-button round size="small"  @click="getData" class="submitBtn">OK</el-button>
-        </el-col>
       </el-row>
       <el-row>
         <vue-scroll :ops="ops" style="height:400px;width:300px">
@@ -37,10 +34,12 @@ import { get, del, post, put } from "../../../axios";
 export default {
   data() {
     return {
+      initData: this.initDataItems,
       uploadFileForm: new FormData(), //上传文件的form
       fileList: [], //el-upload上传的文件列表,
       fileListUrl: [],
       dataItemList: [],
+      transationDataItemList: [],
       resultUrl: "",
       file: {},
       ops: {
@@ -50,15 +49,28 @@ export default {
       },
     };
   },
-  //   watch: {
-  // dataItemList: {
-  //   handler(val) {
-  //     this.$emit("uploadDataList", val);
-  //   },
-  //   deep: true,
-  // },
-  //   },
+  watch: {
+    initDataItems: {
+      handler(val) {
+        this.initData = val;
+        console.log(this.initData);
+      },
+      deep: true,
+    },
+    transationDataItemList: {
+      handler(val) {
+        this.dataItemList.push(val);
+        this.$emit("uploadDataList", this.dataItemList);
+      },
+      deep: true,
+    },
+  },
   methods: {
+    init() {
+      // this.dataItemList = initData;
+      this.$set(this, "dataItemList", this.initData);
+      console.log(this.dataItemList);
+    },
     download() {
       let url = `/GeoProblemSolving/dataItem/download/${this.eventUrl.value}`;
       window.open(url);
@@ -89,31 +101,30 @@ export default {
         `/GeoProblemSolving/dataItem/uploadSingle`,
         this.uploadFileForm
       );
-    //   console.log(data);
-    //   this.$message({
-    //     message: "Upload Successfully!",
-    //     type: "success",
-    //   });
-      let index = 0;
+
       let resultUrl = `http://221.226.60.2:8082/data?uid=${data}`;
       let name = this.file.name;
-      let arr = {
+      this.transationDataItemList = {
         url: resultUrl,
         name: name,
-        index: index,
+        isDirect: true, //if true -- 是直接上传的数据    --false是中间数据
       };
-      this.dataItemList.push(arr);
-      //   this.$set(this.dataItemList, this.dataItemList);
-      index++;
-      console.log(this.dataItemList, index);
+      // this.dataItemList.push(this.transationDataItemList);
     },
 
     getData() {
       this.$emit("uploadDataList", this.dataItemList);
     },
   },
+  props: {
+    initDataItems: {
+      type: Array,
+    },
+  },
 
-  watch: {},
+  created() {
+    this.init();
+  },
 };
 </script>
 

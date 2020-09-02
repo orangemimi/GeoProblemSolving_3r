@@ -791,7 +791,7 @@ export default {
     },
     addTooltoStep(evt) {
       var addedToolId = this.stepToolsShow[evt.newDraggableIndex].tid;
-      console.log(addedToolId);
+      // console.log(addedToolId);
       for (var i = 0; i < this.publicTools.length; i++) {
         if (this.publicTools[i].tid == addedToolId) {
           this.publicTools.splice(i, 1);
