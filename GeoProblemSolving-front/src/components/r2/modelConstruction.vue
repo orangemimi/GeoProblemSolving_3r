@@ -116,15 +116,19 @@ export default {
     },
     filterModelInstance() {
       let data = this.modelInstances;
-      return data.filter((item) => {
-        return (item.statesJson = JSON.parse(item.states));
-      });
+      return data.filter((item) => (item.statesJson = JSON.parse(item.states)));
     },
     //create Map instance
     filterCreateMapInstances() {
-      return this.filterModelInstance.filter((instance) => {
-        return instance.checkedForMap == true;
-      });
+      return this.filterModelInstance.filter(
+        (instance) => instance.checkedForMap == true
+      );
+    },
+    filterDirectDataResource() {
+      return this.selectedData.filter((data) => data.isDirect == true);
+    },
+    filterIndirectDataResource() {
+      return this.selectedData.filter((data) => data.isDirect == false);
     },
   },
   data() {
@@ -270,22 +274,20 @@ export default {
     folkInstance(instance) {
       console.log(instance);
       this.instanceFolk = instance;
-      // this.currentModelInfo.tid = instance.tid;
-      // this.currentModelInfo.toolUrl = instance.toolUrl;
-      // this.getModelDoi(url);
     },
 
     getModelDoi(url) {
       let arr = url.split("/");
       this.modelDoi = arr[arr.length - 1];
     },
+
     downloadDataResource(data) {
-      // console.log(data);
       window.open(data.url);
     },
 
     //创建mxgraph
     createMap() {
+      // getXmlFromInstances
       console.log(this.filterCreateMapInstances);
       if (this.filterCreateMapInstances == "") {
         this.$message({
@@ -293,6 +295,23 @@ export default {
           type: "error",
         });
       } else {
+        let checkedInstances = this.filterCreateMapInstances;
+        let statesJson = [];
+        for (let i = 0; i < checkedInstances.length; i++) {
+          statesJson[i] = checkedInstances[i].statesJson;
+        }
+
+        console.log(
+          this.filterDirectDataResource,
+          this.filterCreateMapInstances
+        );
+
+        // checkedInstances.filter((instance) => {
+        //   let statesJson = instance.statesJson;
+        //   statesJson.filter((state) => {
+        //     let events = state.Event;
+        //   });
+        // });
       }
     },
   },
@@ -332,18 +351,17 @@ export default {
   cursor: pointer;
   background-color: rgba(99, 142, 197, 0.2);
 
-//  -webkit-transform: translateY(-4px);
-//     -ms-transform: translateY(-4px);
-//     transform: translateY(-4px);
-    -webkit-transition: all 0.2s ease-out;
-    transition: all 0.2s ease-out;
+  //  -webkit-transform: translateY(-4px);
+  //     -ms-transform: translateY(-4px);
+  //     transform: translateY(-4px);
+  -webkit-transition: all 0.2s ease-out;
+  transition: all 0.2s ease-out;
   .data_info_hover {
     display: block;
     float: left;
     // right: 5px;
     color: rgb(45, 54, 92);
     // clear: both;
-   
   }
 }
 </style>

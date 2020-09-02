@@ -19,7 +19,8 @@
         <div class="toolbarTop">
           <!-- <el-button @click="saveGraph" type="text" size="mini">Output</el-button> -->
           <el-button @click="exportGraph" type="text" size="mini">Export as XML</el-button>
-          <!-- <el-button @click="importGraph" type="text" size="mini">Import mxGraph</el-button> -->
+          <input @change="readFile" ref="importInput" class="hide" type="file" />
+          <el-button @click="importGraphFile" type="text" size="mini">Import mxGraph</el-button>
           <el-button
             @click="checked?deleteCells():deleteCellsConfirmDialog()"
             type="text"
@@ -326,18 +327,42 @@ export default {
       });
       FileSaver.saveAs(blob, "mxgraph.xml");
     },
+
+
+
+    importGraphFile(evt) {
+      this.$refs["importInput"].click();
+    },
+    readFile(evt) {
+      const file = evt.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const txt = e.target.result;
+        this.importGraph(txt);
+      };
+      reader.readAsText(file);
+    },
+
     importGraph(xmlTxt) {
       //xml to json
-      this.getModel().beginUpdate();
+      this.graph.getModel().beginUpdate();
       try {
         const doc = mxUtils.parseXml(xmlTxt);
         const root = doc.documentElement;
         const dec = new mxCodec(root.ownerDocument);
-        dec.decode(root, this.getModel());
+        dec.decode(root, this.graph.getModel());
       } finally {
-        this.getModel().endUpdate();
+        this.graph.getModel().endUpdate();
       }
-      this._restoreModel();
+      this.restoreModel();
+    },
+
+    restoreModel() {
+      Object.values(this.graph.getModel().cells).forEach((cell) => {
+        if (cell.vertex && cell.data) {
+          cell.data = JSON.parse(cell.data);
+        }
+      });
     },
 
     closeDialog(val) {

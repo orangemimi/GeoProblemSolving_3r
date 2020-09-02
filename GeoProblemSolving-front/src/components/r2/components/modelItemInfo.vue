@@ -734,6 +734,7 @@ export default {
         return value.type === "noresponse";
       });
     },
+    
     filterUdxNode(event) {
       if (event.datasetItem[0].hasOwnProperty("UdxDeclaration")) {
         if (event.datasetItem[0].UdxDeclaration[0].UdxNode != "") {
