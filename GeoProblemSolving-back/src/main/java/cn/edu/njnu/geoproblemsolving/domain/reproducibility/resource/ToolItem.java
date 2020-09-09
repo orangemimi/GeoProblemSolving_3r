@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Author Zhiyi
@@ -23,4 +24,5 @@ public class ToolItem {
     private String privacy;
     private String toolImg;
     private String detail;
+
 }

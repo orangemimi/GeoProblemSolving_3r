@@ -39,4 +39,8 @@ public class ModelInstanceInfoService {
         updateModelInstanceInfoDTO.updateTo(modelInstanceInfo);
         return ResultUtils.success(modelInstanceInfoRepository.save(modelInstanceInfo));
     }
+
+    public void deleteById(String id) {
+        modelInstanceInfoRepository.deleteById(id);
+    }
 }

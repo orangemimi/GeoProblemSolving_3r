@@ -19,8 +19,8 @@
         <div class="toolbarTop">
           <!-- <el-button @click="saveGraph" type="text" size="mini">Output</el-button> -->
           <el-button @click="exportGraph" type="text" size="mini">Export as XML</el-button>
-          <input @change="readFile" ref="importInput" class="hide" type="file" />
-          <el-button @click="importGraphFile" type="text" size="mini">Import mxGraph</el-button>
+          <!-- <input @change="readFile" ref="importInput" class="hide" type="file" />
+          <el-button @click="importGraphFile" type="text" size="mini">Import mxGraph</el-button> -->
           <el-button
             @click="checked?deleteCells():deleteCellsConfirmDialog()"
             type="text"
@@ -90,7 +90,22 @@ const {
 } = mxgraph;
 
 export default {
-  props: {},
+  props: {
+    sendXml: {
+      type: String,
+    },
+  },
+  watch: {
+    sendXml: {
+      handler(val) {
+        if (val != "") {
+          this.getXml = val;
+          this.importGraph(this.getXml);
+        }
+      },
+      deep: true,
+    },
+  },
   components: { nodeCard, editCell },
   computed: {
     toolbarItems: () => toolbarItems,
@@ -120,6 +135,7 @@ export default {
           },
         ],
       },
+      getXml: this.sendXml,
     };
   },
   methods: {
@@ -327,8 +343,6 @@ export default {
       });
       FileSaver.saveAs(blob, "mxgraph.xml");
     },
-
-
 
     importGraphFile(evt) {
       this.$refs["importInput"].click();

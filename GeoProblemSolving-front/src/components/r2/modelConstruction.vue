@@ -45,7 +45,7 @@
         <el-row>
           <el-card>
             <div class="mxGraph" :style="{height:contentHeight+'px'}">
-              <mx-graph></mx-graph>
+              <mx-graph :sendXml="sendXml"></mx-graph>
             </div>
           </el-card>
         </el-row>
@@ -72,8 +72,10 @@
             <div v-for="(instance,index) in filterModelInstance" :key="index+'instance'">
               <el-card class="box-card">
                 <div class="instance_name">{{instance.name}}</div>
-                <i class="el-icon-connection" @click="folkInstance(instance)"></i>
+
                 <el-checkbox v-model="instance.checkedForMap"></el-checkbox>
+                <i class="el-icon-connection" @click="folkInstance(instance)"></i>
+                <i class="el-icon-close" @click="deleteInstance(instance.id)"></i>
               </el-card>
             </div>
             <el-button @click="createMap">Create Map</el-button>
@@ -109,9 +111,6 @@ export default {
       if (type == "All") {
         return tools;
       } else {
-        // return tools.filter((tool) => {
-        //   return tool.recomStep.includes(type);
-        // });
       }
     },
     filterModelInstance() {
@@ -178,6 +177,12 @@ export default {
       updateStepInfo: false,
       modelInstances: [],
       instanceFolk: {},
+      isDirectInstance: "",
+      directInstances: [],
+      inDirectInstances: [],
+      dataNodes: [],
+      mxNodes: [],
+      sendXml: "",
     };
   },
   methods: {
@@ -193,6 +198,9 @@ export default {
         pageId: this.projectId,
         userId: this.userInfo.userId,
         userName: this.userInfo.userName,
+        stepName: this.$route.params.stepName,
+        stepId: this.$route.params.stepId,
+        stepType: this.$route.params.stepType,
       };
     },
     async getSelectedResources() {
@@ -202,8 +210,6 @@ export default {
       this.$set(this, "selectedResources", data);
       this.$set(this, "selectedTools", data.toolItemList);
       this.$set(this, "selectedData", data.dataItemList);
-      // this.getDoi();
-      // this.$set(this, "modelUrl", data.toolItemList[0].url);
     },
 
     //get modelinstance
@@ -211,10 +217,8 @@ export default {
       let { data } = await get(
         `/GeoProblemSolving/r/modelInstance/get/${this.stepInfo.stepId}`
       );
-      // this.modelInstances = data;
       console.log(data);
       this.modelInstances = data;
-      // this.modelInstances.modelInstancesJson = instance;
 
       this.updateStepInfo = true;
     },
@@ -233,47 +237,20 @@ export default {
       // console.log(val);
     },
 
-    async saveModelInstance(instance) {
-      let stepResource = instance;
-      // stepResource["modelInstances"] = this.modelInstances;
-      // if (this.updateStepInfo == false) {
-      // save
-      stepResource["stepName"] = this.stepInfo.stepName;
-      stepResource["stepId"] = this.stepInfo.stepId;
-      stepResource["type"] = this.stepInfo.stepType;
-      stepResource["stepDescription"] = "";
-      stepResource["pid"] = this.projectId;
-
-      stepResource["user"] = this.userInfo.userName;
-      stepResource["userId"] = this.userInfo.userId;
-      this.modelInstances.push(stepResource);
-      console.log(this.modelInstances);
-
-      let data = await post(
-        `/GeoProblemSolving/r/modelInstance/save`,
-        stepResource
-      );
-      // console.log(data);
-      // }
-      // else {
-      //   let data = await post(
-      //     `/GeoProblemSolving/r/modelInstance/update/${this.stepInfo.stepId}`,
-      //     stepResource
-      //   );
-      //   // console.log(data);
-      //   if (data.msg == "成功") {
-      //     this.$message({
-      //       message: "You have update your resource successfully",
-      //       type: "success",
-      //     });
-      //     this.active == 0;
-      //   }
-      // }
+    saveModelInstance(instance) {
+      this.modelInstances.push(instance);
     },
 
     folkInstance(instance) {
-      console.log(instance);
+      // console.log(instance);
       this.instanceFolk = instance;
+    },
+
+    async deleteInstance(instanceId) {
+      await del(`/GeoProblemSolving/r/modelInstance/delete/${instanceId}`);
+      this.modelInstances = this.modelInstances.filter((item) => {
+        return item.id !== instanceId;
+      });
     },
 
     getModelDoi(url) {
@@ -288,31 +265,176 @@ export default {
     //创建mxgraph
     createMap() {
       // getXmlFromInstances
-      console.log(this.filterCreateMapInstances);
       if (this.filterCreateMapInstances == "") {
         this.$message({
           message: "There is no selected instance",
           type: "error",
         });
       } else {
-        let checkedInstances = this.filterCreateMapInstances;
-        let statesJson = [];
-        for (let i = 0; i < checkedInstances.length; i++) {
-          statesJson[i] = checkedInstances[i].statesJson;
-        }
+        let checkedInstances = [];
 
+        let checkedInstances2 = [];
+        let directDataResource = [];
+        let inDirectDataResource = [];
+        Object.assign(checkedInstances, this.filterCreateMapInstances);
+        Object.assign(checkedInstances2, this.filterCreateMapInstances);
+        Object.assign(directDataResource, this.filterDirectDataResource);
+        Object.assign(inDirectDataResource, this.filterIndirectDataResource);
+        console.log(directDataResource, inDirectDataResource);
+        let directInstance = [];
+        let inDirectInstance = [];
+        this.dataNodes = [];
+        let isInDirectInstance = "";
+
+        console.log(this.dataNodes);
+        // console.log(directDataResource);
+        //direct data as input
+        directDataResource.forEach((data) => {
+          if (data.modelInstanceInputList != null) {
+            data.modelInstanceInputList.forEach((id) => {
+              checkedInstances.forEach((instance) => {
+                if (id == instance.id) {
+                  if (!this.dataNodes.includes(data)) {
+                    this.dataNodes.push(data);
+                  }
+                  if (!this.directInstances.includes(instance)) {
+                    this.directInstances.push(instance);
+                  }
+                  if (!data.hasOwnProperty("to")) {
+                    data["to"] = [];
+                  }
+                  if (!instance.hasOwnProperty("from")) {
+                    instance["from"] = [];
+                  }
+                  data["to"].push(instance);
+                  instance["from"].push(data);
+                  console.log(data);
+                }
+              });
+            });
+          }
+        });
+
+        //indirect data as input ,将 indirect data as line to link
+        inDirectDataResource.forEach((data) => {
+          let outputId = data.modelInstanceOutput;
+          let inputIdList = data.modelInstanceInputList;
+          if (inputIdList != null) {
+            inputIdList.forEach((id) => {
+              checkedInstances.forEach((instance) => {
+                if (id == instance.id) {
+                  if (!this.inDirectInstances.includes(instance)) {
+                    this.inDirectInstances.push(instance);
+                  }
+
+                  checkedInstances2.forEach((instance2) => {
+                    if (outputId == instance2.id) {
+                      if (!instance2.hasOwnProperty("to")) {
+                        instance2["to"] = [];
+                      }
+                      if (!instance.hasOwnProperty("from")) {
+                        instance["from"] = [];
+                      }
+
+                      instance2["to"].push(instance);
+                      instance["from"].push(instance2);
+                    }
+                  });
+                }
+              });
+            });
+          }
+        });
         console.log(
-          this.filterDirectDataResource,
-          this.filterCreateMapInstances
+          this.dataNodes,
+          this.directInstances,
+          this.inDirectInstances
         );
 
-        // checkedInstances.filter((instance) => {
-        //   let statesJson = instance.statesJson;
-        //   statesJson.filter((state) => {
-        //     let events = state.Event;
-        //   });
-        // });
+        this.getNodes();
       }
+    },
+    getNodes() {
+      this.mxNodes = [];
+      let dataNodes = this.dataNodes;
+
+      dataNodes.forEach((node, index) => {
+        node.mxIndex = index + 2;
+        node.vertex = "1";
+        this.mxNodes.push(node);
+        if (node.hasOwnProperty("to") && node.to != []) {
+          this.getNextInstance(
+            node.to,
+            node.mxIndex,
+            dataNodes.length + node.mxIndex
+          );
+        }
+      });
+    },
+    getNextInstance(instances, sourceIndex, startIndex) {
+      instances.forEach((nextInstance, nextIndex) => {
+        nextInstance.mxIndex = startIndex + nextIndex * 2 + 1; //mxTargetIndex=mxIndex
+        nextInstance.mxSourceIndex = sourceIndex;
+        nextInstance.vertex = "1";
+        this.mxNodes.push(nextInstance);
+
+        let lineNode = {
+          mxIndex: startIndex + nextIndex * 2,
+          source: nextInstance.mxSourceIndex,
+          target: nextInstance.mxIndex,
+          edge: "1",
+        };
+        this.mxNodes.push(lineNode);
+
+        if (nextInstance.hasOwnProperty("to") && nextInstance.to != []) {
+          this.getNextInstance(
+            nextInstance.to,
+            nextInstance.mxIndex,
+            nextInstance.mxIndex - 1 + instances.length * 2
+          );
+        } else {
+          console.log(this.mxNodes);
+          this.createXml();
+        }
+      });
+    },
+    createXml() {
+      let nodes = this.mxNodes;
+      let xml = `<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/>`;
+      let dataNodeStyle =
+        "fillColor=#f8f5ec;strokeColor=rgb(200, 200, 200);strokeWidth=1;shape=ellipse;align=center;imageAlign=center;imageVerticalAlign=top";
+      let modelNodeStyle =
+        "fillColor=transparent;strokeColor=#000000;strokeWidth=1;shape=rectangle;align=center;imageAlign=center;imageVerticalAlign=top";
+
+      nodes.forEach((node) => {
+        if (node.hasOwnProperty("vertex") && node.hasOwnProperty("isDirect")) {
+          xml += `<mxCell id="${node.mxIndex}" title="${node.name}" vertex="1" parent="1" style="${dataNodeStyle}"><mxGeometry x="0" y="0" width="150" height="100" as="geometry" /></mxCell>`;
+        }
+        if (node.hasOwnProperty("vertex") && !node.hasOwnProperty("isDirect")) {
+          xml += `<mxCell id="${node.mxIndex}" title="${node.name}" vertex="1" parent="1" style="${modelNodeStyle}"><mxGeometry x="0" y="0" width="150" height="100" as="geometry" /></mxCell>`;
+        }
+        if (node.hasOwnProperty("edge")) {
+          xml += `<mxCell id="${node.mxIndex}"  source="${node.source}" target="${node.target}" edge="1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>`;
+        }
+      });
+      xml += `</root></mxGraphModel>`;
+      // console.log(xml);
+      this.sendXml = xml;
+    },
+
+    getPreviousNode(instance) {
+      instance.statesJson.forEach((state) => {
+        let events = state.Event;
+        //获得 instance id
+        events.forEach((event) => {
+          if (event.type == "response" && event.hasOwnProperty("url")) {
+            let inputUrl = event.url;
+            this.dataNodes.filter((data) => {
+              //  if( ){}
+            });
+          }
+        });
+      });
     },
   },
   created() {

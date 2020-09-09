@@ -391,6 +391,7 @@ export default {
       },
       instanceFolkData: {},
       stateListFolk: [],
+      currentInstance: {},
       // internalEvents: [],
     };
   },
@@ -398,7 +399,6 @@ export default {
     stateList() {
       let stateList = this.ordinaryStateList;
       let datasetItem = this.datasetItem;
-
       for (let i = 0; i < stateList.length; i++) {
         let events = stateList[i].Event;
         for (let j = 0; j < events.length; j++) {
@@ -423,9 +423,14 @@ export default {
           }
         }
       }
-      // console.log(stateList);
-
       return stateList;
+    },
+
+    filterDirectDataResource() {
+      return this.dataList.filter((data) => data.isDirect == true);
+    },
+    filterIndirectDataResource() {
+      return this.dataList.filter((data) => data.isDirect == false);
     },
   },
 
@@ -651,7 +656,7 @@ export default {
           clearInterval(this.timer);
           let outputUrl = this.record.outputs;
           // this.$emit("outputRecords", this.record.outputs);
-          this.getStateEventOut(outputUrl);
+          await this.getStateEventOut(outputUrl);
           return;
         } else {
           let { data } = await post(
@@ -663,7 +668,7 @@ export default {
       }, 2000);
     },
 
-    getStateEventOut(outputUrl) {
+    async getStateEventOut(outputUrl) {
       let outList = this.stateList;
       outList.forEach((state, index) => {
         state.Event.forEach((event, eventIndex) => {
@@ -673,17 +678,68 @@ export default {
             }
           });
         });
-        // let createTime = new Date();
-        // state["createTime"] = createTime; // add create time
       });
-      let outList2 = {};
-      outList2["states"] = JSON.stringify(outList);
-      outList2["name"] = this.modelIntroduction.name;
-      outList2["description"] = this.modelIntroduction.description;
-      outList2["tid"] = this.currentModel.tid;
-      outList2["toolUrl"] = this.currentModel.toolUrl;
+      let stepResource = {};
+      stepResource["states"] = JSON.stringify(outList);
+      stepResource["name"] = this.modelIntroduction.name;
+      stepResource["description"] = this.modelIntroduction.description;
+      stepResource["tid"] = this.currentModel.tid;
+      stepResource["toolUrl"] = this.currentModel.toolUrl;
 
-      this.$emit("modelInstance", outList2);
+      // save or update
+      stepResource["stepName"] = this.pageParams.stepName;
+      stepResource["stepId"] = this.pageParams.stepId;
+      stepResource["type"] = this.pageParams.stepType;
+      stepResource["stepDescription"] = "";
+      stepResource["pid"] = this.pageParams.pageId;
+
+      stepResource["user"] = this.pageParams.userName;
+      stepResource["userId"] = this.pageParams.userId;
+
+      let { data } = await post(
+        `/GeoProblemSolving/r/modelInstance/save`,
+        stepResource
+      );
+
+      this.getDataResourceLinkInstance(data);
+      this.$emit("modelInstance", data);
+    },
+
+    async getDataResourceLinkInstance(instance) {
+      this.currentInstance = instance;
+
+      let directDataResource = this.filterDirectDataResource;
+      let inDirectDataResource = this.filterIndirectDataResource;
+
+      instance.statesJson = JSON.parse(instance.states);
+
+      instance.statesJson.forEach((state) => {
+        let events = state.Event;
+        //获得 instance id
+        events.forEach((event) => {
+          this.resources.dataItemList.forEach((data) => {
+            if (event.url == data.url) {
+              if (
+                data.modelInstanceInputList == undefined ||
+                data.modelInstanceInputList == ""
+              ) {
+                data["modelInstanceInputList"] = [];
+              }
+              data["modelInstanceInputList"].push(instance.id);
+              // break;
+            }
+          });
+        });
+      });
+
+      await this.updateResource(this.resources);
+    },
+
+    async updateResource(resources) {
+      let data = await post(
+        `/GeoProblemSolving/r/resource/update/${resources.pid}`,
+        resources
+      );
     },
 
     getFolkData() {
@@ -697,10 +753,11 @@ export default {
     download(event) {
       window.open(event.url);
     },
-    getCreateTime() {},
 
     async bind(event) {
-      // this.dataURItoBlob(event);
+      console.log(event);
+      //get the modelinstance id
+
       let resource = this.resources;
       let url = event.url;
       let fileName = event.name;
@@ -708,13 +765,17 @@ export default {
         url: event.url,
         name: event.name,
         isDirect: false,
+        modelInstanceOutput: this.currentInstance.id,
       };
+
+      console.log(this.transationDataItemList);
       resource.dataItemList.push(this.transationDataItemList);
 
       let data = await post(
         `/GeoProblemSolving/r/resource/update/${resource.pid}`,
         resource
       );
+
       if (data.msg == "成功") {
         this.$message({
           message: "You have collect your resource successfully",
@@ -734,7 +795,7 @@ export default {
         return value.type === "noresponse";
       });
     },
-    
+
     filterUdxNode(event) {
       if (event.datasetItem[0].hasOwnProperty("UdxDeclaration")) {
         if (event.datasetItem[0].UdxDeclaration[0].UdxNode != "") {
@@ -769,16 +830,16 @@ export default {
       });
     },
 
-    async saveRecords(modelInstanceId) {
-      let data = await this.axios.post(
-        "/GeoProblemSolving/modelItem/saveRecord",
-        {
-          modelInstanceId: modelInstanceId,
-          userId: this.userId,
-          stepId: this.stepId,
-        }
-      );
-    },
+    // async saveRecords(modelInstanceId) {
+    //   let data = await this.axios.post(
+    //     "/GeoProblemSolving/modelItem/saveRecord",
+    //     {
+    //       modelInstanceId: modelInstanceId,
+    //       userId: this.userId,
+    //       stepId: this.stepId,
+    //     }
+    //   );
+    // },
 
     async getAllRecords() {
       let stepId = this.stepId;
@@ -807,7 +868,7 @@ export default {
     },
 
     selectDatatoModel(value, stateIndex, eventIndex) {
-      //   console.log(value, index);
+      console.log(value);
       this.$set(this.stateList[stateIndex].Event[eventIndex], "url", value);
       //   this.newStateList();
     },

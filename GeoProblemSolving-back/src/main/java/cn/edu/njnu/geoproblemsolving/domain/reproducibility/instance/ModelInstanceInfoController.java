@@ -32,4 +32,9 @@ public class ModelInstanceInfoController {
     public JsonResult saveStepInfo(@RequestBody AddModelInstanceInfoDTO add) {
             return ResultUtils.success(modelInstanceInfoService.saveModelInstanceInfo(add));
     }
+    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+    public JsonResult deleteTool(@PathVariable("id") String id){
+        modelInstanceInfoService.deleteById(id);
+        return ResultUtils.success();
+    }
 }
