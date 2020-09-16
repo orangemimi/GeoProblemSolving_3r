@@ -168,7 +168,7 @@
     </Modal>
     <!-- <Modal v-model="resourceCollectionModal" :mask-closable="false" style="height:500px">
       <data-upload @uploadDataList="uploadDataList"></data-upload>
-    </Modal> -->
+    </Modal>-->
     <Modal
       width="800px"
       v-model="createStepModal"
@@ -275,10 +275,9 @@ export default {
         "Context definition & Protocal",
         "Resource collection",
         "Data processing",
-        "Data visualization",
-        "Model construction",
+        "Simulation execution",
         "Result analysis",
-        "Result presentation",
+        "Conclusion",
       ],
 
       // 步骤逻辑图
@@ -314,7 +313,7 @@ export default {
       resetProjectTypeNotice: false,
       resetProjectTypeModel: false,
       categroy: 0,
-      uploadList:[]
+      uploadList: [],
     };
   },
   created() {
@@ -498,11 +497,7 @@ export default {
               icon: "circle",
             },
             {
-              name: "Data visualization",
-              icon: "circle",
-            },
-            {
-              name: "Model construction",
+              name: "Simulation execution",
               icon: "circle",
             },
             {
@@ -510,7 +505,7 @@ export default {
               icon: "circle",
             },
             {
-              name: "Result presentation",
+              name: "Conclusion",
               icon: "circle",
             },
           ],
@@ -542,16 +537,13 @@ export default {
                 name: "Data processing",
               },
               {
-                name: "Data visualization",
-              },
-              {
-                name: "Model construction",
+                name: "Simulation execution",
               },
               {
                 name: "Result analysis",
               },
               {
-                name: "Result presentation",
+                name: "Conclusion",
               },
             ],
             links: [],
@@ -654,7 +646,7 @@ export default {
             name: params.data.name,
             type: stepType,
           };
-          _this.$emit("dblclick",activity);
+          _this.$emit("dblclick", activity);
 
           // if (stepType == "Resource collection") {
           //   _this.resourceCollectionModal = true;
@@ -732,6 +724,124 @@ export default {
       }
     },
 
+    removeStep() {
+      if (this.selectedStep.length == 1) {
+        this.delModal = true;
+      } else if (this.selectedStep.length > 1) {
+        this.$Notice.info({
+          desc: "Steps should be deleted one by one! ",
+        });
+      } else {
+        this.$Notice.info({
+          desc: "There is no step selected! ",
+        });
+      }
+    },
+
+    delStepContent(stepId) {
+      // 删除step
+      this.axios
+        .get("/GeoProblemSolving/step/delete" + "?stepId=" + stepId)
+        .then((res) => {
+          if (res.data === "Success") {
+            this.$Notice.info({
+              desc: "Remove successfully! ",
+            });
+          }
+        })
+        .catch((err) => {
+          console.log(err.data);
+        });
+    },
+    delStepGraph() {
+      if (this.$store.getters.userInfo.userId == this.scopeInfo.managerId) {
+        let currentIndex = this.selectedStep[0].id;
+
+        if (this.processStructure[currentIndex].end) {
+          let selectedStepId = this.processStructure[currentIndex].stepID;
+          // 删除step节点
+          if (currentIndex > 0) {
+            // 处理被删除节点的前驱节点
+            for (
+              var i = 0;
+              i < this.processStructure[currentIndex].last.length;
+              i++
+            ) {
+              let lastIndex = this.processStructure[currentIndex].last[i].id;
+              if (this.processStructure[lastIndex].next.length === 1) {
+                this.processStructure[lastIndex].next = [];
+                this.processStructure[lastIndex].end = true;
+              } else if (this.processStructure[lastIndex].next.length > 1) {
+                for (
+                  let j = 0;
+                  j < this.processStructure[lastIndex].next.length;
+                  j++
+                ) {
+                  if (
+                    this.processStructure[lastIndex].next[j].name ===
+                    this.selectedStep[0].name
+                  ) {
+                    this.processStructure[lastIndex].next.splice(j, 1);
+                  }
+                }
+              }
+            }
+            // 删除节点
+            this.processStructure.splice(currentIndex, 1);
+
+            for (var i = currentIndex; i < this.processStructure.length; i++) {
+              var originalID = this.processStructure[i].id;
+              // 当前节点id
+              if (originalID !== i) {
+                this.processStructure[i].id = i;
+              }
+
+              var originalName = this.processStructure[i].name;
+              // 前驱节点的 next id
+              for (var j = 0; j < this.processStructure[i].last.length; j++) {
+                var lastIndex = this.processStructure[i].last[j].id;
+                var lastnode = this.processStructure[lastIndex];
+                for (var k = 0; k < lastnode.next.length; k++) {
+                  if (lastnode.next[k].name === originalName) {
+                    this.processStructure[lastIndex].next[k].id = i;
+                  }
+                }
+              }
+
+              // 后继节点的 last id
+              for (var j = 0; j < this.processStructure[i].next.length; j++) {
+                var nextIndex = this.processStructure[i].next[j].id - 1;
+                var nextnode = this.processStructure[nextIndex];
+                for (var k = 0; k < nextnode.last.length; k++) {
+                  if (nextnode.last[k].name === originalName) {
+                    this.processStructure[nextIndex].last[k].id = i;
+                  }
+                }
+              }
+            }
+          } else if (currentIndex === 0) {
+            // 删除节点
+            this.processStructure.splice(currentIndex, 1);
+          }
+
+          // 更新scopeInfo
+          this.scopeInfo.solvingProcess = JSON.stringify(this.processStructure);
+          this.getProcessSteps();
+          // 重新渲染
+          this.updateStepchart();
+          this.updateSteps();
+          //删除数据库
+          this.delStepContent(selectedStepId);
+        } else {
+          this.$Notice.info({
+            desc:
+              "The selected step " +
+              this.selectedStep[0].name +
+              " can not be removed. Because it has the next activities.",
+          });
+        }
+      }
+    },
     getStepType(category) {
       let type;
       if (category == 0) {
@@ -741,13 +851,11 @@ export default {
       } else if (category == 2) {
         type = "Data processing";
       } else if (category == 3) {
-        type = "Data visualization";
+        type = "Simulation execution";
       } else if (category == 4) {
-        type = "Model construction";
-      } else if (category == 5) {
         type = "Result analysis";
-      } else if (category == 6) {
-        type = "Result presentation";
+      } else if (category == 5) {
+        type = "Conclusion";
       }
       return type;
     },
@@ -760,14 +868,12 @@ export default {
         category = 1;
       } else if (type == "Data processing") {
         category = 2;
-      } else if (type == "Data visualization") {
+      } else if (type == "Simulation execution") {
         category = 3;
-      } else if (type == "Model construction") {
-        category = 4;
       } else if (type == "Result analysis") {
+        category = 4;
+      } else if (type == "Conclusion") {
         category = 5;
-      } else if (type == "Result presentation") {
-        category = 6;
       }
       this.category = category;
     },

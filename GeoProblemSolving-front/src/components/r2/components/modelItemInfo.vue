@@ -17,68 +17,52 @@
     </el-row>
 
     <el-divider></el-divider>
-    <div v-if="stateListFolk==undefined||stateListFolk==''">
-      <el-row class="state-container" v-for="(state,index) in stateList" :key="index">
-        <el-col class="leftContainer" :span="5">
-          <el-col :offset="1" :span="22">
-            <div class="modelState">
-              <p class="state-name">{{state.name}}</p>
-              <p class="state-desc">{{state.description}}</p>
-            </div>
-          </el-col>
+    <!-- <div v-if="stateListFolk==undefined||stateListFolk==''"> -->
+    <el-row class="state-container" v-for="(state,index) in stateList" :key="index">
+      <el-col class="leftContainer" :span="5">
+        <el-col :offset="1" :span="22">
+          <div class="modelState">
+            <p class="state-name">{{state.name}}</p>
+            <p class="state-desc">{{state.description}}</p>
+          </div>
         </el-col>
-        <el-col class="dataContainer" :span="18" :offset="1">
-          <div class="_params-group">
-            <el-row v-if="inEventList(state).length!==0" class="stateTitle">Input</el-row>
-            <el-divider class="stateTitleDivider"></el-divider>
-            <div class="events">
-              <el-row
-                v-for="(modelInEvent,inEventIndex) in inEventList(state)"
-                :key="inEventIndex"
-                class="event"
-              >
-                <el-row>
-                  <el-col :span="17" class="_event-desc">
-                    <span class="event_name" :title="modelInEvent.name">
-                      <span v-show="modelInEvent.optional=='False'" style="color:red">*</span>
-                      {{modelInEvent.name}}
-                    </span>
-                    <p
-                      class="event_desc"
-                      :title="modelInEvent.description"
-                    >{{modelInEvent.description}}</p>
-                  </el-col>
+      </el-col>
+      <el-col class="dataContainer" :span="18" :offset="1">
+        <div class="_params-group">
+          <el-row v-if="inEventList(state).length!==0" class="stateTitle">Input</el-row>
+          <el-divider class="stateTitleDivider"></el-divider>
+          <div class="events">
+            <el-row
+              v-for="(modelInEvent,inEventIndex) in inEventList(state)"
+              :key="inEventIndex"
+              class="event"
+            >
+              <el-row>
+                <el-col :span="17" class="_event-desc">
+                  <span class="event_name" :title="modelInEvent.name">
+                    <span v-show="modelInEvent.optional=='False'" style="color:red">*</span>
+                    {{modelInEvent.name}}
+                  </span>
+                  <p
+                    class="event_desc"
+                    :title="modelInEvent.description"
+                  >{{modelInEvent.description}}</p>
+                </el-col>
 
-                  <el-row v-if="modelInEvent.datasetItem[0].type == `internal` ">
-                    <div v-if="filterUdxNode(modelInEvent)">
-                      <el-table border :data="filterUdxNode(modelInEvent)[0].UdxNode">
-                        <el-table-column prop="name" label="Parameter" width="180"></el-table-column>
-                        <el-table-column prop="description" label="Description" width="180"></el-table-column>
-                        <el-table-column prop="type" label="Type"></el-table-column>
-                        <el-table-column label="Value">
-                          <template slot-scope="scope">
-                            <el-input v-model="scope.row.value"></el-input>
-                          </template>
-                        </el-table-column>
-                      </el-table>
-                    </div>
-                    <div v-else>
-                      <el-select
-                        v-model="modelInEvent.url"
-                        clearable
-                        placeholder="Please select data"
-                        @change="selectDatatoModel($event,index,inEventIndex)"
-                      >
-                        <el-option
-                          v-for="(item,dataIndex) in dataList"
-                          :key="dataIndex"
-                          :label="item.name"
-                          :value="item.url"
-                        ></el-option>
-                      </el-select>
-                    </div>
-                  </el-row>
-                  <el-col :span="6" :offset="1" v-else>
+                <el-row v-if="modelInEvent.datasetItem[0].type == `internal` ">
+                  <div v-if="filterUdxNode(modelInEvent)">
+                    <el-table border :data="filterUdxNode(modelInEvent)[0].UdxNode">
+                      <el-table-column prop="name" label="Parameter" width="180"></el-table-column>
+                      <el-table-column prop="description" label="Description" width="180"></el-table-column>
+                      <el-table-column prop="type" label="Type"></el-table-column>
+                      <el-table-column label="Value">
+                        <template slot-scope="scope">
+                          <el-input v-model="scope.row.value"></el-input>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                  </div>
+                  <div v-else>
                     <el-select
                       v-model="modelInEvent.url"
                       clearable
@@ -92,60 +76,77 @@
                         :value="item.url"
                       ></el-option>
                     </el-select>
-                  </el-col>
+                  </div>
                 </el-row>
-                <el-row>
-                  <el-divider class="eventDivider"></el-divider>
-                </el-row>
+                <el-col :span="6" :offset="1" v-else>
+                  <el-select
+                    v-model="modelInEvent.url"
+                    clearable
+                    placeholder="Please select data"
+                    @change="selectDatatoModel($event,index,inEventIndex)"
+                  >
+                    <el-option
+                      v-for="(item,dataIndex) in dataList"
+                      :key="dataIndex"
+                      :label="item.name"
+                      :value="item.url"
+                    ></el-option>
+                  </el-select>
+                </el-col>
               </el-row>
-            </div>
-          </div>
-
-          <div class="_params-group">
-            <el-row v-if="outEventList(state).length!==0" class="stateTitle">Output</el-row>
-            <div class="events">
-              <el-row
-                v-for="(modelOutEvent,outEventIndex) in outEventList(state)"
-                :key="outEventIndex"
-                class="event"
-              >
-                <el-row>
-                  <el-col :span="17" class="_event-desc">
-                    <span class="event_name" :title="modelOutEvent.name">{{modelOutEvent.name}}</span>
-                    <p
-                      class="event_desc"
-                      :title="modelOutEvent.eventDesc"
-                    >{{modelOutEvent.description}}</p>
-                  </el-col>
-                  <el-col :span="6" :offset="1">
-                    <div class="_btn-group">
-                      <el-button
-                        size="small"
-                        plain
-                        round
-                        type="warning"
-                        @click="download(modelOutEvent)"
-                        :disabled="status"
-                      >Download</el-button>
-
-                      <el-button
-                        size="small"
-                        plain
-                        round
-                        type="warning"
-                        @click="bind(modelOutEvent)"
-                        :disabled="status"
-                      >Bind</el-button>
-                    </div>
-                  </el-col>
-                </el-row>
+              <el-row>
+                <el-divider class="eventDivider"></el-divider>
               </el-row>
-            </div>
+            </el-row>
           </div>
-        </el-col>
-      </el-row>
-    </div>
-    <div v-else>
+        </div>
+
+        <div class="_params-group">
+          <el-row v-if="outEventList(state).length!==0" class="stateTitle">Output</el-row>
+          <div class="events">
+            <el-row
+              v-for="(modelOutEvent,outEventIndex) in outEventList(state)"
+              :key="outEventIndex"
+              class="event"
+            >
+              <el-row>
+                <el-col :span="17" class="_event-desc">
+                  <span class="event_name" :title="modelOutEvent.name">{{modelOutEvent.name}}</span>
+                  <p
+                    class="event_desc"
+                    :title="modelOutEvent.eventDesc"
+                  >{{modelOutEvent.description}}</p>
+                </el-col>
+                <el-col :span="6" :offset="1">
+                  <div class="_btn-group">
+                    <el-button
+                      size="small"
+                      plain
+                      round
+                      type="warning"
+                      @click="download(modelOutEvent)"
+                      :disabled="status"
+                    >Download</el-button>
+
+                    <el-button
+                      size="small"
+                      plain
+                      round
+                      type="warning"
+                      @click="bind(modelOutEvent)"
+                      :disabled="status"
+                    >Bind</el-button>
+                  </div>
+                </el-col>
+              </el-row>
+            </el-row>
+          </div>
+        </div>
+      </el-col>
+    </el-row>
+    <!-- </div> -->
+
+    <!-- <div v-else>
       <el-row class="state-container" v-for="(state,index) in stateListFolk" :key="index">
         <el-col class="leftContainer" :span="5">
           <el-col :offset="1" :span="22">
@@ -272,7 +273,7 @@
           </div>
         </el-col>
       </el-row>
-    </div>
+    </div>-->
   </div>
 </template>
 
@@ -323,12 +324,19 @@ export default {
     instanceFolk: {
       async handler(val) {
         this.instanceFolkData = val;
-        this.currentModel.tid = val.tid;
-        this.currentModel.toolUrl = val.toolUrl;
-        // await this.init();
         this.status = false;
-        this.getFolkData();
-        // console.log(this.currentModelInfo);
+        this.stateList = this.instanceFolkData.statesJson;
+        this.modelIntroduction = {
+          name: this.instanceFolkData.name,
+          description: this.instanceFolkData.description,
+        };
+        // console.log(JSON.parse(this.instanceFolkData.md5));
+        this.md5 = this.instanceFolkData.md5;
+        this.currentModel = {
+          tid: this.instanceFolkData.tid,
+          toolUrl: this.instanceFolkData.toolUrl,
+        };
+        await this.initTask();
       },
       deep: true,
     },
@@ -392,38 +400,56 @@ export default {
       instanceFolkData: {},
       stateListFolk: [],
       currentInstance: {},
+      modelInstance: {},
+      stateList: [],
       // internalEvents: [],
     };
   },
   computed: {
-    stateList() {
-      let stateList = this.ordinaryStateList;
-      let datasetItem = this.datasetItem;
-      for (let i = 0; i < stateList.length; i++) {
-        let events = stateList[i].Event;
-        for (let j = 0; j < events.length; j++) {
-          //   events[j]["url"] = "";
-          if (events[j].type == "response") {
-            let event = events[j];
-            let template = {};
-            if (event.hasOwnProperty("ResponseParameter")) {
-              template = datasetItem.filter((dataset) => {
-                return (
-                  dataset.name === event.ResponseParameter[0].datasetReference
-                );
-              });
-            } else if (event.hasOwnProperty("ControlParameter")) {
-              template = datasetItem.filter((dataset) => {
-                return (
-                  dataset.name === event.ControlParameter[0].datasetReference
-                );
-              });
+    stateList2: {
+      get() {
+        let stateList = this.ordinaryStateList;
+        let datasetItem = this.datasetItem;
+        for (let i = 0; i < stateList.length; i++) {
+          let events = stateList[i].Event;
+          for (let j = 0; j < events.length; j++) {
+            if (events[j].type == "response") {
+              let event = events[j];
+              let template = {};
+              if (event.hasOwnProperty("ResponseParameter")) {
+                template = datasetItem.filter((dataset) => {
+                  return (
+                    dataset.name === event.ResponseParameter[0].datasetReference
+                  );
+                });
+              } else if (event.hasOwnProperty("ControlParameter")) {
+                template = datasetItem.filter((dataset) => {
+                  return (
+                    dataset.name === event.ControlParameter[0].datasetReference
+                  );
+                });
+              }
+              events[j]["datasetItem"] = template;
+            } else if (events[j].type == "noresponse") {
+              //如果是输出
+              let event = events[j];
+              let template = {};
+              if (event.hasOwnProperty("DispatchParameter")) {
+                template = datasetItem.filter((dataset) => {
+                  return (
+                    dataset.name === event.DispatchParameter[0].datasetReference
+                  );
+                });
+              }
+              events[j]["datasetItem"] = template;
             }
-            events[j]["datasetItem"] = template;
           }
         }
-      }
-      return stateList;
+        return stateList;
+      },
+      set(newValue) {
+        return newValue;
+      },
     },
 
     filterDirectDataResource() {
@@ -438,65 +464,22 @@ export default {
     test() {
       this.save();
     },
+
+    async init() {
+      this.getModelDoi(this.currentModel);
+      this.initLoading();
+      await this.getModelInfo();
+      await this.initTask();
+      this.fullscreenLoading.close();
+      console.log(this.stateList);
+    },
+
     getModelDoi(currentModel) {
       let arr = currentModel.toolUrl.split("/");
       this.doi = arr[arr.length - 1];
     },
 
-    getStepInfo() {
-      if (
-        this.$route.params.groupID == undefined ||
-        this.$route.params.groupID == ""
-      ) {
-        var href = window.location.href;
-        var url = href.split("&");
-
-        for (var i = 0; i < url.length; i++) {
-          if (/groupID/.test(url[i])) {
-            this.pageParams.pageId = url[i].match(/groupID=(\S*)/)[1];
-            continue;
-          }
-
-          if (/userID/.test(url[i])) {
-            this.pageParams.userId = url[i].match(/userID=(\S*)/)[1];
-            continue;
-          }
-
-          if (/userName/.test(url[i])) {
-            this.pageParams.userName = url[i].match(/userName=(\S*)/)[1];
-            continue;
-          }
-        }
-      } else {
-        this.pageParams.pageId = this.$route.params.groupID;
-        this.pageParams.userId = this.$route.params.userID;
-        this.pageParams.userName = this.$route.params.userName;
-      }
-    },
-
-    getUserInfo() {
-      this.userInfo = JSON.parse(sessionStorage.getItem("userInfo"));
-      if (this.userInfo == {}) {
-        this.axios
-          .get(
-            "/GeoProblemSolving/user/inquiry" +
-              "?key=" +
-              "userId" +
-              "&value=" +
-              this.pageParams.userId
-          )
-          .then((res) => {
-            if (res.data != "Fail" && res.data != "None") {
-              this.$set(this, "userInfo", res.data);
-            }
-          })
-          .catch((err) => {});
-      }
-    },
-
-    async init() {
-      this.getModelDoi(this.currentModel);
-      this.initLoading();
+    async getModelInfo() {
       let data = await get(
         `/GeoProblemSolving/modelTask/getModelBehavior/${this.doi}`
       ); //获得模型所有信息
@@ -507,11 +490,11 @@ export default {
       this.datasetItem =
         data.mdlJson.ModelClass[0].Behavior[0].RelatedDatasets[0].DatasetItem;
       //预处理过程 STEP0
+      this.stateList = Object.assign([], this.stateList2);
+    },
 
-      // if (this.pageParams.userId == undefined) {
-      //   // this.$store.commit("userLogout");
-      //   this.$router.push({ name: "Login" });
-      // } else {
+    async initTask() {
+      //get task ip port ...
       let data2 = await get(
         `/GeoProblemSolving/modelTask/createTask/${this.md5}/${this.pageParams.userId}`
       );
@@ -520,14 +503,20 @@ export default {
       this.invokeForm.pid = data2.pid;
       this.invokeForm.username = this.pageParams.userId;
       // }
-      this.fullscreenLoading.close();
     },
 
+    initLoading() {
+      this.fullscreenLoading = this.$loading({
+        lock: true,
+        text: "Initialization",
+        spinner: "el-icon-loading",
+        background: "rgba(0, 0, 0, 0.7)",
+      });
+    },
     //invoke --form表单创建
     getStateEvent() {
       try {
         let stateList = this.stateList;
-        let datasetItem = this.datasetItem;
         let input = [];
         let output = [];
         for (let i = 0; i < stateList.length; i++) {
@@ -545,22 +534,21 @@ export default {
               } else {
                 continue;
               }
-            } else {
-              //如果是output --对应template
-              let outputTemplate = datasetItem.filter((dataset) => {
-                return (
-                  dataset.name ===
-                  events[j].DispatchParameter[0].datasetReference
-                );
-              });
+            } else if (events[j].type == "noresponse") {
               let template = {};
+              let outputTemplate = events[j].datasetItem;
+              console.log(outputTemplate);
               //如果是external template["type"] = id,不然为空
               if (outputTemplate[0].type === "external") {
-                template["type"] = outputTemplate[0].id;
-                template["value"] = outputTemplate[0].externalId;
+                template = {
+                  type: "id",
+                  value: outputTemplate[0].externalId,
+                };
               } else {
-                template["type"] = "none";
-                template["value"] = "";
+                template = {
+                  type: "none",
+                  value: "",
+                };
               }
               detail["template"] = template;
               output.push(detail);
@@ -575,7 +563,9 @@ export default {
     },
 
     async invokeTest() {
-      this.loading();
+      // this.loading();
+      let record = { status: 0 };
+      await this.emitInstance(record);
       await this.createFilefromParam();
       this.getStateEvent();
       //测试数据没有弄 直接运行 根据ip+id
@@ -636,27 +626,22 @@ export default {
     },
 
     async submitUpload(stateIndex, eventIndex, uploadFileForm) {
-      console.log(uploadFileForm.getAll("file"));
       let data = await post(
         `/GeoProblemSolving/dataItem/uploadSingle`,
         uploadFileForm
       );
-      console.log(data);
-
       let resultId = `http://221.226.60.2:8082/data?uid=${data}`;
       this.$set(this.stateList[stateIndex].Event[eventIndex], "url", resultId);
-      console.log(this.stateList);
     },
 
     async getOutputs(refreshForm) {
       //获得结果
+      this.record = {};
       this.timer = setInterval(async () => {
         if (this.record.status == 2) {
           this.fullscreenLoading.close();
           clearInterval(this.timer);
-          let outputUrl = this.record.outputs;
-          // this.$emit("outputRecords", this.record.outputs);
-          await this.getStateEventOut(outputUrl);
+          await this.getStateEventOut(this.record);
           return;
         } else {
           let { data } = await post(
@@ -668,8 +653,9 @@ export default {
       }, 2000);
     },
 
-    async getStateEventOut(outputUrl) {
+    async getStateEventOut(record) {
       let outList = this.stateList;
+      let outputUrl = record.outputs;
       outList.forEach((state, index) => {
         state.Event.forEach((event, eventIndex) => {
           outputUrl.forEach((el) => {
@@ -679,30 +665,40 @@ export default {
           });
         });
       });
-      let stepResource = {};
-      stepResource["states"] = JSON.stringify(outList);
-      stepResource["name"] = this.modelIntroduction.name;
-      stepResource["description"] = this.modelIntroduction.description;
-      stepResource["tid"] = this.currentModel.tid;
-      stepResource["toolUrl"] = this.currentModel.toolUrl;
+      await this.emitInstance(record);
+    },
 
-      // save or update
-      stepResource["stepName"] = this.pageParams.stepName;
-      stepResource["stepId"] = this.pageParams.stepId;
-      stepResource["type"] = this.pageParams.stepType;
-      stepResource["stepDescription"] = "";
-      stepResource["pid"] = this.pageParams.pageId;
-
-      stepResource["user"] = this.pageParams.userName;
-      stepResource["userId"] = this.pageParams.userId;
-
-      let { data } = await post(
-        `/GeoProblemSolving/r/modelInstance/save`,
-        stepResource
-      );
-
-      this.getDataResourceLinkInstance(data);
-      this.$emit("modelInstance", data);
+    async emitInstance(record) {
+      //在运行时 instance的创建
+      if (record.status == 0) {
+        let stepResource = {
+          states: JSON.stringify(this.stateList),
+          name: this.modelIntroduction.name,
+          description: this.modelIntroduction.description,
+          ...this.currentModel,
+          ...this.pageParams,
+          stepDescription: "",
+          ...this.pageParams,
+          status: record.status, //0 calculating
+          md5: this.md5,
+        };
+        let { data } = await post(
+          `/GeoProblemSolving/r/modelInstance/save`,
+          stepResource
+        );
+        this.modelInstance = data;
+      } else {
+        let stepResource = {
+          states: JSON.stringify(this.stateList),
+          status: record.status, //2 finish
+        };
+        let { data } = await post(
+          `/GeoProblemSolving/r/modelInstance/update/${this.modelInstance.id}`,
+          stepResource
+        );
+        this.modelInstance = data;
+      }
+      this.$emit("modelInstance", this.modelInstance);
     },
 
     async getDataResourceLinkInstance(instance) {
@@ -742,22 +738,11 @@ export default {
       );
     },
 
-    getFolkData() {
-      console.log(this.instanceFolkData.statesJson, this.stateList);
-      let folkList = this.instanceFolkData.statesJson;
-      this.stateListFolk = this.instanceFolkData.statesJson;
-      console.log(this.stateListFolk);
-      // this.stateList = this.instanceFolkData.statesJson;
-    },
-
     download(event) {
       window.open(event.url);
     },
 
     async bind(event) {
-      console.log(event);
-      //get the modelinstance id
-
       let resource = this.resources;
       let url = event.url;
       let fileName = event.name;
@@ -821,68 +806,14 @@ export default {
         background: "rgba(0, 0, 0, 0.7)",
       });
     },
-    initLoading() {
-      this.fullscreenLoading = this.$loading({
-        lock: true,
-        text: "Initialization",
-        spinner: "el-icon-loading",
-        background: "rgba(0, 0, 0, 0.7)",
-      });
-    },
-
-    // async saveRecords(modelInstanceId) {
-    //   let data = await this.axios.post(
-    //     "/GeoProblemSolving/modelItem/saveRecord",
-    //     {
-    //       modelInstanceId: modelInstanceId,
-    //       userId: this.userId,
-    //       stepId: this.stepId,
-    //     }
-    //   );
-    // },
-
-    async getAllRecords() {
-      let stepId = this.stepId;
-      //根据用户ID查找所欲的modelInstance
-      let data = await this.axios.get(
-        `/GeoProblemSolving/modelItem/getAllRecords/${stepId}`
-      );
-      if (data.status == "200") {
-        console.log("返回记录成功");
-        // this.recordList = data.data.data;
-        let recordList = data.data.data;
-        // console.log(recordList);
-        for (let i = 0; i < recordList.length; i++) {
-          let modelInstanceId = recordList[i].modelInstanceId;
-          // console.log(modelInstanceId);
-          let item = await this.axios.get(
-            `/GeoProblemSolving/modelItem/getModelInstance/${modelInstanceId}`
-          );
-          // console.log(item);
-          this.recordList.push(item);
-        }
-      } else {
-        console.log("返回记录失败");
-      }
-      // console.log(this.recordList);
-    },
 
     selectDatatoModel(value, stateIndex, eventIndex) {
-      console.log(value);
       this.$set(this.stateList[stateIndex].Event[eventIndex], "url", value);
       //   this.newStateList();
     },
   },
 
-  mounted() {
-    // debugger;
-    this.getStepInfo();
-    this.getUserInfo();
-    // console.log(this.currentModel,this.currentModelInfo);
-    // if (this.currentModel != "") {
-    //   this.init();
-    // }
-  },
+  mounted() {},
 
   beforeDestroy() {
     clearInterval(this.timer);

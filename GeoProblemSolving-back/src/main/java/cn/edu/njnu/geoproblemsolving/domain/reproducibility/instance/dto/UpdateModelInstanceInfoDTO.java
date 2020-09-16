@@ -14,8 +14,9 @@ import java.util.List;
 @Data
 public class UpdateModelInstanceInfoDTO implements ToDomainConverter<ModelInstanceInfo> {
     String states;
-    String name;//model name
-    String description;//model description
-    String tid;//tool id
-    String toolUrl;
+    String status;
+//    String name;//model name
+//    String description;//model description
+//    String tid;//tool id
+//    String toolUrl;
 }

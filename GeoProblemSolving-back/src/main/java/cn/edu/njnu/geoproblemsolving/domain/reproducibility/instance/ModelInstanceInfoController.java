@@ -23,9 +23,9 @@ public class ModelInstanceInfoController {
         return ResultUtils.success(modelInstanceInfoService.getModelInstanceInfo(stepId));
     }
 
-    @RequestMapping(value = "/update/{stepId}", produces = {"application/json;charset=UTF-8"}, method = RequestMethod.POST)
-    public JsonResult updateStepInfo(@PathVariable("stepId") String stepId, @RequestBody UpdateModelInstanceInfoDTO UpdateResourceDTO) {
-        return ResultUtils.success(modelInstanceInfoService.updateModelInstanceInfo(stepId, UpdateResourceDTO));
+    @RequestMapping(value = "/update/{id}", produces = {"application/json;charset=UTF-8"}, method = RequestMethod.POST)
+    public JsonResult updateStepInfo(@PathVariable("id") String id, @RequestBody UpdateModelInstanceInfoDTO UpdateResourceDTO) {
+        return ResultUtils.success(modelInstanceInfoService.updateModelInstanceInfo(id, UpdateResourceDTO));
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)

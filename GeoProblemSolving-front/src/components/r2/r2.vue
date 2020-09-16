@@ -38,6 +38,18 @@
         <el-button @click="submitResource" v-show="active!=0">Submit</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog
+      :visible.sync="contextModal"
+      :close-on-click-modal="false"
+      title="Context definition & Protocal"
+      class
+    >
+      <context-form-modal
+        :projectInfo="{projectId:projectId,userId:userInfo.userId}"
+        @closeForm="closeContextForm"
+      ></context-form-modal>
+    </el-dialog>
   </div>
 </template>
 
@@ -49,6 +61,7 @@ import infoRight from "./components/infoRight";
 import { post, get } from "../../axios";
 import manageTools from "./components/manageTools";
 import toolModal from "@/components/common/tools/toolModal";
+import contextFormModal from "./components/contextFormModal";
 export default {
   props: {},
   components: {
@@ -58,6 +71,7 @@ export default {
     dataUpload,
     manageTools,
     toolModal,
+    contextFormModal,
   },
   data() {
     return {
@@ -79,6 +93,7 @@ export default {
       initDirectResource: [],
       update: false,
       stepInfo: {},
+      contextModal: false,
     };
   },
 
@@ -166,10 +181,9 @@ export default {
       // console.log(val);
       if (val.type == "Resource collection") {
         this.resourceCollectionModal = true;
-     
-      } else if (val.type == "Model construction") {
+      } else if (val.type == "Simulation execution") {
         this.$router.push({
-          name: "modelConstruction",
+          name: "simulationExecution",
           params: {
             projectId: this.projectId,
             stepName: val.name,
@@ -177,6 +191,8 @@ export default {
             stepType: val.type,
           },
         });
+      } else if (val.type == "Context definition & Protocal") {
+        this.contextModal = true;
       }
     },
 
@@ -233,7 +249,12 @@ export default {
         return item.isDirect == true;
       });
     },
+
+    closeContextForm(val) {
+      this.contextModal = false;
+    },
   },
+
   async created() {
     this.getUserInfo();
     this.getProjectInfo();

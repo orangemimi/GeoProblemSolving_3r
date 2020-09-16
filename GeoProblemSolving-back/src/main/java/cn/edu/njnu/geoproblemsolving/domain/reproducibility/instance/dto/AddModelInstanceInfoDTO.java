@@ -27,4 +27,6 @@ public class AddModelInstanceInfoDTO implements ToDomainConverter<ModelInstanceI
     String description;//model description
     String tid;//tool id
     String toolUrl;
+    String status;
+    String md5;
 }

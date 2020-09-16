@@ -35,7 +35,6 @@
                 :selectedResources="selectedResources"
                 :instanceFolk="instanceFolk"
                 @modelInstance="saveModelInstance"
-                @outputRecords="outputRecords"
               ></model-item-info>
               <!-- <router-link :to="{path:modelDoi}">son1</router-link>
               <router-view></router-view>-->
@@ -70,12 +69,22 @@
           <el-card shadow="never">
             <div class="process_data_title">Model Instance</div>
             <div v-for="(instance,index) in filterModelInstance" :key="index+'instance'">
-              <el-card class="box-card">
-                <div class="instance_name">{{instance.name}}</div>
-
-                <el-checkbox v-model="instance.checkedForMap"></el-checkbox>
-                <i class="el-icon-connection" @click="folkInstance(instance)"></i>
-                <i class="el-icon-close" @click="deleteInstance(instance.id)"></i>
+              <el-card class="box-card" :class="instance.status==0 ? 'calculating':'finishing'">
+                <div class="instance_head">
+                  <div class="instance_name">{{instance.name}}</div>
+                  <i class="el-icon-close" @click="deleteInstance(instance.id)"></i>
+                </div>
+                <div v-if="instance.status==0" class="calculating_icon">
+                  <i
+                    class="el-icon-loading"
+                    style="float:left;width:20px;size:20px;line-height:20px;font-weight:600"
+                  ></i>
+                  <div style="float:left;width:10px">Calculating</div>
+                </div>
+                <div v-else>
+                  <el-checkbox v-model="instance.checkedForMap"></el-checkbox>
+                  <i class="el-icon-connection" @click="folkInstance(instance)"></i>
+                </div>
               </el-card>
             </div>
             <el-button @click="createMap">Create Map</el-button>
@@ -129,6 +138,7 @@ export default {
     filterIndirectDataResource() {
       return this.selectedData.filter((data) => data.isDirect == false);
     },
+    judgeStatus() {},
   },
   data() {
     return {
@@ -195,7 +205,7 @@ export default {
     },
     getPageParams() {
       this.pageParams = {
-        pageId: this.projectId,
+        pid: this.projectId,
         userId: this.userInfo.userId,
         userName: this.userInfo.userName,
         stepName: this.$route.params.stepName,
@@ -228,21 +238,26 @@ export default {
         this.jupyterModal = true;
         return;
       }
-      // this.currentModelInfo = toolInfo;
       this.currentModelInfo.tid = toolInfo.tid;
       this.currentModelInfo.toolUrl = toolInfo.toolUrl;
     },
 
-    outputRecords(val) {
-      // console.log(val);
-    },
 
+    //findindexof--改进
     saveModelInstance(instance) {
+      // let index = this.modelInstances.findIndex(
+      //   (item) => item.id == instance.id
+      // );
+      // this.modelInstances.splice(index, 1);
+      this.modelInstances.forEach((item, index) => {
+        if (item.id == instance.id) {
+          this.modelInstances.splice(index, 1);
+        }
+      });
       this.modelInstances.push(instance);
     },
 
     folkInstance(instance) {
-      // console.log(instance);
       this.instanceFolk = instance;
     },
 
@@ -354,6 +369,7 @@ export default {
         this.getNodes();
       }
     },
+
     getNodes() {
       this.mxNodes = [];
       let dataNodes = this.dataNodes;
@@ -371,6 +387,7 @@ export default {
         }
       });
     },
+
     getNextInstance(instances, sourceIndex, startIndex) {
       instances.forEach((nextInstance, nextIndex) => {
         nextInstance.mxIndex = startIndex + nextIndex * 2 + 1; //mxTargetIndex=mxIndex
@@ -398,6 +415,7 @@ export default {
         }
       });
     },
+
     createXml() {
       let nodes = this.mxNodes;
       let xml = `<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/>`;
@@ -458,6 +476,9 @@ export default {
   text-overflow: ellipsis;
   overflow: hidden;
   word-break: break-all;
+  float: left;
+  width: 220px;
+  text-align: left;
 }
 .data_info {
   height: 20px;
@@ -485,5 +506,24 @@ export default {
     color: rgb(45, 54, 92);
     // clear: both;
   }
+}
+.box-card {
+  height: 100px;
+  margin-bottom: 10px;
+}
+.finishing {
+  // background-color: aqua;
+}
+.calculating {
+  background-color: rgba(205, 231, 211, 0.2);
+  border-color: rgba(205, 231, 211, 0.2);
+  box-shadow: 0px 0px 5px rgb(127, 148, 131);
+  border-bottom: 2px solid rgb(27, 73, 38);
+  text-align: center;
+}
+.calculating_icon {
+  color: rgb(30, 44, 35);
+  font-weight: 600;
+  text-align: center;
 }
 </style>

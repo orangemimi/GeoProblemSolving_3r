@@ -37,7 +37,7 @@ const routes = [{
         component: resolve => (require(["@/components/r2/conceptMap"], resolve))
       }, {
         path: 'r2/:projectId/modelConstruction',
-        name: 'modelConstruction',
+        name: 'simulationExecution',
         component: resolve => (require(["@/components/r2/modelConstruction"], resolve)),
         children: [{
           path: 'modelItemInfo/:doi',

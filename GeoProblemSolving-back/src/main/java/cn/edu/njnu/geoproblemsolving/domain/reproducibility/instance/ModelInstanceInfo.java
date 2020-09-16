@@ -22,7 +22,7 @@ public class ModelInstanceInfo extends BaseEntity {
     String type;
     String stepDescription;
     String pid;//project id
-    String user;
+    String userName;
     String userId;
     //    List<ModelInstance> modelInstances;
     String states;
@@ -30,4 +30,6 @@ public class ModelInstanceInfo extends BaseEntity {
     String description;//model description
     String tid;//tool id
     String toolUrl;
+    String status;
+    String md5;
 }

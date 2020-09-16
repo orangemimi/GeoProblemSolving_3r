@@ -34,8 +34,8 @@ public class ModelInstanceInfoService {
         return  ResultUtils.success(modelInstanceInfoRepository.insert(modelInstanceInfo));
     }
 
-    public JsonResult updateModelInstanceInfo(String stepId, UpdateModelInstanceInfoDTO updateModelInstanceInfoDTO) {
-        ModelInstanceInfo modelInstanceInfo = modelInstanceInfoRepository.findFirstByStepId(stepId).orElseThrow(MyException::noObject);
+    public JsonResult updateModelInstanceInfo(String id, UpdateModelInstanceInfoDTO updateModelInstanceInfoDTO) {
+        ModelInstanceInfo modelInstanceInfo = modelInstanceInfoRepository.findFirstById(id).orElseThrow(MyException::noObject);
         updateModelInstanceInfoDTO.updateTo(modelInstanceInfo);
         return ResultUtils.success(modelInstanceInfoRepository.save(modelInstanceInfo));
     }
