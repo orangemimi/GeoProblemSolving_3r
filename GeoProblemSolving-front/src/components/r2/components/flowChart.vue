@@ -14,25 +14,29 @@
 }
 </style>
 <template>
-  <Row style="margin-top:10px">
-    <div :style="{height:contentHeight+'px'}">
+  <Row style="margin-top: 10px">
+    <div :style="{ height: contentHeight + 'px' }">
       <Row>
         <Row>
           <template>
-            <div style="width: 80%; height: 25px;margin-left:1%">
-              <span
-                style="font-weight: bold; font-size:16px"
-              >Procedure of iterative attempts for geo-problem solving</span>
+            <div style="width: 80%; height: 25px; margin-left: 1%">
+              <span style="font-weight: bold; font-size: 16px"
+                >Procedure of iterative attempts for geo-problem solving</span
+              >
               <template>
                 <Button
-                  v-if="(nodePositionBtn && procedureDrag)||(nodePositionBtn && !procedureDrag)"
+                  v-if="
+                    (nodePositionBtn && procedureDrag) ||
+                    (nodePositionBtn && !procedureDrag)
+                  "
                   type="warning"
                   @click="editPosition()"
                   size="small"
                   icon="md-git-commit"
                   title="Adjust the postion of nodes"
-                  style="float:right;margin-left:10px;"
-                >Move node</Button>
+                  style="float: right; margin-left: 10px"
+                  >Move node</Button
+                >
 
                 <Button
                   v-if="removeBtn"
@@ -41,8 +45,9 @@
                   @click="removeStep()"
                   icon="md-remove"
                   title="Remove the activity"
-                  style="float:right;margin-left:10px"
-                >Remove</Button>
+                  style="float: right; margin-left: 10px"
+                  >Remove</Button
+                >
 
                 <Button
                   v-if="activeBtn"
@@ -51,8 +56,9 @@
                   @click="activateStep()"
                   icon="md-bulb"
                   title="Active the activity"
-                  style="float:right;margin-left:10px;"
-                >Active</Button>
+                  style="float: right; margin-left: 10px"
+                  >Active</Button
+                >
 
                 <Button
                   v-if="addBtn"
@@ -62,35 +68,44 @@
                   icon="md-add"
                   v-show="userRole == 'Manager'"
                   title="Add a new step"
-                  style="float:right;margin-left:10px"
-                >Add</Button>
+                  style="float: right; margin-left: 10px"
+                  >Add</Button
+                >
               </template>
             </div>
           </template>
         </Row>
         <Row>
-          <div class="echartBackground" :style="{height:contentHeight-70 +'px'}" id="steps"></div>
+          <div
+            class="echartBackground"
+            :style="{ height: contentHeight - 70 + 'px' }"
+            id="steps"
+          ></div>
         </Row>
 
         <Row>
           <Col span="12">
-            <h3
-              class="footerTip"
-            >Activities for solving geo-problem can be created and deleted here.</h3>
+            <h3 class="footerTip">
+              Activities for solving geo-problem can be created and deleted
+              here.
+            </h3>
           </Col>
           <Col span="12">
-            <h3
-              class="footerTip"
-            >Double click the node, and you can enter the corresponding workspace.</h3>
+            <h3 class="footerTip">
+              Double click the node, and you can enter the corresponding
+              workspace.
+            </h3>
           </Col>
 
-          <div style="width:100%;text-align:center;margin-top:10px">
+          <div style="width: 100%; text-align: center; margin-top: 10px">
             <!-- <Button
                 class="btnHoverGray"
                 @click="resetProjectTypeModalShow()"
                 v-if="permissionIdentity('project_workspace_type_manage')"
             >Reset workspace type</Button>-->
-            <Button class="btnHoverGray" @click="resetProjectTypeModalShow()">Reset workspace type</Button>
+            <Button class="btnHoverGray" @click="resetProjectTypeModalShow()"
+              >Reset workspace type</Button
+            >
           </div>
         </Row>
       </Row>
@@ -102,11 +117,16 @@
       ok-text="OK"
       cancel-text="Cancel"
     >
-      <div
-        style="font-size:14px;"
-      >There are {{activeStepInfo.length}} active activities. Please choose the needed activities and activate the next activity.</div>
-      <CheckboxGroup v-model="aActivitiesName" style="margin-top:10px">
-        <Checkbox v-for="item in activeStepInfo" :key="item.index" :label="item.name"></Checkbox>
+      <div style="font-size: 14px">
+        There are {{ activeStepInfo.length }} active activities. Please choose
+        the needed activities and activate the next activity.
+      </div>
+      <CheckboxGroup v-model="aActivitiesName" style="margin-top: 10px">
+        <Checkbox
+          v-for="item in activeStepInfo"
+          :key="item.index"
+          :label="item.name"
+        ></Checkbox>
       </CheckboxGroup>
     </Modal>
     <Modal
@@ -116,12 +136,13 @@
       ok-text="OK"
       cancel-text="Cancel"
     >
-      <div
-        style="font-size:14px;"
-      >There are {{activeStepInfo.length}} active activities. Please choose an activity and go to the worksapce.</div>
+      <div style="font-size: 14px">
+        There are {{ activeStepInfo.length }} active activities. Please choose
+        an activity and go to the worksapce.
+      </div>
       <RadioGroup v-model="workspaceName">
         <Radio
-          style="margin-top:10px"
+          style="margin-top: 10px"
           v-for="item in activeStepInfo"
           :key="item.index"
           :label="item.name"
@@ -141,7 +162,9 @@
     <Modal v-model="resetProjectTypeNotice" title="Reset workspace type">
       <h2>Please confirm that all nodes have been deleted.</h2>
       <div slot="footer">
-        <Button type="primary" @click="resetProjectTypeNotice=false">OK</Button>
+        <Button type="primary" @click="resetProjectTypeNotice = false"
+          >OK</Button
+        >
       </div>
     </Modal>
     <Modal v-model="resetProjectTypeModel" title="Reset workspace type">
@@ -152,18 +175,29 @@
     </Modal>
     <Modal v-model="activityInfoModal" title="Information of the activity">
       <div>
-        <label style="margin-left:20px">Activity name:</label>
-        <Input v-model="showActivityInfo.name" style="width: 300px;margin-left:10px" readonly />
+        <label style="margin-left: 20px">Activity name:</label>
+        <Input
+          v-model="showActivityInfo.name"
+          style="width: 300px; margin-left: 10px"
+          readonly
+        />
       </div>
-      <div style="margin-top:20px">
-        <label style="margin-left:20px">Activity type:</label>
-        <Input v-model="showActivityInfo.type" style="width:300px;margin-left:17px" readonly />
+      <div style="margin-top: 20px">
+        <label style="margin-left: 20px">Activity type:</label>
+        <Input
+          v-model="showActivityInfo.type"
+          style="width: 300px; margin-left: 17px"
+          readonly
+        />
       </div>
       <div slot="footer">
         <Button
           type="primary"
-          @click="gotoThisWorkspace(showActivityInfo.type, showActivityInfo.stepID)"
-        >Go to this workspace</Button>
+          @click="
+            gotoThisWorkspace(showActivityInfo.type, showActivityInfo.stepID)
+          "
+          >Go to this workspace</Button
+        >
       </div>
     </Modal>
     <!-- <Modal v-model="resourceCollectionModal" :mask-closable="false" style="height:500px">
@@ -173,9 +207,9 @@
       width="800px"
       v-model="createStepModal"
       title="Create a new step"
-      :styles="{top: '20px'}"
+      :styles="{ top: '20px' }"
     >
-      <div style="height:380px;width:640px;margin-left:50px">
+      <div style="height: 380px; width: 640px; margin-left: 50px">
         <Form
           ref="createStepFormValidate"
           :model="createStepFormValidate"
@@ -183,14 +217,25 @@
           :label-width="120"
         >
           <FormItem label="Name:" prop="stepTitle">
-            <Input v-model="createStepFormValidate.stepTitle" placeholder="Enter step name" />
+            <Input
+              v-model="createStepFormValidate.stepTitle"
+              placeholder="Enter step name"
+            />
           </FormItem>
-          <FormItem label="Step type:" prop="stepType" style="margin-top:40px">
-            <Select v-model="createStepFormValidate.stepType" placeholder="Select step type">
-              <Option v-for="item in typeList" :key="item.index" :value="item">{{ item }}</Option>
+          <FormItem label="Step type:" prop="stepType" style="margin-top: 40px">
+            <Select
+              v-model="createStepFormValidate.stepType"
+              placeholder="Select step type"
+            >
+              <Option
+                v-for="item in typeList"
+                :key="item.index"
+                :value="item"
+                >{{ item }}</Option
+              >
             </Select>
           </FormItem>
-          <FormItem label="Description:" prop="result" style="margin-top:50px">
+          <FormItem label="Description:" prop="result" style="margin-top: 50px">
             <Input
               v-model="createStepFormValidate.result"
               type="textarea"
@@ -201,8 +246,10 @@
         </Form>
       </div>
       <div slot="footer">
-        <Button @click="createStepModal=false">Cancel</Button>
-        <Button type="primary" @click="createStep('createStepFormValidate')">Submit</Button>
+        <Button @click="createStepModal = false">Cancel</Button>
+        <Button type="primary" @click="createStep('createStepFormValidate')"
+          >Submit</Button
+        >
       </div>
     </Modal>
   </Row>
@@ -272,11 +319,11 @@ export default {
       aActivitiesName: [],
       workspaceName: "",
       typeList: [
-        "Context definition & Protocal",
-        "Resource collection",
-        "Data processing",
-        "Simulation execution",
-        "Result analysis",
+        "Context Definition",
+        "Resource Collection",
+        "Data Processing",
+        "Simulation Execution",
+        "Result Analysis",
         "Conclusion",
       ],
 
@@ -485,27 +532,27 @@ export default {
           show: true,
           data: [
             {
-              name: "Context definition & protocal",
+              name: "contextDefinition",
               icon: "circle",
             },
             {
-              name: "Resource collection",
+              name: "resourceCollection",
               icon: "circle",
             },
             {
-              name: "Data processing",
+              name: "dataProcessing",
               icon: "circle",
             },
             {
-              name: "Simulation execution",
+              name: "simulationExecution",
               icon: "circle",
             },
             {
-              name: "Result analysis",
+              name: "resultAnalysis",
               icon: "circle",
             },
             {
-              name: "Conclusion",
+              name: "conclusion",
               icon: "circle",
             },
           ],
@@ -528,22 +575,22 @@ export default {
             data: [],
             categories: [
               {
-                name: "Context definition & Protocal",
+                name: "contextDefinition",
               },
               {
-                name: "Resource collection",
+                name: "resourceCollection",
               },
               {
-                name: "Data processing",
+                name: "dataProcessing",
               },
               {
-                name: "Simulation execution",
+                name: "simulationExecution",
               },
               {
-                name: "Result analysis",
+                name: "resultAnalysis",
               },
               {
-                name: "Conclusion",
+                name: "conclusion",
               },
             ],
             links: [],
@@ -604,6 +651,7 @@ export default {
       let _this = this;
       // 单击选择步骤
       this.stepChart.on("click", function (params) {
+        // console.log(params);
         if (_this.procedureDrag) {
           if (option.series[0].data[params.data.index].symbolSize == 45) {
             option.series[0].data[params.data.index].symbolSize = 60;
@@ -642,11 +690,13 @@ export default {
 
           let stepType = _this.getStepType(params.data.category);
           let activity = {
-            stepID: params.data.stepId,
+            stepId: params.data.stepId,
             name: params.data.name,
             type: stepType,
           };
-          _this.$emit("dblclick", activity);
+          // console.log(params.data);
+          // console.log(_this.processStructure);
+          _this.$emit("dblclick", activity, _this.processStructure);
 
           // if (stepType == "Resource collection") {
           //   _this.resourceCollectionModal = true;
@@ -845,32 +895,32 @@ export default {
     getStepType(category) {
       let type;
       if (category == 0) {
-        type = "Context definition & Protocal";
+        type = "contextDefinition";
       } else if (category == 1) {
-        type = "Resource collection";
+        type = "resourceCollection";
       } else if (category == 2) {
-        type = "Data processing";
+        type = "dataProcessing";
       } else if (category == 3) {
-        type = "Simulation execution";
+        type = "simulationExecution";
       } else if (category == 4) {
-        type = "Result analysis";
+        type = "resultAnalysis";
       } else if (category == 5) {
-        type = "Conclusion";
+        type = "conclusion";
       }
       return type;
     },
 
     getStepCategroy(type) {
       let category;
-      if (type == "Context definition & Protocal") {
+      if (type == "Context Definition") {
         category = 0;
-      } else if (type == "Resource collection") {
+      } else if (type == "Resource Collection") {
         category = 1;
-      } else if (type == "Data processing") {
+      } else if (type == "Data Processing") {
         category = 2;
-      } else if (type == "Simulation execution") {
+      } else if (type == "Simulation Execution") {
         category = 3;
-      } else if (type == "Result analysis") {
+      } else if (type == "Result Analysis") {
         category = 4;
       } else if (type == "Conclusion") {
         category = 5;
@@ -1402,7 +1452,7 @@ export default {
       var updateurl = "";
 
       obj.append("projectId", this.scopeId);
-      console.log(obj.get("projectId"));
+      // console.log(obj.get("projectId"));
       let { data } = await this.axios.post(
         "/GeoProblemSolving/project/update",
         obj

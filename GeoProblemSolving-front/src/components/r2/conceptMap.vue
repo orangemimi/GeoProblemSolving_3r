@@ -7,11 +7,11 @@
         </el-row>
 
         <el-row>
-            <el-card>
-          <div class="mxGraph" :style="{height:contentHeight+'px'}">
-            <mx-graph></mx-graph>
-          </div>
-            </el-card>
+          <el-card>
+            <div class="mxGraph" :style="{height:contentHeight+'px'}">
+              <mx-graph></mx-graph>
+            </div>
+          </el-card>
         </el-row>
       </el-col>
     </el-row>
@@ -24,7 +24,7 @@ export default {
   props: {},
   components: { mxGraph },
   data() {
-    return { contentHeight:0 };
+    return { contentHeight: 0 };
   },
   methods: {
     initSize() {

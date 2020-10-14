@@ -24,7 +24,7 @@ import java.io.File;
  * @Version 1.0.0
  */
 @Service
-public class DataItemService {
+public class DataIContainerService {
     @Value("${dataContainer}")
     private String dataContainer;
 

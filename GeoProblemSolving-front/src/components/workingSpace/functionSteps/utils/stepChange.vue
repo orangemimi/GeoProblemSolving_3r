@@ -44,7 +44,7 @@ export default {
         let processStructure = JSON.parse(this.solvingProcess);
         for (let i = 0; i < processStructure.length; i++) {
           //get data
-          if (processStructure[i].stepID == this.stepInfo.stepId) {
+          if (processStructure[i].stepId == this.stepInfo.stepId) {
             // last
             let lastSteps = processStructure[i].last;
             for (let j = 0; j < lastSteps.length; j++) {
@@ -168,18 +168,18 @@ export default {
         this.selectedStep = [];
         for (let i = 0; i < this.partProcesses.length; i++) {
           //get data
-          if (this.partProcesses[i].stepID == this.stepInfo.stepId) {
+          if (this.partProcesses[i].stepId == this.stepInfo.stepId) {
             option.series[0].data.push({
               name: this.partProcesses[i].name,
               index: this.partProcesses[i].id,
-              stepId: this.partProcesses[i].stepID,
+              stepId: this.partProcesses[i].stepId,
               x: this.partProcesses[i].x,
               y: this.partProcesses[i].y,
               category: this.partProcesses[i].category,
               symbolSize: 60
             });
             this.selectedStep.push({
-              stepId: this.partProcesses[i].stepID,
+              stepId: this.partProcesses[i].stepId,
               index: this.partProcesses[i].id,
               name: this.partProcesses[i].name
             });
@@ -187,7 +187,7 @@ export default {
             option.series[0].data.push({
               name: this.partProcesses[i].name,
               index: this.partProcesses[i].id,
-              stepId: this.partProcesses[i].stepID,
+              stepId: this.partProcesses[i].stepId,
               x: this.partProcesses[i].x,
               y: this.partProcesses[i].y,
               category: this.partProcesses[i].category,

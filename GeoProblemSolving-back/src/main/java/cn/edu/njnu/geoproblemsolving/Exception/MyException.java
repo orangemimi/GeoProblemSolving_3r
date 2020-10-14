@@ -6,7 +6,7 @@ import cn.edu.njnu.geoproblemsolving.Enums.ResultEnum;
 /**
  * @ClassName MyException
  * @Description todo
- * @Author sun_liber
+ * @Author zzy
  * @Date 2019/2/15
  * @Version 1.0.0
  */

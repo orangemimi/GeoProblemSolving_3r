@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @CrossOrigin(origins = "*",allowCredentials = "true")
 @RestController
-@RequestMapping("/r/resource")
+@RequestMapping("/r")
 public class ReResourceController {
     @Autowired
     ReResourceService resourceService;

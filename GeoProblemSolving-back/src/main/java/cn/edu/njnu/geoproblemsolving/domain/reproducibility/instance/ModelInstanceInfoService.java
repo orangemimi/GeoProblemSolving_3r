@@ -25,6 +25,11 @@ public class ModelInstanceInfoService {
         return  ResultUtils.success(modelInstanceInfo);
     }
 
+    public Object getAllModelInstanceInfo(String pid) {
+        List<ModelInstanceInfo> modelInstanceInfo = modelInstanceInfoRepository.findAllByPid(pid);
+        return  ResultUtils.success(modelInstanceInfo);
+    }
+
     public Object saveModelInstanceInfo(AddModelInstanceInfoDTO add) {
 //        JSONObject arr = JSONObject.parseObject(add.getModelInstances());
 //        BeanUtil.copyProperties(add, target)
@@ -43,4 +48,6 @@ public class ModelInstanceInfoService {
     public void deleteById(String id) {
         modelInstanceInfoRepository.deleteById(id);
     }
+
+
 }

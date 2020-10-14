@@ -26,10 +26,10 @@ import java.io.IOException;
  * @Version 1.0.0
  */
 @RestController
-@RequestMapping(value = "/dataItem")
+@RequestMapping(value = "/dataContainer")
 public class DataContainerController {
     @Autowired
-    DataItemService dataItemService;
+    DataIContainerService dataIContainerService;
 
     @RequestMapping(value = "/addDataItem", method = RequestMethod.POST)
     public Object addDataItem(HttpServletRequest request) throws IOException, ServletException {
@@ -41,12 +41,12 @@ public class DataContainerController {
         String fileName = part.getName();
         File file = File.createTempFile(part.getName(), "." + FilenameUtils.getExtension(filename2));//创建临时文件
         FileUtils.copyInputStreamToFile(multiRequest.getPart("file").getInputStream(), file);
-        return dataItemService.addDataItem(file);
+        return dataIContainerService.addDataItem(file);
     }
 
     @RequestMapping(value = "/download/{uid}", method = RequestMethod.GET)
     public ResponseEntity<byte[]> download(@PathVariable("uid") String uid) {
-        return dataItemService.download(uid);
+        return dataIContainerService.download(uid);
     }
 
     //    无需配置文件的上传接口
@@ -62,7 +62,7 @@ public class DataContainerController {
         String suffix = "." + FilenameUtils.getExtension(filename2);
         File file = File.createTempFile(part.getName(), suffix);//创建临时文件
         FileUtils.copyInputStreamToFile(multiRequest.getPart("file").getInputStream(), file);
-        return ResultUtils.success(dataItemService.upload(file,userId,userName));
+        return ResultUtils.success(dataIContainerService.upload(file,userId,userName));
     }
 
 }

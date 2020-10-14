@@ -141,7 +141,7 @@ export default {
   methods: {
     initSize() {
       this.contentHeight = window.innerHeight - 310;
-      console.log(this.contentHeight);
+      // console.log(this.contentHeight);
     },
     createGraph() {
       this.graph = new mxGraph(this.$refs.container);
@@ -162,10 +162,10 @@ export default {
         this.getCellInfo(cell);
         // this.handleSelectionChange(evt.properties);
         if (cell.source == null && cell.target == null) {
-          console.log("node");
+          // console.log("node");
           this.editCellVisible = true;
         } else {
-          console.log("line");
+          // console.log("line");
           this.editCellVisible = true;
         }
 

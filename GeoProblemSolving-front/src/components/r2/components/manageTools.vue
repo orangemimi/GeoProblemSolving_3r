@@ -1,74 +1,96 @@
 <!--  -->
 <template>
   <div>
-    <Row>
-      <Col class="leftContainer" :span="16">
+    <el-row>
+      <el-col class="leftContainer" :span="16">
         <div class="tool_top">
           <div class="tool_title">
             <el-row v-show="switchValue">Public Tools</el-row>
             <el-row v-show="!switchValue">Private Tools</el-row>
           </div>
-          <el-switch v-model="switchValue" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+          <el-switch
+            v-model="switchValue"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          ></el-switch>
         </div>
-        <Card dis-hover v-show="switchValue">
-          <vue-scroll :ops="ops" style="height:400px;">
-            <Row :gutter="16">
-              <draggable element="ul" :options="{group:'tool'}" v-model="filterPublicTools">
-                <div v-for="(tool,index) in filterPublicTools" :key="index">
-                  <Col :span="6" style="margin-bottom:10px">
+        <el-card shadow="never" v-show="switchValue">
+          <vue-scroll :ops="ops" style="height: 400px">
+            <el-row :gutter="16">
+              <draggable
+                element="ul"
+                :options="{ group: 'tool' }"
+                v-model="filterPublicTools"
+              >
+                <div v-for="(tool, index) in filterPublicTools" :key="index">
+                  <el-col :span="6" style="margin-bottom: 10px">
                     <tool-card :toolFrom="tool"></tool-card>
-                  </Col>
+                  </el-col>
                 </div>
               </draggable>
-            </Row>
+            </el-row>
           </vue-scroll>
-        </Card>
-        <Card dis-hover v-show="!switchValue">
-          <vue-scroll :ops="ops" style="height:400px;">
-            <Row :gutter="16">
-              <draggable element="ul" :options="{group:'tool'}" v-model="filterPersonalTools">
-                <div v-for="(tool,index) in filterPersonalTools" :key="index">
-                  <Col :span="6" style="margin-bottom:10px">
+        </el-card>
+        <el-card shadow="never" v-show="!switchValue">
+          <vue-scroll :ops="ops" style="height: 400px">
+            <el-row :gutter="16">
+              <draggable
+                element="ul"
+                :options="{ group: 'tool' }"
+                v-model="filterPersonalTools"
+              >
+                <div v-for="(tool, index) in filterPersonalTools" :key="index">
+                  <el-col :span="6" style="margin-bottom: 10px">
                     <tool-card :toolFrom="tool" :isOpenTool="false"></tool-card>
-                  </Col>
+                  </el-col>
                 </div>
               </draggable>
-            </Row>
+            </el-row>
           </vue-scroll>
-        </Card>
-      </Col>
-      <Col class="rightContainer" :span="8">
+        </el-card>
+      </el-col>
+      <el-col class="rightContainer" :span="8">
         <div class="tool_select">Tools you select</div>
 
-        <Card dis-hover>
-          <vue-scroll :ops="ops" style="height:400px;">
+        <el-card shadow="never">
+          <vue-scroll :ops="ops" style="height: 400px">
             <draggable
               element="ul"
-              :group="{name:'tool', put:true, pull:false}"
+              :group="{ name: 'tool', put: true, pull: false }"
               v-model="sentTools"
               @add="addSentTool"
-              style="min-height:400px"
+              style="min-height: 400px"
             >
-              <div v-for="(tool,index) in sentTools" :key="tool.index" style="margin-bottom:5px">
-                <Col>
-                  <Card style="width:100%">
-                    <div class="ellipsis" style="width:150px">{{tool.toolName}}</div>
-                    <Button
-                      shape="circle"
-                      icon="md-remove"
+              <div
+                v-for="(tool, index) in sentTools"
+                :key="tool.index"
+                style="margin-bottom: 5px"
+              >
+                <el-col>
+                  <el-card style="width: 100%">
+                    <div class="ellipsis" style="width: 150px">
+                      {{ tool.toolName }}
+                    </div>
+                    <i
+                      class="el-icon-remove changeRedColor"
+                      size="small"
+                      @click="removeSelectedTools(index)"
+                    ></i>
+                    <!-- <el-button
+                      circle
+                      icon="el-icon-remove"
                       class="changeRedColor"
                       size="small"
-                      style="float:right"
                       @click="removeSelectedTools(index)"
-                    ></Button>
-                  </Card>
-                </Col>
+                    ></el-button> -->
+                  </el-card>
+                </el-col>
               </div>
             </draggable>
           </vue-scroll>
-        </Card>
-      </Col>
-    </Row>
+        </el-card>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
@@ -78,35 +100,22 @@ import { get, del, post, put } from "@/axios";
 import draggable from "vuedraggable";
 
 export default {
-  props: {
-    userId: {
-      type: String,
-    },
-    initTools: {
-      type: Array,
-    },
-  },
   components: { toolCard, draggable },
-  watch: {
-    sentTools: {
-      handler(val) {
-        this.$emit("selectTools", val);
-      },
-      deep: true,
-    },
-    initTools: {
-      handler(val) {
-        this.initToolItems = this.initTools;
-      },
-      deep: true,
-    },
-  },
+  // watch: {
+  //   sentTools: {
+  //     handler(val) {
+  //       this.$emit("selectTools", val);
+  //     },
+  //     deep: true,
+  //   },
+  // },
 
   data() {
     return {
+      projectId: this.$route.params.projectId,
       publicTools: [],
       personalTools: [],
-      user: this.userId,
+      userId: this.$store.getters.userInfo.userId,
       sentTools: [], //需要发送的工具
       ops: {
         bar: {
@@ -128,7 +137,7 @@ export default {
         "Others",
       ],
       switchValue: true,
-      initToolItems: this.initTools,
+      // initToolItems: [],
     };
   },
 
@@ -137,12 +146,15 @@ export default {
       get() {
         let tools = this.publicTools;
         let type = this.typeSelected;
-        let initTools = this.initToolItems;
+        let initTools = this.sentTools;
 
-        tools = tools.filter(
-          (item) => !initTools.some((e) => e.toolName === item.toolName)
-        );
-        this.publicTools = tools;
+        if (initTools != undefined) {
+          tools = tools.filter((item) =>
+            initTools.every((e) => e.toolName != item.toolName)
+          );
+          // this.publicTools = tools;
+        }
+        console.log(tools);
         this.$set(this, "publicTools", tools);
 
         if (type == "All") {
@@ -169,11 +181,13 @@ export default {
       get() {
         let tools = this.personalTools;
         let type = this.typeSelected;
-        let initTools = this.initToolItems;
-
-        tools = tools.filter(
-          (item) => !initTools.some((e) => e.toolName === item.toolName)
-        );
+        let initTools = this.sentTools;
+        if (initTools != undefined) {
+          tools = tools.filter((item) =>
+            initTools.every((e) => e.toolName != item.toolName)
+          );
+        }
+        console.log(tools);
         this.$set(this, "personalTools", tools);
         if (type == "All") {
           return tools;
@@ -201,14 +215,22 @@ export default {
   mounted() {
     this.init();
   },
-  async created() {
-    await this.getPublicTools();
-    await this.getPersonalTools();
-  },
-  methods: {
-    init() {
-      this.sentTools = this.initToolItems;
 
+  methods: {
+    async init() {
+      await this.getPublicTools();
+      await this.getPersonalTools();
+      await this.getSelectedTools();
+      // this.sentTools = this.initToolItems;
+    },
+
+    async getSelectedTools() {
+      let modelItem = await get(
+        `/GeoProblemSolving/r/toolItems/${this.projectId}`
+      );
+      this.sentTools = modelItem;
+      // this.initToolItems = modelItem;
+      this.$set(this, "sentTools", modelItem);
     },
 
     async getPublicTools() {
@@ -223,46 +245,65 @@ export default {
         `/GeoProblemSolving/tool/findByProvider/${this.userId}`
       );
       this.$set(this, "personalTools", data);
-      console.log(this.personalTools);
-
-      // this.filterShowListByType();
     },
 
     //add需要发送的tools
-    addSentTool(evt) {
+    async addSentTool(evt) {
       let addedToolId = this.sentTools[evt.newDraggableIndex].tid;
-
-      for (let i = 0; i < this.publicTools.length; i++) {
-        if (this.publicTools[i].tid == addedToolId) {
+      await this.saveToolSelect(this.sentTools[evt.newDraggableIndex]);
+      this.publicTools.forEach((tool) => {
+        if (tool.tid == addedToolId) {
           this.publicTools.splice(i, 1);
-          //   this.$set(this, "filterPublicTools", this.publicTools);
-          break;
         }
-      }
-      for (let i = 0; i < this.personalTools.length; i++) {
-        if (this.personalTools[i].tid == addedToolId) {
+      });
+
+      this.personalTools.forEach((tool) => {
+        if (tool.tid == addedToolId) {
           this.personalTools.splice(i, 1);
-          //   this.$set(this, "filterPersonalTools", this.personalTools);
-          break;
         }
-      }
+      });
     },
-    removeSelectedTools(index) {
-      this.initToolItems = [];
-      var removeToolInfo = this.sentTools[index];
+    async saveToolSelect(tool) {
+      let { id, createTime, updateTime, ...tool2 } = tool;
+      let resource = {
+        userId: this.userId,
+        pid: this.projectId,
+        ...tool2,
+      };
+      let data = await post(`/GeoProblemSolving/r/toolItems`, resource);
+    },
+
+    async removeSelectedTools(index) {
+      console.log(this.sentTools);
+      let removeToolInfo = this.sentTools[index];
+      console.log(removeToolInfo.id);
+      await this.deleteToolSelect(removeToolInfo.tid);
+      let {
+        id,
+        userId,
+        pid,
+        createTime,
+        updateTime,
+        ...param
+      } = removeToolInfo;
+      console.log(param);
+
       this.sentTools.splice(index, 1);
       // this.publicTools.push(removeToolInfo);
       if (removeToolInfo.privacy == "Public") {
-        this.publicTools.push(removeToolInfo);
+        this.publicTools.push(param);
       } else {
-        this.personalTools.push(removeToolInfo);
+        this.personalTools.push(param);
       }
+    },
+
+    async deleteToolSelect(tid) {
+      await del(`/GeoProblemSolving/r/toolItems/${tid}`);
     },
   },
 };
 </script>
 <style lang='scss' scoped>
-//@import url(); 引入公共css类
 .ellipsis {
   display: inline-block;
   overflow: hidden;
@@ -283,5 +324,13 @@ export default {
   margin: 5px 0;
   font-size: 16px;
   font-weight: 600;
+}
+.changeRedColor {
+  font-size: 18px;
+  color: red;
+  float: right;
+}
+.changeRedColor:hover {
+  cursor: pointer;
 }
 </style>

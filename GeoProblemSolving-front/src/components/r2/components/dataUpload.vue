@@ -1,5 +1,5 @@
 <template>
-  <div style="height:600px">
+  <div style="height: 600px">
     <el-row>
       <el-row>
         <el-col :span="5">
@@ -13,14 +13,16 @@
             :http-request="submitUpload"
             :on-remove="handleRemove"
           >
-            <el-button round size="small" type="primary">Choose Files</el-button>
+            <el-button round size="small" type="primary"
+              >Choose Files</el-button
+            >
           </el-upload>
         </el-col>
       </el-row>
       <el-row>
-        <vue-scroll :ops="ops" style="height:400px;width:300px">
-          <div v-for="(item,index) in dataItemList" :key="index" class="files">
-            <div class="file_name">{{item.name}}</div>
+        <vue-scroll :ops="ops" style="height: 400px; width: 300px">
+          <div v-for="(item, index) in dataItemList" :key="index" class="files">
+            <div class="file_name">{{ item.name }}</div>
             <i class="el-icon-close" @click="remove(item)"></i>
           </div>
         </vue-scroll>
@@ -32,47 +34,53 @@
 import X2JS from "x2js"; //xml数据处理插件
 import { get, del, post, put } from "../../../axios";
 export default {
+  props: {
+    stepInformation: {
+      type: Object,
+    },
+  },
+
   data() {
     return {
-      initData: this.initDataItems,
+      projectId: this.$route.params.projectId,
+      userInfo: this.$store.getters.userInfo,
       uploadFileForm: new FormData(), //上传文件的form
       fileList: [], //el-upload上传的文件列表,
-      fileListUrl: [],
       dataItemList: [],
-      transationDataItemList: [],
-      resultUrl: "",
       file: {},
       ops: {
         bar: {
           background: "#808695",
         },
       },
+      stepInfo: this.stepInformation,
+      initDataItems: [],
     };
   },
+
   watch: {
-    initDataItems: {
+    stepInformation: {
       handler(val) {
-        this.initData = val;
-        console.log(this.initData);
-      },
-      deep: true,
-    },
-    transationDataItemList: {
-      handler(val) {
-        this.dataItemList.push(val);
-        this.$emit("uploadDataList", this.dataItemList);
+        this.stepInfo = val;
       },
       deep: true,
     },
   },
+
   methods: {
-    init() {
-      // this.dataItemList = initData;
-      this.$set(this, "dataItemList", this.initData);
-      console.log(this.dataItemList);
+    async getDataItem() {
+      let dataItem = await get(
+        `/GeoProblemSolving/r/dataItems/${this.projectId}`
+      );
+
+      this.initDataItems = dataItem;
+      this.dataItemList = this.initDataItems.filter((item) => {
+        return item.isDirect == true;
+      });
     },
+
     download() {
-      let url = `/GeoProblemSolving/dataItem/download/${this.eventUrl.value}`;
+      let url = `/GeoProblemSolving/dataContainer/download/${this.eventUrl.value}`;
       window.open(url);
     },
 
@@ -81,15 +89,19 @@ export default {
       this.file = file;
       this.fileList = fileList;
     },
+
     handleRemove(file, fileList) {
       this.dataItemList = this.dataItemList.filter((item) => {
         return item.name != file.name;
       });
     },
-    remove(file) {
-      this.dataItemList = this.dataItemList.filter((item) => {
-        return item.name != file.name;
-      });
+
+    async remove(resource) {
+      await del(`/GeoProblemSolving/r/dataItems/${resource.id}`);
+      this.dataItemList.splice(
+        this.dataItemList.findIndex((item) => item.id === resource.id),
+        1
+      );
     },
 
     //上传文件到服务器
@@ -97,33 +109,29 @@ export default {
       this.uploadFileForm = new FormData();
       this.uploadFileForm.append("file", this.file.raw);
 
-      let data = await post(
-        `/GeoProblemSolving/dataItem/uploadSingle`,
+      let uid = await post(
+        `/GeoProblemSolving/dataContainer/uploadSingle`,
         this.uploadFileForm
       );
+      let list = {
+        userId: this.userInfo.userId,
+        pid: this.projectId,
 
-      let resultUrl = `http://221.226.60.2:8082/data?uid=${data}`;
-      let name = this.file.name;
-      this.transationDataItemList = {
-        url: resultUrl,
-        name: name,
+        url: `http://221.226.60.2:8082/data?uid=${uid}`,
+        name: this.file.name,
         isDirect: true, //if true -- 是直接上传的数据    --false是中间数据
+        stepBind: {
+          stepId: this.stepInfo.stepId,
+          stepName: this.stepInfo.name,
+        },
       };
-      // this.dataItemList.push(this.transationDataItemList);
-    },
 
-    getData() {
-      this.$emit("uploadDataList", this.dataItemList);
+      let data = await post(`/GeoProblemSolving/r/dataItems`, list);
+      this.dataItemList.push(data);
     },
   },
-  props: {
-    initDataItems: {
-      type: Array,
-    },
-  },
-
-  created() {
-    this.init();
+  mounted() {
+    this.getDataItem();
   },
 };
 </script>

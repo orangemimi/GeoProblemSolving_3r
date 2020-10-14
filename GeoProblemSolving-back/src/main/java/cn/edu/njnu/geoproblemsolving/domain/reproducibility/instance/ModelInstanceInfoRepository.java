@@ -13,4 +13,5 @@ import java.util.Optional;
 public interface ModelInstanceInfoRepository extends MongoRepository<ModelInstanceInfo,String> {
     Optional<ModelInstanceInfo> findFirstById(String id);
     List<ModelInstanceInfo> findAllByStepId(String stepId);
+    List<ModelInstanceInfo> findAllByPid(String userId);
 }

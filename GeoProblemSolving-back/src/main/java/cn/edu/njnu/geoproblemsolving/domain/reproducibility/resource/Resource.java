@@ -20,7 +20,7 @@ public class Resource extends BaseEntity {
     String userId;
     String pid;
     List<DataItem> dataItemList;
-    List<ToolItem> toolItemList;
+    List<ToolItem2> toolItem2List;
     List<DataItem> intermediateDataItemList;
 
 }

@@ -814,7 +814,7 @@ body {
 import Avatar from "vue-avatar";
 export default {
   beforeRouteEnter: (to, from, next) => {
-    next(vm => {
+    next((vm) => {
       if (!vm.$store.getters.userState) {
         next("/login");
       } else {
@@ -844,7 +844,7 @@ export default {
     };
   },
   components: {
-    Avatar
+    Avatar,
   },
   data() {
     var validatePass = (rule, value, callback) => {
@@ -863,38 +863,38 @@ export default {
         {
           type: "selection",
           width: 60,
-          align: "center"
+          align: "center",
         },
         {
           title: "Name",
           key: "name",
           tooltip: true,
-          sortable: true
+          sortable: true,
         },
         {
           title: "Type",
           key: "type",
           sortable: true,
-          width: 90
+          width: 90,
         },
         {
           title: "Description",
           key: "description",
           tooltip: true,
-          sortable: true
+          sortable: true,
         },
         {
           title: "Time",
           key: "uploadTime",
           width: 160,
-          sortable: true
+          sortable: true,
         },
         {
           title: "Action",
           slot: "action",
           width: 150,
-          align: "center"
-        }
+          align: "center",
+        },
       ],
       userManagerProjectList: [],
       editProfileModal: false,
@@ -921,112 +921,112 @@ export default {
         introduction: "",
         direction: "",
         homePage: "",
-        avatar: ""
+        avatar: "",
       },
       ruleValidate: {
         userName: [
           {
             required: true,
             message: "The name cannot be empty",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         email: [
           {
             required: true,
             message: "Mailbox cannot be empty",
-            trigger: "blur"
+            trigger: "blur",
           },
           {
             type: "email",
             message: "Incorrect email format",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         password: [
           {
             required: true,
             min: 6,
             message: "Password should be more than 6 words",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         confimPassword: [
           {
             required: true,
             validator: validatePass,
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         jobTitle: [
           {
             required: true,
             message: "Job Title cannot be empty",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         gender: [
           {
             required: true,
             message: "Please select gender",
-            trigger: "change"
-          }
+            trigger: "change",
+          },
         ],
         mobilePhone: [
           {
             required: false,
             message: "Please enter your phone number",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         country: [
           {
             required: true,
             message: "Please enter your country",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         city: [
           {
             required: false,
             message: "Please enter your city",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         organization: [
           {
             required: true,
             message: "Please enter your affiliation",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         introduction: [
           {
             required: false,
             message: "Please enter a personal introduction",
-            trigger: "blur"
+            trigger: "blur",
           },
           {
             type: "string",
             min: 20,
             message: "Introduction no less than 20 characters",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         field: [
           {
             required: false,
             message: "Please enter your research field",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         homePage: [
           {
             required: false,
             message: "Please enter your home page url",
-            trigger: "blur"
-          }
-        ]
+            trigger: "blur",
+          },
+        ],
       },
       //用来验证个人信息维护表单填写规范的依据
       //输入框的样式
@@ -1062,79 +1062,79 @@ export default {
       deleteProjectId: "",
       ops: {
         bar: {
-          background: "#808695"
-        }
+          background: "#808695",
+        },
       },
       editFileModel: false,
       editFileValidate: {
         name: "",
         description: "",
         type: "",
-        privacy: ""
+        privacy: "",
       },
       editFileRuleValidate: {
         privacy: [
           {
             required: true,
             message: "file privacy cannot be empty",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         type: [
           {
             required: true,
             message: "file type cannot be empty",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         name: [
           {
             required: true,
             message: "file description cannot be empty",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         description: [
           {
             required: true,
             message: "file description cannot be empty",
-            trigger: "blur"
-          }
-        ]
+            trigger: "blur",
+          },
+        ],
       },
       filesToPackage: [],
       uploadModal: false,
       uploadValidate: {
         privacy: "private",
         type: "data",
-        description: ""
+        description: "",
       },
       uploadRuleValidate: {
         privacy: [
           {
             required: true,
             message: "file privacy cannot be empty",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         type: [
           {
             required: true,
             message: "file type cannot be empty",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         description: [
           {
             required: true,
             message: "file description cannot be empty",
-            trigger: "blur"
-          }
-        ]
+            trigger: "blur",
+          },
+        ],
       },
       toUploadFiles: [],
       uploadProgress: 0,
-      progressModalShow: false
+      progressModalShow: false,
     };
   },
   methods: {
@@ -1167,7 +1167,7 @@ export default {
                 "&value=" +
                 projectIds[i].projectId
             )
-            .then(res => {
+            .then((res) => {
               if (res.data != "None") {
                 participatoryProjectListTemp.push(res.data[0]);
               }
@@ -1193,7 +1193,7 @@ export default {
                 this.$set(this, "joinedProjectsList", participatoryProjectList);
               }
             })
-            .catch(err => {
+            .catch((err) => {
               console.log(err.data);
             });
         }
@@ -1208,14 +1208,14 @@ export default {
             "&value=" +
             this.userDetail.userId
         )
-        .then(res => {
+        .then((res) => {
           if (res.data != "None" && res.data != "Fail") {
             this.userManagerProjectList = res.data;
           } else {
             this.userManagerProjectList = [];
           }
         })
-        .catch(err => {});
+        .catch((err) => {});
     },
     //注销的模态框按钮
     logOutModalShow() {
@@ -1229,10 +1229,10 @@ export default {
             "userId=" +
             this.$store.getters.userId
         )
-        .then(res => {
+        .then((res) => {
           window.location.href = "/GeoProblemSolving/home";
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err.data);
         });
     },
@@ -1251,7 +1251,7 @@ export default {
             "&userId=" +
             this.$store.getters.userId
         )
-        .then(res => {
+        .then((res) => {
           if (res.data == "Offline") {
             this.$store.commit("userLogout");
             this.$router.push({ name: "Login" });
@@ -1269,16 +1269,16 @@ export default {
                 this.$store.getters.userName +
                 " had quited from your project " +
                 this.currentProject.title +
-                "!"
+                "!",
             };
             this.axios
               .post("/GeoProblemSolving/notice/save", notice)
-              .then(res => {
+              .then((res) => {
                 if (res.data == "Success") {
                   this.$emit("sendNotice", recipientId);
                 }
               })
-              .catch(err => {
+              .catch((err) => {
                 console.log("申请失败的原因是：" + err.data);
               });
           } else {
@@ -1286,7 +1286,7 @@ export default {
             console.log("Quit fail: " + res.data);
           }
         })
-        .catch(err => {});
+        .catch((err) => {});
     },
     removeQuitProject(projectId) {
       let oldjoinedProjectsList = this.joinedProjectsList;
@@ -1312,7 +1312,7 @@ export default {
             "&newManagerId=" +
             this.selectManagerId
         )
-        .then(res => {
+        .then((res) => {
           if (res.data == "Offline") {
             this.$store.commit("userLogout");
             this.$router.push({ name: "Login" });
@@ -1329,21 +1329,21 @@ export default {
               description:
                 "You have been the manager of project " +
                 this.currentProject.title +
-                " !"
+                " !",
             };
             this.axios
               .post("/GeoProblemSolving/notice/save", notice)
-              .then(res => {
+              .then((res) => {
                 if (res.data == "Success") {
                   this.$emit("sendNotice", recipientId);
                 }
               })
-              .catch(err => {
+              .catch((err) => {
                 console.log("申请失败的原因是：" + err.data);
               });
           }
         })
-        .catch(err => {});
+        .catch((err) => {});
     },
     projectManageToJoin(project) {
       this.joinedProjectsList.push(project);
@@ -1368,7 +1368,7 @@ export default {
               "projectId=" +
               this.deleteProjectId
           )
-          .then(res => {
+          .then((res) => {
             if (res.data == "Offline") {
               this.$store.commit("userLogout");
               this.$router.push({ name: "Login" });
@@ -1384,11 +1384,11 @@ export default {
             } else {
               this.$Notice.error({
                 title: "Error",
-                desc: "Delete project fail."
+                desc: "Delete project fail.",
               });
             }
           })
-          .catch(err => {
+          .catch((err) => {
             console.log(err.data);
           });
       }
@@ -1411,7 +1411,7 @@ export default {
       } else {
         var reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = e => {
+        reader.onload = (e) => {
           // 读取到的图片base64 数据编码 将此编码字符串传给后台即可
           imgcode = e.target.result;
           this.personalInfoItem.avatar = imgcode;
@@ -1419,14 +1419,17 @@ export default {
         };
       }
     },
+    
     handleView() {
       this.visible = true;
     },
+
     handleRemove() {
       this.personalInfoItem.avatar = "";
     },
+
     submitProfileEdit(name) {
-      this.$refs[name].validate(valid => {
+      this.$refs[name].validate((valid) => {
         if (valid) {
           var data = this.personalInfoItem;
           var changedProfile = new URLSearchParams();
@@ -1437,12 +1440,12 @@ export default {
           }
           this.axios
             .post("/GeoProblemSolving/user/update", changedProfile)
-            .then(res => {
+            .then((res) => {
               if (res.data !== "Fail") {
                 // this.drawerClose = true;
                 this.$Notice.success({
                   title: "notification",
-                  desc: "Profile update successfully"
+                  desc: "Profile update successfully",
                 });
                 let userInfo = res.data;
                 userInfo.userState = true;
@@ -1454,7 +1457,7 @@ export default {
                 sessionStorage.setItem("userInfo", JSON.stringify(userInfo));
               }
             })
-            .catch(err => {});
+            .catch((err) => {});
         }
       });
     },
@@ -1465,8 +1468,15 @@ export default {
     goSingleProject(projectInfo) {
       // sessionStorage.setItem("projectInfo", JSON.stringify(projectInfo));
       sessionStorage.setItem("projectInfo", this.encrypto(projectInfo));
-      window.location.href =
-        "/GeoProblemSolving/projectDetail/" + projectInfo.projectId;
+
+      if (projectInfo.category == "Reproducible"){
+        window.location.href =
+          "/r2/" + projectInfo.projectId;
+      } else{
+        window.location.href =
+          "/GeoProblemSolving/projectDetail/" + projectInfo.projectId;
+      }
+        
     },
     readPersonalEvent() {
       this.axios
@@ -1477,7 +1487,7 @@ export default {
             "&value=" +
             this.$store.getters.userId
         )
-        .then(res => {
+        .then((res) => {
           if (res.data == "Offline") {
             this.$store.commit("userLogout");
             this.$router.push({ name: "Login" });
@@ -1485,7 +1495,7 @@ export default {
             this.userEventList = res.data.reverse();
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err.data);
         });
     },
@@ -1497,14 +1507,14 @@ export default {
             "&value=" +
             this.$store.getters.userId
         )
-        .then(res => {
+        .then((res) => {
           if (res.data != "None" && res.data != "Fail") {
             this.userResourceList = res.data;
           } else if (res.data == "None") {
             this.userResourceList = [];
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err.data);
         });
     },
@@ -1523,22 +1533,22 @@ export default {
               "resourceId=" +
               this.deleteResourceId
           )
-          .then(res => {
+          .then((res) => {
             if (res.data == "Success") {
               this.$Notice.success({
                 title: "Process result",
-                desc: "Delete successfully"
+                desc: "Delete successfully",
               });
               this.getUserResource();
             } else if (res.data == "Fail") {
               this.$Notice.error({
                 title: "Process result",
-                desc: "Delete fail"
+                desc: "Delete fail",
               });
               // this.$Message.info("Failure");
             }
           })
-          .catch(err => {
+          .catch((err) => {
             console.log(err.data);
           });
       }
@@ -1554,12 +1564,12 @@ export default {
         name: oldFileInfo.name,
         description: oldFileInfo.description,
         type: oldFileInfo.type,
-        privacy: oldFileInfo.privacy
+        privacy: oldFileInfo.privacy,
       };
       this.editFileModel = true;
     },
     changeFileInfo(name) {
-      this.$refs[name].validate(valid => {
+      this.$refs[name].validate((valid) => {
         if (valid) {
           var editFormData = new FormData();
           editFormData.append(
@@ -1573,9 +1583,9 @@ export default {
           this.axios({
             url: "/GeoProblemSolving/resource/update",
             method: "post",
-            data: editFormData
+            data: editFormData,
           })
-            .then(res => {
+            .then((res) => {
               this.editFileModel = false;
               if (res.data != "Fail" && res.data != "None") {
                 var newResourceInfo = res.data;
@@ -1588,7 +1598,7 @@ export default {
                 this.$Message.error("Edit fail: " + res.data + ".");
               }
             })
-            .catch(err => {
+            .catch((err) => {
               this.$Message.error("Edit error.");
             });
         }
@@ -1608,9 +1618,9 @@ export default {
         this.axios({
           method: "post",
           url: "/GeoProblemSolving/resource/packageZIP?fileURLs=" + filesUrlStr,
-          responseType: "blob"
+          responseType: "blob",
         })
-          .then(res => {
+          .then((res) => {
             this.$Spin.hide();
             if (res.status == 200) {
               const blobUrl = window.URL.createObjectURL(res.data);
@@ -1619,7 +1629,7 @@ export default {
               }
             }
           })
-          .catch(err => {
+          .catch((err) => {
             confirm("errror");
           });
       } else {
@@ -1641,7 +1651,7 @@ export default {
       this.uploadValidate = {
         privacy: "private",
         type: "data",
-        description: ""
+        description: "",
       };
       this.toUploadFiles = [];
       this.uploadModal = true;
@@ -1673,7 +1683,7 @@ export default {
       this.toUploadFiles.splice(index, 1);
     },
     resourceUpload(name) {
-      this.$refs[name].validate(valid => {
+      this.$refs[name].validate((valid) => {
         if (valid) {
           var uploadFiles = this.toUploadFiles;
           if (uploadFiles.length > 0) {
@@ -1690,13 +1700,13 @@ export default {
             this.axios({
               url: "/GeoProblemSolving/resource/upload",
               method: "post",
-              onUploadProgress: progressEvent => {
+              onUploadProgress: (progressEvent) => {
                 this.uploadProgress =
                   ((progressEvent.loaded / progressEvent.total) * 100) | 0;
               },
-              data: formData
+              data: formData,
             })
-              .then(res => {
+              .then((res) => {
                 if (res.data != "Fail") {
                   var uploadedList = res.data.uploaded;
                   var failedList = res.data.failed;
@@ -1707,17 +1717,17 @@ export default {
                   if (sizeOverList.length > 0) {
                     this.$Notice.warning({
                       title: "Files too large.",
-                      render: h => {
+                      render: (h) => {
                         return h("span", sizeOverList.join(";"));
-                      }
+                      },
                     });
                   }
                   if (failedList.length > 0) {
                     this.$Notice.error({
                       title: "Upload fail.",
-                      render: h => {
+                      render: (h) => {
                         return h("span", failedList.join(";"));
-                      }
+                      },
                     });
                   }
                 } else {
@@ -1726,7 +1736,7 @@ export default {
                 this.progressModalShow = false;
                 this.uploadProgress = 0;
               })
-              .catch(err => {
+              .catch((err) => {
                 this.progressModalShow = false;
                 this.$Message.warning("Upload fail.");
                 this.uploadProgress = 0;
@@ -1750,10 +1760,10 @@ export default {
       encrypted = CryptoJS.AES.encrypt(srcs, key, {
         iv: iv,
         mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7
+        padding: CryptoJS.pad.Pkcs7,
       });
       return encrypted.toString();
     },
-  }
+  },
 };
 </script>

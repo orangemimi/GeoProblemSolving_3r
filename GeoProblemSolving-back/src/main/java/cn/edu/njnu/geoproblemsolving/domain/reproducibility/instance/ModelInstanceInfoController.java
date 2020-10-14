@@ -19,21 +19,26 @@ public class ModelInstanceInfoController {
     ModelInstanceInfoService modelInstanceInfoService;
 
     @RequestMapping(value = "/get/{stepId}", method = RequestMethod.GET)
-    public JsonResult getStepInfo(@PathVariable("stepId") String stepId) {
+    public JsonResult getStepInstances(@PathVariable("stepId") String stepId) {
         return ResultUtils.success(modelInstanceInfoService.getModelInstanceInfo(stepId));
     }
 
+    @RequestMapping(value = "/getAll/{pid}", method = RequestMethod.GET)
+    public JsonResult getAllInstances(@PathVariable("pid") String pid) {
+        return ResultUtils.success(modelInstanceInfoService.getAllModelInstanceInfo(pid));
+    }
+
     @RequestMapping(value = "/update/{id}", produces = {"application/json;charset=UTF-8"}, method = RequestMethod.POST)
-    public JsonResult updateStepInfo(@PathVariable("id") String id, @RequestBody UpdateModelInstanceInfoDTO UpdateResourceDTO) {
+    public JsonResult updateInstance(@PathVariable("id") String id, @RequestBody UpdateModelInstanceInfoDTO UpdateResourceDTO) {
         return ResultUtils.success(modelInstanceInfoService.updateModelInstanceInfo(id, UpdateResourceDTO));
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public JsonResult saveStepInfo(@RequestBody AddModelInstanceInfoDTO add) {
+    public JsonResult saveInstance(@RequestBody AddModelInstanceInfoDTO add) {
             return ResultUtils.success(modelInstanceInfoService.saveModelInstanceInfo(add));
     }
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-    public JsonResult deleteTool(@PathVariable("id") String id){
+    public JsonResult deleteInstance(@PathVariable("id") String id){
         modelInstanceInfoService.deleteById(id);
         return ResultUtils.success();
     }

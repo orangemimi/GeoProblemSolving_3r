@@ -472,7 +472,7 @@ export default {
     async submitUpload(stateIndex, eventIndex, uploadFileForm) {
       console.log(uploadFileForm.getAll("file"));
       let data = await post(
-        `/GeoProblemSolving/dataItem/uploadSingle`,
+        `/GeoProblemSolving/dataContainer/uploadSingle`,
         uploadFileForm
       );
       console.log(data);

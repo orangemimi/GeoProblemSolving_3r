@@ -1,6 +1,8 @@
 package cn.edu.njnu.geoproblemsolving.domain.reproducibility.resource;
 
+import cn.edu.njnu.geoproblemsolving.domain.support.BaseEntity;
 import lombok.Data;
+import org.springframework.data.annotation.Id;
 
 /**
  * @Author Zhiyi
@@ -8,8 +10,10 @@ import lombok.Data;
  * @Version 1.0.0
  */
 @Data
-public class ModelItem {
+public class ModelItem extends BaseEntity {
 //    ComputableModel computableModel;
-    ToolItem modelTool;
+    @Id
+    String id;
+    ToolItem2 modelTool;
 //    List<String> toolIds;
 }

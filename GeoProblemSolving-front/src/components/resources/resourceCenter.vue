@@ -56,7 +56,7 @@
                             </Select>
                             <span style="margin-left:15px">->  Step:</span>
                             <Select class="selector" v-model="selectedStepId" :disabled="stepDisable"  @on-change="changeStep">
-                                <Option v-for="step in stepList" :key="step.stepID" :value="step.stepID">{{step.name}}</Option>
+                                <Option v-for="step in stepList" :key="step.stepId" :value="step.stepId">{{step.name}}</Option>
                             </Select>
                         </div>
                         <div style="margin-top:20px">
@@ -255,8 +255,8 @@ export default {
             this.getResourceInfo();
         },
         getSubProjectList(projectId){
-            var defaultOption = [{name:"—show subproject's resource—",stepID:"all"}];
-            this.selectedStepId = defaultOption[0].stepID;
+            var defaultOption = [{name:"—show subproject's resource—",stepId:"all"}];
+            this.selectedStepId = defaultOption[0].stepId;
             this.stepDisable = true;
             this.axios
             .get(
@@ -294,7 +294,7 @@ export default {
                     break;
                 }
             }
-            var defaultOption = [{name:"—show subproject's resource—",stepID:"all"}];
+            var defaultOption = [{name:"—show subproject's resource—",stepId:"all"}];
             var stepOptions = [];
             if(thisSubProject.solvingProcess!=undefined){
                 var stepInfos = JSON.parse(thisSubProject.solvingProcess);
@@ -303,7 +303,7 @@ export default {
                 stepOptions = defaultOption;
             }
             this.$set(this,'stepList',stepOptions);
-            this.selectedStepId = stepOptions[0].stepID;
+            this.selectedStepId = stepOptions[0].stepId;
             this.stepDisable = false;
         },
         changeProject(projectId){
@@ -315,8 +315,8 @@ export default {
         changeSubProject(subProjectId){
             if(subProjectId=="all"){
                 this.scopeId = this.selectedProjectId;
-                var defaultOption = [{title:"—show subproject's resource—",stepID:"all"}];
-                this.selectedStepId = defaultOption[0].stepID;
+                var defaultOption = [{title:"—show subproject's resource—",stepId:"all"}];
+                this.selectedStepId = defaultOption[0].stepId;
                 this.stepDisable = true;
             }
             else{

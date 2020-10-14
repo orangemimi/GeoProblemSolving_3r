@@ -2,7 +2,7 @@ package cn.edu.njnu.geoproblemsolving.domain.reproducibility.resource.dto;
 
 import cn.edu.njnu.geoproblemsolving.Dto.ToDomainConverter;
 import cn.edu.njnu.geoproblemsolving.domain.reproducibility.resource.DataItem;
-import cn.edu.njnu.geoproblemsolving.domain.reproducibility.resource.ToolItem;
+import cn.edu.njnu.geoproblemsolving.domain.reproducibility.resource.ToolItem2;
 import cn.edu.njnu.geoproblemsolving.domain.reproducibility.resource.Resource;
 import lombok.Data;
 
@@ -18,5 +18,5 @@ public class AddResourceDTO implements ToDomainConverter<Resource> {
     String userId;
     String pid;
     List<DataItem> dataItemList;
-    List<ToolItem> toolItemList;
+    List<ToolItem2> toolItem2List;
 }

@@ -73,7 +73,7 @@ export default {
       this.dis = true;
     },
     download() {
-      let url = `/GeoProblemSolving/dataItem/download/${this.eventUrl.value}`;
+      let url = `/GeoProblemSolving/dataContainer/download/${this.eventUrl.value}`;
       window.open(url);
     },
 
@@ -125,7 +125,7 @@ export default {
         });
       } else {
         let data = await post(
-         `/GeoProblemSolving/dataItem/uploadSingle`,
+         `/GeoProblemSolving/dataContainer/uploadSingle`,
           this.uploadFileForm
         );
         // console.log(data);

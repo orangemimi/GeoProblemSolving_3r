@@ -327,7 +327,7 @@ export default {
           activeStep = this.processStructure[0];
         }
 
-        let stepId = activeStep.stepID;
+        let stepId = activeStep.stepId;
         if (activeStep.category == 0) {
           this.$router.push({
             name: "contextDefinition",

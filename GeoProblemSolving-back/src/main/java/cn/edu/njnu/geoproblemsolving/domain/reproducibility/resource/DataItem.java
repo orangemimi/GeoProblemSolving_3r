@@ -14,7 +14,8 @@ public class DataItem {
     String name;
     String url;
     Boolean isDirect;//false--中间处理数据 //true--直接上传数据
-    List<String> modelInstanceInputList; //作为输入数据的使用过的instance
-    String modelInstanceOutput;//作为输出数据使用过的instance
-
+    List<String> toModelInstanceList; //作为输入数据的使用过的instance
+    String fromModelInstance;//作为输出数据使用过的instance
+    StepBind stepBind;//stepBind
+    List<String> stepInherit;//数据在哪些步骤中使用的
 }

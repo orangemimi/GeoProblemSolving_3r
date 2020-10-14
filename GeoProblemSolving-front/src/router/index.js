@@ -18,16 +18,10 @@ const routes = [{
         path: 'staticPage',
         name: 'StaticPage',
         component: resolve => (require(["@/components/navigationContent/staticPage"], resolve))
-      },
-
-      // { path: 'home', name: 'Home', component: resolve => (require(["@/components/navigationContent/home"], resolve)) },
-      // { path: 'projectlist', name: 'Projects', component: resolve => (require(["@/components/navigationContent/projectList"], resolve)) },
-      // { path: 'project/:id', name: 'ProjectDetail', component: resolve => (require(["@/components/projects/projectDetail"], resolve)) },
-      // { path: 'project/:id/workspace', name: 'workspace', component: resolve => (require(["@/components/workingSpace/moduleList"], resolve)) },
-      // { path: 'markdown', name: 'markDown', component: resolve => (require(["@/components/workingSpace/utils/markDown"], resolve)) },
+      },   
 
       {
-        path: 'r2/:projectId/',
+        path: 'r2/:projectId',
         name: 'r2',
         component: resolve => (require(["@/components/r2/r2"], resolve)),
       },
@@ -40,10 +34,24 @@ const routes = [{
         name: 'simulationExecution',
         component: resolve => (require(["@/components/r2/modelConstruction"], resolve)),
         children: [{
-          path: 'modelItemInfo/:doi',
+          path: '/modelItemInfo/:doi',
           name: 'modelItemInfo',
           component: () => import("@/components/r2/components/modelItemInfo"),
         }]
+      },{
+        path: 'r2/:projectId/resultAnalysis',
+        name: 'resultAnalysis',
+        component: resolve => (require(["@/components/r2/resultAnalysis"], resolve)),
+        children: [{
+          path: 'info',
+          name: 'resultInfo',
+          component: () => import("@/components/r2/components/resultAnalysis/Info"),
+        },{
+          path: 'edit',
+          name: 'resultEdit',
+          component: () => import("@/components/r2/components/resultAnalysis/Edit"),
+        }]
+        
       },
       {
         path: 'project/:id/permission',

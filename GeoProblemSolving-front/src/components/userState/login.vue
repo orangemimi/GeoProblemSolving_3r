@@ -8,18 +8,18 @@
 }
 
 .content {
-  background-image: url("../../assets/images/c5.jpg");
+  background-image: url("../../assets/images/bg.jpg");
   background-size: cover;
   display: flex;
   justify-content: center;
   /* background-attachment:fixed; */
-  margin: 0 auto;
+  /* margin: 0 auto; */
 }
 .loginDiv {
   width: 450px;
   border: 1px solid rgba(133, 115, 92, 0.4);
   position: absolute;
-  left: 60%;
+  left: 40%;
   top: 5%;
   background-color: rgba(255, 255, 255, 1);
 }
@@ -172,7 +172,7 @@ export default {
   computed: {
     UserState() {
       return this.$store.getters.userState;
-    }
+    },
   },
   created() {
     if (this.$store.getters.userState) {
@@ -183,35 +183,35 @@ export default {
     return {
       loginForm: {
         user: "",
-        password: ""
+        password: "",
       },
       loginFormRule: {
         user: [
           {
             required: true,
             message: "User name can not be empty",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         password: [
           {
             required: true,
             message: "Password can not be empty",
-            trigger: "blur"
+            trigger: "blur",
           },
           {
             type: "string",
             min: 6,
             message: "The length of password can not be less than 6 characters",
-            trigger: "blur"
-          }
-        ]
+            trigger: "blur",
+          },
+        ],
       },
       loginStyle: {
-        marginTop: ""
+        marginTop: "",
       },
       contentStyle: {
-        height: ""
+        height: "",
       },
       checked: false,
       changePwdEmailStyle:
@@ -220,7 +220,7 @@ export default {
         "http://" +
         this.$store.state.IP_Port +
         "/GeoProblemSolving/resetPassword/",
-      resetModalSHow: false
+      resetModalSHow: false,
     };
   },
   mounted() {
@@ -234,7 +234,7 @@ export default {
       this.loginStyle.marginTop = window.innerHeight / 5 + "px";
     },
     login(form) {
-      this.$refs[form].validate(valid => {
+      this.$refs[form].validate((valid) => {
         if (valid) {
           if (this.checked == true) {
             localStorage.setItem("user", this.loginForm.user);
@@ -260,7 +260,7 @@ export default {
                 "&password=" +
                 passwordAESURI
             )
-            .then(res => {
+            .then((res) => {
               if (res.data === "Email") {
                 this.$Message.error("Email does not exist.");
               } else if (res.data === "Password" || res.data === "Fail") {
@@ -320,7 +320,7 @@ export default {
       var decrypt = CryptoJS.AES.decrypt(context, key, {
         iv: iv,
         mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.Pkcs7
+        padding: CryptoJS.pad.Pkcs7,
       });
       var decryptedStr = decrypt.toString(CryptoJS.enc.Utf8);
       return decryptedStr.toString();
@@ -339,27 +339,27 @@ export default {
         " to change your password, thanks.";
       this.axios
         .post("/GeoProblemSolving/email/send", emailFormBody)
-        .then(res => {
+        .then((res) => {
           if (res.data == "Success") {
             this.$Notice.success({
               title: "Email send success",
-              desc: "The email has been sent successfully."
+              desc: "The email has been sent successfully.",
             });
           } else {
             this.$Notice.error({
               title: "Email send fail",
-              desc: "Maybe you input a wrong email , please check it out."
+              desc: "Maybe you input a wrong email , please check it out.",
             });
           }
         })
-        .catch(err => {
+        .catch((err) => {
           console.log(err.data);
         });
     },
     register() {
       this.$router.push({ name: "Register" });
-    }
-  }
+    },
+  },
 };
 </script>
 

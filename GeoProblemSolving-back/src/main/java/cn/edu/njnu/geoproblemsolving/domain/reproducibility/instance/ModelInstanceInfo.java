@@ -5,8 +5,6 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
-
 /**
  * @Author Zhiyi
  * @Date 2020/8/19  18:11
@@ -28,8 +26,12 @@ public class ModelInstanceInfo extends BaseEntity {
     String states;
     String name;//model name
     String description;//model description
-    String tid;//tool id
+    String toolId;//tool id
     String toolUrl;
-    String status;
+
     String md5;
+    String status;
+    String tid;// model taskid
+    String ip;
+    String port;
 }

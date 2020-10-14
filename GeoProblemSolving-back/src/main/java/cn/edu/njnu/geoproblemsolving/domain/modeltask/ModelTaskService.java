@@ -4,28 +4,11 @@ package cn.edu.njnu.geoproblemsolving.domain.modeltask;
 
 import cn.edu.njnu.geoproblemsolving.Enums.ResultEnum;
 import cn.edu.njnu.geoproblemsolving.Exception.MyException;
-import cn.edu.njnu.geoproblemsolving.Utils.ResultUtils;
-import cn.edu.njnu.geoproblemsolving.domain.support.JsonResult;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-
-import javax.annotation.Resource;
-import javax.servlet.http.Part;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
 
 
 @Service

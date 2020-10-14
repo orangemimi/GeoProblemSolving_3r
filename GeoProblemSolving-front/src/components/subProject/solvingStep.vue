@@ -235,7 +235,7 @@
       <div slot="footer">
         <Button
           type="primary"
-          @click="gotoThisWorkspace(showActivityInfo.type, showActivityInfo.stepID)"
+          @click="gotoThisWorkspace(showActivityInfo.type, showActivityInfo.stepId)"
         >Go to this workspace</Button>
       </div>
     </Modal>
@@ -561,7 +561,7 @@ export default {
             for (var i = 0; i < this.selectedStep.length; i++) {
               for (var j = 0; j < this.activeStepInfo.length; j++) {
                 if (
-                  this.selectedStep[i].stepId == this.activeStepInfo[j].stepID
+                  this.selectedStep[i].stepId == this.activeStepInfo[j].stepId
                 ) {
                   count++;
                 }
@@ -790,7 +790,7 @@ export default {
           let datum = {
             name: this.processStructure[i].name,
             index: this.processStructure[i].id,
-            stepId: this.processStructure[i].stepID,
+            stepId: this.processStructure[i].stepId,
             x: this.processStructure[i].x,
             y: this.processStructure[i].y,
             category: this.processStructure[i].category,
@@ -800,7 +800,7 @@ export default {
             datum.symbolSize = 60;
             this.nodeData.push(datum);
             this.selectedStep.push({
-              stepId: this.processStructure[i].stepID,
+              stepId: this.processStructure[i].stepId,
               id: this.processStructure[i].id,
               name: this.processStructure[i].name
             });
@@ -867,7 +867,7 @@ export default {
           _this.activityInfoModal = true;
           let stepType = _this.getStepType(params.data.category);
           let activity = {
-            stepID: params.data.stepId,
+            stepId: params.data.stepId,
             name: params.data.name,
             type: stepType
           };
@@ -1008,11 +1008,11 @@ export default {
       var activityChangeList = [];
       for (var i = 0; i < this.selectedStep.length; i++) {
         for (var j = 0; j < this.processStructure.length; j++) {
-          if (this.processStructure[j].stepID == this.selectedStep[i].stepId) {
+          if (this.processStructure[j].stepId == this.selectedStep[i].stepId) {
             if (!this.processStructure[j].activeStatus) {
               this.processStructure[j].activeStatus = true;
               activityChangeList.push({
-                stepId: this.processStructure[j].stepID,
+                stepId: this.processStructure[j].stepId,
                 activeStatus: this.processStructure[j].activeStatus
               });
 
@@ -1041,7 +1041,7 @@ export default {
       for (var i = 0; i < this.slctActiveStepInfo.length; i++) {
         for (var j = 0; j < this.processStructure.length; j++) {
           if (
-            this.slctActiveStepInfo[i].stepID == this.processStructure[j].stepID
+            this.slctActiveStepInfo[i].stepId == this.processStructure[j].stepId
           ) {
             if (!this.processStructure[j].next.contains[nextnode]) {
               this.processStructure[j].next.push(nextnode);
@@ -1049,7 +1049,7 @@ export default {
 
             this.processStructure[j].activeStatus = false;
             activityChangeList.push({
-              stepId: this.processStructure[j].stepID,
+              stepId: this.processStructure[j].stepId,
               activeStatus: this.processStructure[j].activeStatus
             });
 
@@ -1228,7 +1228,7 @@ export default {
         // create step node
         let newStepNode = {
           id: 0,
-          stepID: id,
+          stepId: id,
           name: this.formValidate1.stepTitle,
           category: nodeCategory,
           last: [],
@@ -1286,7 +1286,7 @@ export default {
           //inactivate selected step
           this.processStructure[this.selectedStep[i].id].activeStatus = false;
           activityChangeList.push({
-            stepId: this.processStructure[this.selectedStep[i].id].stepID,
+            stepId: this.processStructure[this.selectedStep[i].id].stepId,
             activeStatus: this.processStructure[this.selectedStep[i].id]
               .activeStatus
           });
@@ -1311,7 +1311,7 @@ export default {
         // create step node
         let newStepNode = {
           id: this.processStructure.length,
-          stepID: id,
+          stepId: id,
           name: this.formValidate1.stepTitle,
           category: nodeCategory,
           last: lastNode,
@@ -1602,7 +1602,7 @@ export default {
         let currentIndex = this.selectedStep[0].id;
 
         if (this.processStructure[currentIndex].end) {
-          let selectedStepId = this.processStructure[currentIndex].stepID;
+          let selectedStepId = this.processStructure[currentIndex].stepId;
           // 删除step节点
           if (currentIndex > 0) {
             // 处理被删除节点的前驱节点
@@ -1819,7 +1819,7 @@ export default {
       if (this.activeStepInfo.length == 1) {
         this.enterStep(
           this.activeStepInfo[0].category,
-          this.activeStepInfo[0].stepID
+          this.activeStepInfo[0].stepId
         );
       } else if (this.activeStepInfo.length > 1) {
         this.slctActiveStepInfo = [];
@@ -1828,13 +1828,13 @@ export default {
       } else {
         this.enterStep(
           this.processStructure[0].category,
-          this.processStructure[0].stepID
+          this.processStructure[0].stepId
         );
       }
     },
-    gotoThisWorkspace(type, stepID) {
+    gotoThisWorkspace(type, stepId) {
       let category = this.getStepCategroy(type);
-      this.enterStep(category, stepID);
+      this.enterStep(category, stepId);
     },
     selectAActivity(value) {
       if (value == "workspace") {
@@ -1842,7 +1842,7 @@ export default {
           if (this.workspaceName == this.activeStepInfo[i].name) {
             this.enterStep(
               this.activeStepInfo[i].category,
-              this.activeStepInfo[i].stepID
+              this.activeStepInfo[i].stepId
             );
             this.workspaceName = "";
           }

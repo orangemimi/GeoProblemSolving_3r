@@ -12,7 +12,7 @@ import java.util.List;
  * @Version 1.0.0
  */
 @Data
-public class ToolItem {
+public class ToolItem2 {
     private String tid;
     private String toolName;
     private String toolUrl;//stateId, oid,mdlId,模型条目？

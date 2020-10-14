@@ -23,7 +23,7 @@ import java.util.List;
  * @Version 1.0.0
  */
 @Service
-public class ModelItemService {
+public class SunModelItemService {
     @Value("${sunlingzhiIp}")
     private String sunlingzhiIp;
 
