@@ -177,7 +177,7 @@
 
 <script>
 import file from "@/components/dataTemplate/File";
-import { get, del, post, put } from "../../../axios";
+import { get, del, post, put, patch } from "../../../axios";
 export default {
   props: {
     pageParamsFrom: {
@@ -616,11 +616,9 @@ export default {
       await this.emitInstance(record);
     },
 
-    async getDataResourceLinkInstance() {
+    getDataResourceLinkInstance() {
       let stateList = this.stateList;
       let directDataResource = this.resources.dataItemList;
-      // let inDirectDataResource = this.filterIndirectDataResource;
-      console.log(this.modelInstance);
 
       stateList.forEach((state) => {
         state.Event.forEach((event) => {
@@ -636,19 +634,14 @@ export default {
               data["toModelInstanceList"].push(this.modelInstance.id);
               // break;
             }
+            this.updateDataItem(data.id, data);
           });
         });
       });
-      console.log(this.resources.dataItemList);
-      await this.updateResource();
     },
 
-    async updateResource() {
-      console.log(this.resources);
-      let data = await post(
-        `/GeoProblemSolving/r/resource/update/${this.modelInstance.pid}`,
-        this.resources
-      );
+    async updateDataItem(id, data) {
+      await patch(`/GeoProblemSolving/r/dataItems/${id}`, data);
     },
 
     download(event) {
@@ -656,10 +649,13 @@ export default {
     },
 
     async bind(event) {
-      let resource = this.resources;
+      console.log(event);
       let url = event.url;
       let fileName = event.name;
-      this.transationDataItemList = {
+      let list = {
+        userId: this.pageParams.userId,
+        pid: this.pageParams.pid,
+
         url: event.url,
         name: event.name,
         isDirect: false,
@@ -669,14 +665,11 @@ export default {
           stepName: this.pageParams.stepName,
         },
       };
-      resource.dataItemList.push(this.transationDataItemList);
 
-      let data = await post(
-        `/GeoProblemSolving/r/resource/update/${resource.pid}`,
-        resource
-      );
+      let data = await post(`/GeoProblemSolving/r/dataItems`, list);
+      this.resources.dataItemList.push(data);
 
-      if (data.msg == "成功") {
+      if (data != null) {
         this.$message({
           message: "You have collect your resource successfully",
           type: "success",

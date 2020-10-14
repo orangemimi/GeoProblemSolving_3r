@@ -54,7 +54,6 @@ export default {
         },
       },
       stepInfo: this.stepInformation,
-      initDataItems: [],
     };
   },
 
@@ -72,9 +71,8 @@ export default {
       let dataItem = await get(
         `/GeoProblemSolving/r/dataItems/${this.projectId}`
       );
-
-      this.initDataItems = dataItem;
-      this.dataItemList = this.initDataItems.filter((item) => {
+    
+      this.dataItemList = dataItem.filter((item) => {
         return item.isDirect == true;
       });
     },

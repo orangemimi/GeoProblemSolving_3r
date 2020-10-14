@@ -76,13 +76,7 @@
                       size="small"
                       @click="removeSelectedTools(index)"
                     ></i>
-                    <!-- <el-button
-                      circle
-                      icon="el-icon-remove"
-                      class="changeRedColor"
-                      size="small"
-                      @click="removeSelectedTools(index)"
-                    ></el-button> -->
+
                   </el-card>
                 </el-col>
               </div>
@@ -101,15 +95,6 @@ import draggable from "vuedraggable";
 
 export default {
   components: { toolCard, draggable },
-  // watch: {
-  //   sentTools: {
-  //     handler(val) {
-  //       this.$emit("selectTools", val);
-  //     },
-  //     deep: true,
-  //   },
-  // },
-
   data() {
     return {
       projectId: this.$route.params.projectId,
@@ -152,7 +137,6 @@ export default {
           tools = tools.filter((item) =>
             initTools.every((e) => e.toolName != item.toolName)
           );
-          // this.publicTools = tools;
         }
         console.log(tools);
         this.$set(this, "publicTools", tools);
@@ -221,14 +205,13 @@ export default {
       await this.getPublicTools();
       await this.getPersonalTools();
       await this.getSelectedTools();
-      // this.sentTools = this.initToolItems;
     },
 
     async getSelectedTools() {
       let modelItem = await get(
         `/GeoProblemSolving/r/toolItems/${this.projectId}`
       );
-      this.sentTools = modelItem;
+      // this.sentTools = modelItem;
       // this.initToolItems = modelItem;
       this.$set(this, "sentTools", modelItem);
     },
@@ -289,7 +272,6 @@ export default {
       console.log(param);
 
       this.sentTools.splice(index, 1);
-      // this.publicTools.push(removeToolInfo);
       if (removeToolInfo.privacy == "Public") {
         this.publicTools.push(param);
       } else {

@@ -332,27 +332,31 @@ export default {
     },
     async init() {
       // this.getPageParams();
-      await this.getSelectedResources();
+      await this.getDataItem();
+      await this.getToolItem();
       await this.getModelInstances();
       await this.getMap();
     },
 
-    // getPageParams() {
-
-    // },
-    async getSelectedResources() {
-      let { data } = await get(
-        `/GeoProblemSolving/r/resource/get/${this.projectId}`
+    async getDataItem() {
+      let dataItem = await get(
+        `/GeoProblemSolving/r/dataItems/${this.projectId}`
       );
-      this.$set(this, "selectedResources", data);
+      this.$set(this.selectedResources, "dataItemList", dataItem);
       if (this.$route.params.isInherit) {
-        this.selectedResources.dataItemList = data.dataItemList.filter(
+        this.selectedResources.dataItemList = dataItem.filter(
           (item) =>
             item.stepInherit != null &&
             item.stepInherit.some((id) => id == this.stepInfo.stepId)
         );
       }
-      console.log(this.selectedResources.dataItemList);
+    },
+
+    async getToolItem() {
+      let toolItem = await get(
+        `/GeoProblemSolving/r/toolItems/${this.projectId}`
+      );
+      this.$set(this.selectedResources, "toolItemList", toolItem);
     },
 
     //get modelinstance
@@ -457,31 +461,24 @@ export default {
       let resource = this.selectedResources;
       let dataItem = resource.dataItemList;
       dataItem.forEach((item, itemIndex) => {
-        if (
-          item.hasOwnProperty("toModelInstanceList") &&
-          item.toModelInstanceList != null
-        ) {
+        if (item.toModelInstanceList != null) {
           item.toModelInstanceList.forEach((id, index) => {
             if (id == this.deleteInstanceId) {
               item.toModelInstanceList.splice(index, 1);
+              patch(`/GeoProblemSolving/r/dataItems/${item.id}`, item);
             }
           });
         }
-        if (item.hasOwnProperty("fromModelInstance")) {
+        if (item.fromModelInstance != null) {
           if (item.fromModelInstance == this.deleteInstanceId) {
             dataItem.splice(itemIndex, 1);
+            del(`/GeoProblemSolving/r/dataItems/${item.id}`);
           }
         }
-      });
-      // console.log(resource.dataItemList);
-
-      let data = await post(
-        `/GeoProblemSolving/r/resource/update/${this.projectId}`,
-        resource
-      );
+      });   
       this.deleteInstanceDialog = false;
     },
-
+    
     deleteInstance(instanceId) {
       this.deleteInstanceId = instanceId;
       this.deleteInstanceDialog = true;
