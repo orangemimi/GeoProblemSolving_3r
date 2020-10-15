@@ -71,7 +71,7 @@ export default {
       let dataItem = await get(
         `/GeoProblemSolving/r/dataItems/${this.projectId}`
       );
-    
+
       this.dataItemList = dataItem.filter((item) => {
         return item.isDirect == true;
       });
@@ -118,10 +118,8 @@ export default {
         url: `http://221.226.60.2:8082/data?uid=${uid}`,
         name: this.file.name,
         isDirect: true, //if true -- 是直接上传的数据    --false是中间数据
-        stepBind: {
-          stepId: this.stepInfo.stepId,
-          stepName: this.stepInfo.name,
-        },
+        stepBindId: this.stepInfo.stepId,
+        stepBindName: this.stepInfo.name,
       };
 
       let data = await post(`/GeoProblemSolving/r/dataItems`, list);

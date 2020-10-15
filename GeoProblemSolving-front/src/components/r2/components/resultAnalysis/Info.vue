@@ -47,7 +47,14 @@
             </el-table>
           </div>
 
-          <div><mx-graph :sendXml="newMap"></mx-graph></div>
+          <div>
+            <map-create
+              :dataItems="allDataItemList"
+              :createMapInstances="checkedInstances"
+              :initXml="initXml"
+              @emitxml="emitxml"
+            ></map-create>
+          </div>
           <div>
             <div class="title">Simulation Result</div>
             <div v-html="result.detail"></div>
@@ -60,10 +67,13 @@
 
 <script>
 import { post, get } from "@/axios";
-import mxGraph from "@/components/utils/mxGraph/mxGraph";
+// import mxGraph from "@/components/utils/mxGraph/mxGraph";
+
+import mapCreate from "./../mapCreate";
 export default {
   components: {
-    mxGraph,
+    // mxGraph,
+    mapCreate,
   },
   props: {
     resultInfo: {
@@ -78,6 +88,9 @@ export default {
     allMaps: {
       type: Array,
     },
+    allDataItems: {
+      type: Array,
+    },
   },
   data() {
     return {
@@ -85,33 +98,11 @@ export default {
       stepList: this.simulationStepList,
       allInstanceList: this.allInstances,
       allMapList: this.allMaps,
-      sendXml: "",
+      allDataItemList: this.allDataItems,
+      initXml: "",
     };
   },
-  computed: {
-    filterCheckedInstanceList() {
-      let instances = this.allInstanceList;
-      let maps = this.allMapList;
-      instances.forEach((item) => {
-        if (
-          maps.some((map) =>
-            map.modelInstanceIdList.some((id) => id == item.id)
-          )
-        ) {
-          item.checkedForMap = true;
-        }
-      });
-      return instances;
-    },
-    newMap() {
-      this.sendXml = "";
-      this.allMaps.forEach((map) => {
-        this.sendXml = `<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/>${map.mapXml}</root></mxGraphModel>`;
-      });
-      console.log(this.sendXml);
-      return this.sendXml;
-    },
-  },
+
   watch: {
     resultInfo: {
       handler(val) {
@@ -133,14 +124,66 @@ export default {
     },
     allMaps: {
       handler(val) {
+        console.log(val);
         this.allMapList = val;
       },
       deep: true,
     },
+    allInstances: {
+      handler(val) {
+        this.allInstanceList = val;
+      },
+      deep: true,
+    },
+    allDataItems: {
+      handler(val) {
+        console.log(val);
+        this.allDataItemList = val;
+      },
+      deep: true,
+    },
   },
+
+  computed: {
+    filterCheckedInstanceList() {
+      let instances = this.allInstanceList;
+      let maps = this.allMapList;
+      instances.forEach((item) => {
+        item.checkedForMap = "";
+        if (
+          maps.some((map) =>
+            map.modelInstanceIdList.some((id) => id == item.id)
+          )
+        ) {
+          item.checkedForMap = true;
+        }
+      });
+      console.log(instances);
+      return instances;
+    },
+
+    checkedInstances() {
+      console.log(this.filterCheckedInstanceList);
+      // let instances = JSON.parse(
+      //   JSON.stringify(this.filterCheckedInstanceList)
+      // );
+      let instances = [...this.filterCheckedInstanceList];
+
+      instances = instances.filter((item) => {
+        return item.checkedForMap == true;
+      });
+      console.log(instances);
+      return instances;
+    },
+  },
+
   methods: {
     getStepInstance(step, instances) {
       return instances.filter((instance) => instance.stepId === step.stepId);
+    },
+
+    emitxml(val) {
+      console.log(val);
     },
   },
 };

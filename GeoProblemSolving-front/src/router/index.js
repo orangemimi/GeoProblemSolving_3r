@@ -28,7 +28,7 @@ const routes = [{
       {
         path: 'r2/:projectId/dataProcessing',
         name: 'r_dataProcessing',
-        component: resolve => (require(["@/components/r2/conceptMap"], resolve))
+        component: resolve => (require(["@/components/r2/components/mapCreate"], resolve))
       }, {
         path: 'r2/:projectId/modelConstruction',
         name: 'simulationExecution',

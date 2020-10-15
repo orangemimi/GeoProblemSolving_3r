@@ -39,7 +39,7 @@
           style="width: 100%"
         >
           <el-table-column
-            prop="stepBind.stepName"
+            prop="stepBindName"
             label="Previous Step"
             width="200"
           >
@@ -127,8 +127,8 @@ export default {
           //   console.log(dataItemList);
           return dataItemList.filter((item) => {
             return (
-              item.stepBind != null &&
-              last.some((e) => e.stepID == item.stepBind.stepId)
+              item.stepBindId != null &&
+              last.some((e) => e.stepID == item.stepBindId)
             );
           });
         }

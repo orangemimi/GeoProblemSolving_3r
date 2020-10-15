@@ -40,15 +40,23 @@
             <el-row>
               <el-card class="process_data" shadow="never">
                 <div :style="{ height: contentHeight - 20 + 'px' }">
-                  <vue-scroll :ops="ops">
-                    <model-item-info
-                      :pageParamsFrom="pageParams"
-                      :currentModelInfo="currentModelInfo"
-                      :selectedResources="selectedResources"
-                      :instanceFolk="instanceFolk"
-                      @modelInstance="saveModelInstance"
-                    ></model-item-info>
-                  </vue-scroll>
+                  <div v-if="currentModelInfo.toolUrl == ''">
+                    <div class="noCurrentModel">
+                      <i class="el-icon-warning"></i>
+                      Please select one tool from the left panel
+                    </div>
+                  </div>
+                  <div v-else>
+                    <vue-scroll :ops="ops">
+                      <model-item-info
+                        :pageParamsFrom="pageParams"
+                        :currentModelInfo="currentModelInfo"
+                        :selectedResources="selectedResources"
+                        :instanceFolk="instanceFolk"
+                        @modelInstance="saveModelInstance"
+                      ></model-item-info>
+                    </vue-scroll>
+                  </div>
                 </div>
               </el-card>
             </el-row>
@@ -60,7 +68,12 @@
                   class="mxGraph"
                   :style="{ height: contentHeight - 20 + 'px' }"
                 >
-                  <mx-graph :sendXml="sendXml"></mx-graph>
+                  <map-create
+                    :dataItems="selectedResources.dataItemList"
+                    :createMapInstances="checkedInstances"
+                    :initXml="initXml"
+                    @emitxml="emitxml"
+                  ></map-create>
                 </div>
               </el-card>
             </el-row>
@@ -192,7 +205,7 @@ import toolCard from "./components/toolCard";
 import { get, del, post, patch } from "../../axios";
 import modelItemInfo from "./components/modelItemInfo";
 // import conceptMap from "./conceptMap";
-import mxGraph from "@/components/utils/mxGraph/mxGraph";
+import mapCreate from "./components/mapCreate";
 export default {
   props: {},
   components: {
@@ -201,7 +214,7 @@ export default {
     toolCard,
     modelItemInfo,
     // conceptMap,
-    mxGraph,
+    mapCreate,
   },
   // watch: {
   //   inheritResources: {
@@ -235,18 +248,7 @@ export default {
       let data = this.modelInstances;
       return data.filter((item) => (item.statesJson = JSON.parse(item.states)));
     },
-    //create Map instance
 
-    filterDirectDataResource() {
-      return this.selectedResources.dataItemList.filter(
-        (data) => data.isDirect == true
-      );
-    },
-    filterIndirectDataResource() {
-      return this.selectedResources.dataItemList.filter(
-        (data) => data.isDirect == false
-      );
-    },
     filterInheritResources() {
       let list = this.selectedResources.dataItemList.filter((data) => {
         return (
@@ -254,7 +256,7 @@ export default {
           data.stepInherit.some((e) => e == this.stepInfo.stepId)
         );
       });
-      console.log(list);
+      // console.log(list);
       return list;
     },
   },
@@ -303,12 +305,12 @@ export default {
       modelInstances: [],
       instanceFolk: {},
       checkedInstances: [],
-      dataNodes: [],
-      dataNodesIntermedia: [],
-      mxNodes: [],
-      sendXml: "",
-      xml: "", //save to mongodb
-      updateXml: false,
+      // dataNodes: [],
+      // dataNodesIntermedia: [],
+      // mxNodes: [],
+      // sendXml: "",
+      // xml: "", //save to mongodb
+      // updateXml: false,
       flowChartSent: {},
 
       //getOutputs
@@ -317,12 +319,16 @@ export default {
       stateList: [],
       checkAll: false,
       checkedForMap: [],
-      nextStartIndex: 0,
+      // nextStartIndex: 0,
       deleteInstanceDialog: false,
       deleteInstanceId: "",
       filterCreateMapInstances: [],
 
       activeTabs: "modelItem",
+      updateXml: false,
+      initXml: "",
+      // directDataResource: [],
+      // inDirectDataResource: [],
     };
   },
   methods: {
@@ -346,8 +352,14 @@ export default {
       if (this.$route.params.isInherit) {
         this.selectedResources.dataItemList = dataItem.filter(
           (item) =>
-            item.stepInherit != null &&
-            item.stepInherit.some((id) => id == this.stepInfo.stepId)
+            (item.stepInherit != null &&
+              item.stepInherit.some((id) => id == this.stepInfo.stepId)) ||
+            item.stepBindId == this.stepInfo.stepId
+        );
+      } else {
+        this.selectedResources.dataItemList = dataItem.filter(
+          (item) =>
+            item.stepBindId == this.stepInfo.stepId || item.isDirect == true
         );
       }
     },
@@ -361,7 +373,7 @@ export default {
 
     //get modelinstance
     async getModelInstances() {
-      console.log(this.stepInfo);
+      // console.log(this.stepInfo);
       let { data } = await get(
         `/GeoProblemSolving/r/modelInstance/get/${this.stepInfo.stepId}`
       );
@@ -475,10 +487,10 @@ export default {
             del(`/GeoProblemSolving/r/dataItems/${item.id}`);
           }
         }
-      });   
+      });
       this.deleteInstanceDialog = false;
     },
-    
+
     deleteInstance(instanceId) {
       this.deleteInstanceId = instanceId;
       this.deleteInstanceDialog = true;
@@ -501,8 +513,8 @@ export default {
     },
 
     async mapCreate() {
-      this.dataNodes = [];
-      this.dataNodesIntermedia = [];
+      // this.dataNodes = [];
+      // this.dataNodesIntermedia = [];
 
       this.filterCreateMapInstances = this.filterModelInstance.filter(
         (instance) => instance.checkedForMap == true
@@ -514,168 +526,9 @@ export default {
           type: "error",
         });
       } else {
-        this.checkedInstances = JSON.parse(
-          JSON.stringify(this.filterCreateMapInstances)
-        );
-        let checkedInstances = this.checkedInstances;
-
-        let directDataResource = JSON.parse(
-          JSON.stringify(this.filterDirectDataResource)
-        );
-        let inDirectDataResource = JSON.parse(
-          JSON.stringify(this.filterIndirectDataResource)
-        );
-
-        //direct data as input
-        this.getNodeLinkInstance(directDataResource, checkedInstances);
-        this.getNodeLinkInstance(inDirectDataResource, checkedInstances);
-        this.mxNodes = [];
-        this.getNodes(this.dataNodes);
-        this.createXml();
-
-        await this.createFlowChart();
+        this.checkedInstances = [...this.filterCreateMapInstances];
         this.activeTabs = "conceptMap";
-        // this.getNodes();
       }
-    },
-
-    getNodeLinkInstance(dataResource, checkedInstances) {
-      checkedInstances.forEach((instance) => {
-        dataResource.forEach((data) => {
-          let toModelInstanceList = data.toModelInstanceList;
-          let fromModelInstance = data.fromModelInstance;
-          if (toModelInstanceList != null) {
-            toModelInstanceList.forEach((id) => {
-              if (instance.id == id) {
-                data.hasOwnProperty("to") ? "" : (data["to"] = []);
-                instance.hasOwnProperty("from") ? "" : (instance["from"] = []);
-                data["to"].push(instance);
-                instance["from"].push(data);
-                if (!data.hasOwnProperty("from")) {
-                  this.dataNodes.includes(data)
-                    ? ""
-                    : this.dataNodes.push(data);
-                }
-              }
-            });
-          }
-          if (fromModelInstance != null) {
-            if (instance.id == fromModelInstance) {
-              this.dataNodesIntermedia.includes(data)
-                ? ""
-                : this.dataNodesIntermedia.push(data);
-              data.hasOwnProperty("from") ? "" : (data["from"] = []);
-              instance.hasOwnProperty("to") ? "" : (instance["to"] = []);
-              data["from"].push(instance);
-              instance["to"].push(data);
-            }
-          }
-        });
-      });
-    },
-
-    getNodes(dataNodes) {
-      this.nextStartIndex = 2;
-      dataNodes.forEach((node, index) => {
-        node.mxIndex = this.nextStartIndex;
-        node.vertex = "1";
-        this.mxNodes.push(node);
-
-        if (node.hasOwnProperty("to") && node.to != []) {
-          this.nextStartIndex += node.to.length * 2;
-        } else {
-          this.nextStartIndex += 2;
-        }
-        this.getNextInstance(node.to, node.mxIndex);
-      });
-    },
-
-    getNextInstance(instances, sourceNodeIndex) {
-      instances.forEach((nextInstance, nextIndex) => {
-        let lineNode = {
-          mxIndex: this.nextStartIndex - 1,
-          source: sourceNodeIndex,
-          target: this.nextStartIndex,
-          edge: "1",
-        };
-        this.mxNodes.push(lineNode);
-
-        nextInstance.mxIndex = this.nextStartIndex; //mxTargetIndex=mxIndex
-        nextInstance.mxSourceIndex = sourceNodeIndex;
-        nextInstance.vertex = "1";
-        this.mxNodes.push(nextInstance);
-
-        if (nextInstance.hasOwnProperty("to") && nextInstance.to != []) {
-          // for (let i = 0; i < nextInstance.to.length; i++) {
-          this.nextStartIndex += nextInstance.to.length * 2;
-          // }
-        } else {
-          this.nextStartIndex += 2;
-        }
-        if (nextInstance.hasOwnProperty("to")) {
-          this.getNextInstance(nextInstance.to, nextInstance.mxIndex);
-        }
-      });
-    },
-
-    createXml() {
-      let nodes = this.mxNodes;
-      console.log(this.mxNodes);
-      let xml = "";
-
-      let dataNodeStyle =
-        "fillColor=#f8f5ec;strokeColor=rgb(200, 200, 200);strokeWidth=1;shape=ellipse;align=center;imageAlign=center;imageVerticalAlign=top";
-      let modelNodeStyle =
-        "fillColor=transparent;strokeColor=#000000;strokeWidth=1;shape=rectangle;align=center;imageAlign=center;imageVerticalAlign=top";
-      let directNodes = nodes.filter((node) => {
-        return node.isDirect == true;
-      });
-
-      directNodes.forEach((node, index) => {
-        xml += this.xmlVertex(
-          node.mxIndex,
-          node.name,
-          dataNodeStyle,
-          index * 100,
-          index * 400
-        );
-      });
-      nodes.forEach((node, index) => {
-        if (node.hasOwnProperty("vertex")) {
-          if (node.hasOwnProperty("isDirect") && node.isDirect == false) {
-            xml += this.xmlVertex(
-              node.mxIndex,
-              node.name,
-              dataNodeStyle,
-              index * 60,
-              300
-            );
-          } else if (!node.hasOwnProperty("isDirect")) {
-            xml += this.xmlVertex(
-              node.mxIndex,
-              node.name,
-              modelNodeStyle,
-              index * 60,
-              150
-            );
-          }
-        } else if (node.hasOwnProperty("edge")) {
-          xml += this.xmlEdge(node.mxIndex, node.source, node.target);
-        }
-      });
-      this.xml = xml;
-      console.log(this.xml);
-      this.sendXml = `<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/>${xml}</root></mxGraphModel>`;
-    },
-    xmlVertex(id, title, style, x, y) {
-      let stepId = this.$route.params.stepId;
-      let content = `<mxCell id="${stepId}+${id}" title="${title}" vertex="1" parent="1" style="${style}"><mxGeometry x="${x}" y="${y}" width="150" height="100" as="geometry" /></mxCell>`;
-      return content;
-    },
-    xmlEdge(id, source, target) {
-      let stepId = this.$route.params.stepId;
-      let content = `<mxCell id="${stepId}+${id}"  source="${stepId}+${source}" target="${stepId}+${target}" edge="1" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>`;
-      return content;
     },
 
     async getMap() {
@@ -685,26 +538,30 @@ export default {
       if (data == null) {
         this.updateXml = false;
       } else {
-        this.getSelectedInstances(data.modelInstanceIdList);
+        // this.getSelectedInstances(data.modelInstanceIdList);
         this.updateXml = true;
-        this.sendXml = `<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/>${data.mapXml}</root></mxGraphModel>`;
-        // console.log(this.sendXml);
+        this.initXml = data.mapXml;
+
+        let modelInstanceIdList = data.modelInstanceIdList;
+        this.modelInstances.forEach((item) => {
+          if (modelInstanceIdList.some((id) => id == item.id)) {
+            item.checkedForMap = true;
+          }
+        });
       }
     },
-    getSelectedInstances(modelInstanceIdList) {
-      this.modelInstances.forEach((item) => {
-        if (modelInstanceIdList.some((id) => id == item.id)) {
-          item.checkedForMap = true;
-        }
-      });
+
+    async emitxml(val) {
+      await this.createFlowChart(val);
     },
 
-    async createFlowChart() {
-      let instances = Array.from(this.filterCreateMapInstances, ({ id }) => id);
+    async createFlowChart(xml) {
+      // console.log(xml)
+      let instances = Array.from(this.checkedInstances, ({ id }) => id);
 
       let flowChartSent = {
         modelInstanceIdList: instances,
-        mapXml: this.xml,
+        mapXml: xml,
       };
 
       if (this.updateXml) {
@@ -734,6 +591,7 @@ export default {
         }
         this.updateXml = true;
       }
+      this.initXml = xml;
     },
   },
   created() {
@@ -815,5 +673,14 @@ export default {
   color: rgb(202, 37, 37);
   font-weight: 600;
   text-align: center;
+}
+.noCurrentModel {
+  font-size: 40px;
+  color: rgb(136, 136, 136);
+  font-weight: 600;
+
+  position: absolute;
+  top: 20%;
+  left: 15%;
 }
 </style>

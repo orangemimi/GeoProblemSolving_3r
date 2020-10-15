@@ -18,6 +18,11 @@ public class DataItemController {
     @Autowired
     DataItemService dataItemService;
 
+    @RequestMapping(value = "/steps/{stepId}",method = RequestMethod.GET)
+    public JsonResult getDataItemBystep(@PathVariable("stepId") String stepId) {
+        return dataItemService.getDataItemBystep(stepId);
+    }
+
     @RequestMapping(value = "/{pid}",method = RequestMethod.GET)
     public JsonResult getAll(@PathVariable("pid") String pid) {
         return dataItemService.getAll(pid);

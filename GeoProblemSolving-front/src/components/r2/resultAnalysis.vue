@@ -16,6 +16,7 @@
           :simulationStepList="simulationStepList"
           :allInstances="allInstances"
           :allMaps="allMaps"
+          :allDataItems="allDataItems"
         ></router-view>
       </el-row>
     </el-row>
@@ -51,6 +52,7 @@ export default {
       simulationStepInfoList: [],
       allInstances: [],
       allMaps: [],
+      allDataItems: [],
     };
   },
   computed: {
@@ -64,8 +66,16 @@ export default {
     async init() {
       await this.getResultInfo();
       await this.getSteps();
+      await this.getDataItem();
       await this.getAllModelInstances();
       await this.getAllMaps();
+    },
+    async getDataItem() {
+      let dataItem = await get(
+        `/GeoProblemSolving/r/dataItems/${this.projectId}`
+      );
+      console.log(dataItem);
+      this.allDataItems = dataItem;
     },
 
     async getResultInfo() {
@@ -116,7 +126,9 @@ export default {
     async getAllMaps() {
       let data = await get(`/GeoProblemSolving/r/flowcharts/${this.projectId}`);
       this.allMaps = data;
-      console.log(data);
+    },
+    creatNewMap() {
+      let mapList = this.allMaps;
     },
 
     // async getSimulationStepInfo() {

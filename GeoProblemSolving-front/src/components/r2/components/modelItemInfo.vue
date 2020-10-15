@@ -660,10 +660,10 @@ export default {
         name: event.name,
         isDirect: false,
         fromModelInstance: this.modelInstance.id,
-        stepBind: {
-          stepId: this.pageParams.stepId,
-          stepName: this.pageParams.stepName,
-        },
+        
+          stepBindId: this.pageParams.stepId,
+          stepBindName: this.pageParams.stepName,
+        
       };
 
       let data = await post(`/GeoProblemSolving/r/dataItems`, list);

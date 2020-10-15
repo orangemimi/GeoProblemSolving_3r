@@ -19,7 +19,10 @@ import java.util.List;
 public class DataItemService {
     @Autowired
     private DataItemRepository dataItemRepository;
-
+    public JsonResult getDataItemBystep(String stepId) {
+        List<DataItem> dataItemList=dataItemRepository.findAllByStepBindId(stepId).orElseThrow(MyException::noObject);
+        return ResultUtils.success(dataItemList);
+    }
     public JsonResult getAll(String pid) {
         List<DataItem> dataItemList=dataItemRepository.findAllByPid(pid).orElseThrow(MyException::noObject);
         return ResultUtils.success(dataItemList);
@@ -40,4 +43,6 @@ public class DataItemService {
     public void del(String id) {
         dataItemRepository.deleteById(id);
     }
+
+
 }

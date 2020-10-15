@@ -12,4 +12,5 @@ import java.util.Optional;
  */
 public interface DataItemRepository extends MongoRepository<DataItem,String> {
     Optional<List<DataItem>> findAllByPid(String pid);
+    Optional<List<DataItem>> findAllByStepBindId(String stepId);
 }

@@ -1,23 +1,15 @@
 <template>
   <div>
-    <el-col :span="12" :offset="6"> 
+    <el-col :span="12" :offset="6">
       <el-row>
-        <el-row>
-          <el-steps :active="active" finish-status="success">
-            <el-step title="Step1"></el-step>
-            <el-step title="Step2"></el-step>
-          </el-steps>
-        </el-row>
-        <el-row>
-          <div v-show="active == 0">
-            <el-form ref="form" :model="result" label-width="80px">
-              <el-form-item label="name">
-                <el-input v-model="result.name"></el-input>
-              </el-form-item>
-              <el-form-item label="description">
-                <el-input v-model="result.description"></el-input>
-              </el-form-item>
-              <el-form-item label="instances">
+        <el-form ref="form" :model="result" label-width="80px">
+          <el-form-item label="name">
+            <el-input v-model="result.name"></el-input>
+          </el-form-item>
+          <el-form-item label="description">
+            <el-input v-model="result.description"></el-input>
+          </el-form-item>
+          <!-- <el-form-item label="instances">
                 <el-row v-for="(step, index) in instancesByType" :key="index">
                   <el-col>
                     <el-card>
@@ -29,34 +21,15 @@
                     </el-card>
                   </el-col>
                 </el-row>
-              </el-form-item>
-            </el-form>
-            <div>
-              <div class="mxGraph">
-                <!-- <mx-graph :sendXml="sendXml"></mx-graph> -->
-              </div>
-            </div>
-          </div>
-
-          <div v-show="active == 1">
-            <el-row>
-              <tinymce
-                ref="editor"
-                v-model="result.detail"
-                :height="500"
-              ></tinymce>
-            </el-row>
-          </div>
-        </el-row>
-        <el-row>
-          <div>
-            <el-button v-if="active == 0" @click="next">Next</el-button>
-            <div v-else>
-              <el-button @click="previous">Previous</el-button>
-              <el-button @click="saveResultInfo">Create</el-button>
-            </div>
-          </div>
-        </el-row>
+              </el-form-item> -->
+          <el-form-item label="detail">
+            <tinymce
+              ref="editor"
+              v-model="result.detail"
+              :height="500"
+            ></tinymce>
+          </el-form-item>
+        </el-form>
       </el-row>
     </el-col>
   </div>
@@ -67,10 +40,10 @@ import { post, get } from "@/axios";
 import mxGraph from "@/components/utils/mxGraph/mxGraph";
 import tinymce from "@/components/common/tinymce/index";
 export default {
-  props:{
-    resultInfo:{
-      type:Object
-    }
+  props: {
+    resultInfo: {
+      type: Object,
+    },
   },
   components: {
     mxGraph,
@@ -169,7 +142,7 @@ export default {
       };
       console.log(result);
 
-      let {data} = await post(`/GeoProblemSolving/r/result/save`, result);
+      let { data } = await post(`/GeoProblemSolving/r/result/save`, result);
       this.result = data;
     },
   },
