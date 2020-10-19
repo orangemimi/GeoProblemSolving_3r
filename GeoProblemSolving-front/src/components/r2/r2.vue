@@ -22,31 +22,23 @@
       :close-on-click-modal="false"
       title="Please upload the file"
       class="resourceDialog"
+      width="1000px"
     >
-      <el-steps
-        :active="active"
-        finish-status="success"
-        simple
-        style="margin-top: 20px"
-      >
-        <el-step title="Select Model"></el-step>
-        <el-step title="Upload Data"></el-step>
-      </el-steps>
-
-      <div v-show="active == 0" style="height: 600px">
-        <data-upload :stepInformation="stepInfo"></data-upload>
-      </div>
-      <div v-show="active == 1">
-        <manage-tools
-          @selectTools="selectTools"
-          footer-hide
-          :initTools="initResource.toolItemList"
-        ></manage-tools>
-      </div>
-      <div class="stepBtn">
-        <el-button @click="nextStep" v-show="active != 1">Next</el-button>
-        <el-button @click="preStep" v-show="active != 0">Previous</el-button>
-      </div>
+      <el-row style="height: 600px">
+        <div class="tools_container">
+          <!-- <div>Tools Select</div> -->
+          <manage-tools
+            @selectTools="selectTools"
+            footer-hide
+            :initTools="initResource.toolItemList"
+          ></manage-tools>
+        </div>
+        <el-divider direction="vertical" class="container_divider"></el-divider>
+        <div class="data_container">
+          <!-- <div>Data Upload</div> -->
+          <data-upload :stepInformation="stepInfo"></data-upload>
+        </div>
+      </el-row>
     </el-dialog>
 
     <el-dialog
@@ -68,7 +60,10 @@
       class="inheritResourcesDialog"
     >
       <div>
-        <resource-inherit :lastSteps="lastSteps" :stepInformation="stepInfo"></resource-inherit>
+        <resource-inherit
+          :lastSteps="lastSteps"
+          :stepInformation="stepInfo"
+        ></resource-inherit>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="resourceInheritModal = false">Cancel</el-button>
@@ -81,10 +76,10 @@
 <script>
 import menuLeft from "./components/menuLeft";
 import flowChart from "./components/flowChart";
-import dataUpload from "./components/dataUpload";
+import dataUpload from "./components/Resource/DataUpload";
 import infoRight from "./components/infoRight";
 import { post, get } from "../../axios";
-import manageTools from "./components/manageTools";
+import manageTools from "./components/Resource/ManageTools";
 import toolModal from "@/components/common/tools/toolModal";
 import contextFormModal from "./components/contextFormModal";
 import resourceInherit from "./components/resourceInherit";
@@ -121,11 +116,10 @@ export default {
       lastSteps: [],
       stepProcesses: [], //all step in the flowchart
       // checkToNextStep: [],
-     
+
       // isIndeterminate:false
     };
   },
-
 
   methods: {
     initSize() {
@@ -261,7 +255,7 @@ export default {
       //         //如果stepInherit已经有了内容，且其中的stepList没有一个是当前step
       //         if (data.stepInherit.every((e) => e != this.stepInfo.stepId)) {
       //           data.stepInherit.push(this.stepInfo.stepId);
-                
+
       //         }
       //         //如果stepInherit已有当前step,则不操作
       //       } else {
@@ -304,7 +298,7 @@ export default {
         },
       });
     },
-   
+
     nextStep() {
       if (this.active++ > 1) this.active = 1;
     },
@@ -321,7 +315,6 @@ export default {
       this.contextModal = false;
     },
 
-   
     // objectSpanMethod({ row, column, rowIndex, columnIndex }) {
     //   if (columnIndex === 0) {
     //     if (rowIndex % 2 === 0) {
@@ -361,6 +354,20 @@ export default {
 .resourceDialog {
   >>> .el-dialog__body {
     padding: 0 10px;
+    // width: 1200px;
+  }
+  .container_divider {
+    float: left;
+    height: 95%;
+
+  }
+  .tools_container {
+    width: 620px;
+    float: left;
+  }
+  .data_container {
+    width: 300px;
+    float: left;
   }
 }
 .stepBtn {

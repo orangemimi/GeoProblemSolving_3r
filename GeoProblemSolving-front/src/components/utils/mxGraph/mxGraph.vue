@@ -1,7 +1,7 @@
 <template>
   <div class>
     <div class="customToolbarContainer">
-      <div class="toolbarContainer">
+      <!-- <div class="toolbarContainer">
         <el-col>
           <el-row>
             <div class="toolbarTitle">Node type</div>
@@ -14,31 +14,41 @@
             </div>
           </el-row>
         </el-col>
-      </div>
+      </div> -->
       <div class="mainContainer">
         <div class="toolbarTop">
           <!-- <el-button @click="saveGraph" type="text" size="mini">Output</el-button> -->
-          <el-button @click="exportGraph" type="text" size="mini">Export as XML</el-button>
+          <el-button @click="exportGraph" type="text" size="mini"
+            >Export as XML</el-button
+          >
           <!-- <input @change="readFile" ref="importInput" class="hide" type="file" />
           <el-button @click="importGraphFile" type="text" size="mini">Import mxGraph</el-button> -->
           <el-button
-            @click="checked?deleteCells():deleteCellsConfirmDialog()"
+            @click="checked ? deleteCells() : deleteCellsConfirmDialog()"
             type="text"
             size="mini"
             :disabled="selectionCells.length == 0"
-          >Delete</el-button>
+            >Delete</el-button
+          >
           <el-button @click="undo" type="text" size="mini">Undo</el-button>
           <el-button @click="redo" type="text" size="mini">Redo</el-button>
           <!-- <el-button @click="exportPic" type="text" size="mini">导出图片</el-button> -->
         </div>
-        <div class="graphContainer" ref="container" :style="{height:contentHeight+'px'}"></div>
+        <vue-scroll style="height: 630px; width: 1172px">
+          <div class="graphContainer" ref="container"></div>
+        </vue-scroll>
       </div>
 
       <div class="editCellContainer" v-show="editCellVisible">
         <!-- <edit-cell :visible="editCellVisible" @currentGraph="grapg"></edit-cell> -->
         <div>Edit the node</div>
         <div class="editCellForm">
-          <el-form ref="cellForm" :model="cellForm" :rules="cellFormRules" size="mini">
+          <el-form
+            ref="cellForm"
+            :model="cellForm"
+            :rules="cellFormRules"
+            size="mini"
+          >
             <el-form-item label="Node name" prop="name">
               <el-input v-model="cellForm.name"></el-input>
             </el-form-item>
@@ -46,14 +56,18 @@
         </div>
 
         <el-button @click="editCellVisible = false">Close the dialog</el-button>
-        <el-button type="primary" @click="submitCellForm('cellForm')">Submit</el-button>
+        <el-button type="primary" @click="submitCellForm('cellForm')"
+          >Submit</el-button
+        >
       </div>
 
       <div class="dialogs">
         <el-dialog :visible.sync="deleteCellsVisible" width="30%">
           <span>Are you sure to delete this node?</span>
           <span slot="footer" class="dialog-footer">
-            <el-checkbox v-model="checked" label="1">Ignore this tip in this action</el-checkbox>
+            <el-checkbox v-model="checked" label="1"
+              >Ignore this tip in this action</el-checkbox
+            >
             <el-button @click="deleteCellsVisible = false">Cancel</el-button>
             <el-button type="primary" @click="deleteCells">Confirm</el-button>
           </span>
@@ -554,8 +568,10 @@ export default {
     .graphContainer {
       position: relative;
       overflow: hidden;
-      width: 100%;
       height: 100%;
+      width: 100%;
+      min-width: 1110px;
+      min-height: 650px;
       background: rgb(251, 251, 251) url("./images/grid.gif") 0 0 repeat;
       border-radius: 4px;
     }

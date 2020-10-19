@@ -21,7 +21,7 @@
 
 <script>
 import { get, del, post, put } from "../../../axios";
-import toolCard from "./toolCard";
+import toolCard from "./Resource/ToolCard";
 export default {
   props: {},
 

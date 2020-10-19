@@ -1,13 +1,19 @@
 <template>
   <div class>
-    <el-select v-model="typeSelected" style="width:160px">
-      <el-option v-for="item in typeOptions" :key="item.index" :value="item">{{ item }}</el-option>
+    <el-select v-model="typeSelected" style="width: 160px">
+      <el-option v-for="item in typeOptions" :key="item.index" :value="item">{{
+        item
+      }}</el-option>
     </el-select>
-    <div class="toolList" :style="{height:contentHeight+'px'}">
+    <div class="toolList" :style="{ height: contentHeight + 'px' }">
       <vue-scroll :ops="ops">
         <el-row>publicTools</el-row>
         <el-row class="tool_card">
-          <el-col :span="8" v-for="tool in filterPublicTools" :key="tool.index">
+          <el-col
+            :span="24"
+            v-for="tool in filterPublicTools"
+            :key="tool.index"
+          >
             <div style="margin: 5px" @click="useTool(tool)">
               <tool-card :toolFrom="tool" :isOpenTool="isOpenTool"></tool-card>
             </div>
@@ -15,7 +21,11 @@
         </el-row>
         <el-row>personalTools</el-row>
         <el-row class="tool_card">
-          <el-col :span="8" v-for="tool in filterPersonalTools" :key="tool.index">
+          <el-col
+            :span="24"
+            v-for="tool in filterPersonalTools"
+            :key="tool.index"
+          >
             <div style="margin: 5px" @click="useTool(tool)">
               <tool-card :toolFrom="tool" :isOpenTool="isOpenTool"></tool-card>
             </div>
@@ -28,7 +38,7 @@
 
 <script>
 import { get, del, post, put } from "../../axios";
-import toolCard from "./components/toolCard";
+import toolCard from "./components/Resource/ToolCard";
 export default {
   props: {},
 

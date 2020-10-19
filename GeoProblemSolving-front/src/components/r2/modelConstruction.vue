@@ -16,18 +16,14 @@
               <vue-scroll :ops="ops">
                 <el-row>Tools selected</el-row>
                 <el-row class="tool_card">
-                  <el-col
-                    :span="12"
-                    v-for="tool in filterSelectedTools"
-                    :key="tool.index"
-                  >
+                  <div v-for="tool in filterSelectedTools" :key="tool.index">
                     <div style="margin: 5px" @click="useTool(tool)">
                       <tool-card
                         :toolFrom="tool"
                         :isOpenTool="isOpenTool"
                       ></tool-card>
                     </div>
-                  </el-col>
+                  </div>
                 </el-row>
               </vue-scroll>
             </div>
@@ -39,14 +35,24 @@
           <el-tab-pane label="Model Item" name="modelItem">
             <el-row>
               <el-card class="process_data" shadow="never">
-                <div :style="{ height: contentHeight - 20 + 'px' }">
-                  <div v-if="currentModelInfo.toolUrl == ''">
+                <div>
+                  <div
+                    v-show="
+                      currentModelInfo.toolUrl == '' && instanceFolk.id == ''
+                    "
+                    :style="{ height: contentHeight - 20 + 'px' }"
+                  >
                     <div class="noCurrentModel">
                       <i class="el-icon-warning"></i>
                       Please select one tool from the left panel
                     </div>
                   </div>
-                  <div v-else>
+                  <div
+                    v-show="
+                      currentModelInfo.toolUrl != '' || instanceFolk.id != ''
+                    "
+                    :style="{ height: contentHeight - 20 + 'px' }"
+                  >
                     <vue-scroll :ops="ops">
                       <model-item-info
                         :pageParamsFrom="pageParams"
@@ -85,20 +91,22 @@
           <el-card class="process_data" shadow="never">
             <div class="process_data_title">Data Resources</div>
             <div>
-              <div
-                v-for="(data, index) in selectedResources.dataItemList"
-                :key="index"
-              >
-                <div class="data_info">
-                  <div class="data_info_name">{{ data.name }}</div>
-                  <div class="data_info_hover">
-                    <i
-                      class="el-icon-download"
-                      @click="downloadDataResource(data)"
-                    ></i>
+              <vue-scroll style="height: 200px">
+                <div
+                  v-for="(data, index) in selectedResources.dataItemList"
+                  :key="index"
+                >
+                  <div class="data_info">
+                    <div class="data_info_name">{{ data.name }}</div>
+                    <div class="data_info_hover">
+                      <i
+                        class="el-icon-download"
+                        @click="downloadDataResource(data)"
+                      ></i>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </vue-scroll>
             </div>
           </el-card>
         </el-row>
@@ -200,8 +208,8 @@
 
 <script>
 import toolsSelected from "./components/toolsSelected";
-import allTools from "./allTools";
-import toolCard from "./components/toolCard";
+// import allTools from "./allTools";
+import toolCard from "./components/Resource/ToolCard";
 import { get, del, post, patch } from "../../axios";
 import modelItemInfo from "./components/modelItemInfo";
 // import conceptMap from "./conceptMap";
@@ -210,7 +218,7 @@ export default {
   props: {},
   components: {
     toolsSelected,
-    allTools,
+    // allTools,
     toolCard,
     modelItemInfo,
     // conceptMap,
@@ -303,7 +311,7 @@ export default {
       modelDoi: "16e31602-bd05-4da4-bd01-cb7582c21ae8",
       // pageParams: {},
       modelInstances: [],
-      instanceFolk: {},
+      instanceFolk: { id: "" },
       checkedInstances: [],
       // dataNodes: [],
       // dataNodesIntermedia: [],
@@ -603,7 +611,7 @@ export default {
   mounted() {},
 };
 </script>
-<style lang='scss' scoped>
+<style  lang='scss' scoped>
 .main {
   margin: 20px 20px;
 }
@@ -682,5 +690,10 @@ export default {
   position: absolute;
   top: 20%;
   left: 15%;
+}
+.process_data {
+  >>> .el-card__body {
+    padding: 15px;
+  }
 }
 </style>

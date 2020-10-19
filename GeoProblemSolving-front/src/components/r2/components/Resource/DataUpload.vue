@@ -2,7 +2,7 @@
   <div style="height: 600px">
     <el-row>
       <el-row>
-        <el-col :span="5">
+        <div class="upload_btn">
           <el-upload
             action
             :auto-upload="true"
@@ -13,26 +13,37 @@
             :http-request="submitUpload"
             :on-remove="handleRemove"
           >
-            <el-button round size="small" type="primary"
-              >Choose Files</el-button
+            <el-button round size="small" type="primary" style="font-size: 14px"
+              >Upload File</el-button
             >
           </el-upload>
-        </el-col>
+        </div>
       </el-row>
       <el-row>
-        <vue-scroll :ops="ops" style="height: 400px; width: 300px">
-          <div v-for="(item, index) in dataItemList" :key="index" class="files">
-            <div class="file_name">{{ item.name }}</div>
-            <i class="el-icon-close" @click="remove(item)"></i>
+        <el-card shadow="never" class="card_contain">
+          <div style="width: 280px">
+            <div class="container_back">
+              Files you have <br />updated to <br />apply to <br />this project
+            </div>
+            <vue-scroll :ops="ops" style="height: 480px; width: 270px">
+              <div
+                v-for="(item, index) in dataItemList"
+                :key="index"
+                class="files"
+              >
+                <div class="file_name">{{ item.name }}</div>
+                <i class="el-icon-close" @click="remove(item)"></i>
+              </div>
+            </vue-scroll>
           </div>
-        </vue-scroll>
+        </el-card>
       </el-row>
     </el-row>
   </div>
 </template>
 <script>
 import X2JS from "x2js"; //xml数据处理插件
-import { get, del, post, put } from "../../../axios";
+import { get, del, post, put } from "@/axios";
 export default {
   props: {
     stepInformation: {
@@ -132,7 +143,31 @@ export default {
 };
 </script>
 
-<style>
+<style  lang='scss' scoped>
+.upload_btn {
+  height: 40px;
+  font-size: 16px;
+}
+.card_contain {
+  height: 500px;
+  width: 300px;
+  clear: both;
+  >>> .el-card__body {
+    padding: 15px;
+  }
+  .container_back {
+    position: absolute;
+    font-weight: 600;
+    font-size: 35px;
+    color: rgba(153, 153, 153, 0.315);
+    user-select: none;
+    text-align: center;
+    // white-space: normal;
+    top: 120px;
+    line-height: 55px;
+    width: 260px;
+  }
+}
 .submitBtn {
   position: absolute;
   top: 0px;
@@ -141,12 +176,13 @@ export default {
 
 .file_name {
   float: left;
-  width: 270px;
+  width: 240px;
+  // padding-left: 5px;
 }
 .files {
   margin: 5px 0;
-  font-size: 16px;
-  padding: 3px 0px 3px 10px;
+  font-size: 14px;
+  padding: 3px 0 3px 3px;
 }
 .files:hover {
   cursor: pointer;

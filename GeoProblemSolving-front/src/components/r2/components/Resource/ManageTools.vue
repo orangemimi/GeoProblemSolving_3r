@@ -2,7 +2,7 @@
 <template>
   <div>
     <el-row>
-      <el-col class="leftContainer" :span="16">
+      <div class="leftContainer">
         <div class="tool_top">
           <div class="tool_title">
             <el-row v-show="switchValue">Public Tools</el-row>
@@ -14,60 +14,59 @@
             inactive-color="#ff4949"
           ></el-switch>
         </div>
-        <el-card shadow="never" v-show="switchValue">
-          <vue-scroll :ops="ops" style="height: 400px">
-            <el-row :gutter="16">
+        <el-card shadow="never" v-show="switchValue" class="card_contain">
+          <vue-scroll :ops="ops" style="height: 480px">
+            <el-row>
               <draggable
                 element="ul"
                 :options="{ group: 'tool' }"
                 v-model="filterPublicTools"
               >
                 <div v-for="(tool, index) in filterPublicTools" :key="index">
-                  <el-col :span="6" style="margin-bottom: 10px">
+                  <div class="choose_tool_contain">
                     <tool-card :toolFrom="tool"></tool-card>
-                  </el-col>
+                  </div>
                 </div>
               </draggable>
             </el-row>
           </vue-scroll>
         </el-card>
-        <el-card shadow="never" v-show="!switchValue">
-          <vue-scroll :ops="ops" style="height: 400px">
-            <el-row :gutter="16">
+        <el-card shadow="never" v-show="!switchValue" class="card_contain">
+          <vue-scroll :ops="ops" style="height: 480px">
+            <el-row>
               <draggable
                 element="ul"
                 :options="{ group: 'tool' }"
                 v-model="filterPersonalTools"
               >
                 <div v-for="(tool, index) in filterPersonalTools" :key="index">
-                  <el-col :span="6" style="margin-bottom: 10px">
+                  <div class="choose_tool_contain">
                     <tool-card :toolFrom="tool" :isOpenTool="false"></tool-card>
-                  </el-col>
+                  </div>
                 </div>
               </draggable>
             </el-row>
           </vue-scroll>
         </el-card>
-      </el-col>
-      <el-col class="rightContainer" :span="8">
-        <div class="tool_select">Tools you select</div>
+      </div>
+      <div class="rightContainer">
+        <div class="tool_top">Tools you select</div>
 
-        <el-card shadow="never">
-          <vue-scroll :ops="ops" style="height: 400px">
+        <el-card shadow="never" class="card_contain">
+          <div class="container_back">
+            Tools you have <br />selected to <br />apply to <br />this project
+          </div>
+          <vue-scroll :ops="ops" style="height: 480px">
             <draggable
               element="ul"
               :group="{ name: 'tool', put: true, pull: false }"
               v-model="sentTools"
               @add="addSentTool"
-              style="min-height: 400px"
+              style="min-height: 480px"
             >
-              <div
-                v-for="(tool, index) in sentTools"
-                :key="tool.index"
-                style="margin-bottom: 5px"
-              >
-                <el-col>
-                  <el-card style="width: 100%">
+              <div v-for="(tool, index) in sentTools" :key="tool.index">
+                <div>
+                  <el-card class="select_tools_contain">
                     <div class="ellipsis" style="width: 150px">
                       {{ tool.toolName }}
                     </div>
@@ -76,20 +75,19 @@
                       size="small"
                       @click="removeSelectedTools(index)"
                     ></i>
-
                   </el-card>
-                </el-col>
+                </div>
               </div>
             </draggable>
           </vue-scroll>
         </el-card>
-      </el-col>
+      </div>
     </el-row>
   </div>
 </template>
 
 <script>
-import toolCard from "./toolCard";
+import toolCard from "./ToolCard";
 import { get, del, post, put } from "@/axios";
 import draggable from "vuedraggable";
 
@@ -293,11 +291,22 @@ export default {
   white-space: nowrap;
   vertical-align: top;
 }
+.leftContainer {
+  float: left;
+  width: 300px;
+  // margin: 0 5px;
+}
+.rightContainer {
+  float: left;
+  width: 300px;
+  margin-left: 5px;
+}
 .tool_top {
-  margin: 5px 0;
+  padding: 5px 0;
+  font-size: 16px;
+  font-weight: 600;
+  height: 40px;
   .tool_title {
-    font-size: 16px;
-    font-weight: 600;
     float: left;
     width: 100px;
   }
@@ -314,5 +323,43 @@ export default {
 }
 .changeRedColor:hover {
   cursor: pointer;
+}
+.card_contain {
+  height: 500px;
+  width: 290px;
+  clear: both;
+  >>> .el-card__body {
+    padding: 15px;
+  }
+  >>> .el-card.is-always-shadow,
+  .el-card.is-hover-shadow:focus,
+  .el-card.is-hover-shadow:hover {
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
+  }
+  .container_back {
+    position: absolute;
+    font-weight: 600;
+    font-size: 35px;
+    color: rgba(153, 153, 153, 0.315);
+    user-select: none;
+    text-align: center;
+    // white-space: normal;
+    top: 160px;
+    line-height: 55px;
+    width: 260px;
+  }
+}
+.choose_tool_contain {
+  margin-bottom: 10px;
+}
+.select_tools_contain {
+  width: 250px;
+  height: 60px;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  margin-bottom: 10px;
+  >>> .el-card__body {
+    padding: 15px;
+  }
 }
 </style>
