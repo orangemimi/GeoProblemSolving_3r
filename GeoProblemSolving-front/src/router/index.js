@@ -19,37 +19,42 @@ const routes = [{
         name: 'StaticPage',
         component: resolve => (require(["@/components/navigationContent/staticPage"], resolve))
       },   
+      {
+        path: 'r2/:projectId/builder',
+        name: 'r2',
+        component: resolve => (require(["@/views/Reproduction/Reproduction"], resolve)),
+      },
 
       {
         path: 'r2/:projectId',
         name: 'r2',
-        component: resolve => (require(["@/components/r2/r2"], resolve)),
+        component: resolve => (require(["@/views/r2/r2"], resolve)),
       },
       {
         path: 'r2/:projectId/dataProcessing',
         name: 'r_dataProcessing',
-        component: resolve => (require(["@/components/r2/components/mapCreate"], resolve))
+        component: resolve => (require(["@/views/r2/components/mapCreate"], resolve))
       }, {
         path: 'r2/:projectId/modelConstruction',
         name: 'simulationExecution',
-        component: resolve => (require(["@/components/r2/modelConstruction"], resolve)),
+        component: resolve => (require(["@/views/r2/modelConstruction"], resolve)),
         children: [{
           path: '/modelItemInfo/:doi',
           name: 'modelItemInfo',
-          component: () => import("@/components/r2/components/modelItemInfo"),
+          component: () => import("@/views/r2/components/modelItemInfo"),
         }]
       },{
         path: 'r2/:projectId/resultAnalysis',
         name: 'resultAnalysis',
-        component: resolve => (require(["@/components/r2/resultAnalysis"], resolve)),
+        component: resolve => (require(["@/views/r2/resultAnalysis"], resolve)),
         children: [{
           path: 'info',
           name: 'resultInfo',
-          component: () => import("@/components/r2/components/resultAnalysis/Info"),
+          component: () => import("@/views/r2/components/resultAnalysis/Info"),
         },{
           path: 'edit',
           name: 'resultEdit',
-          component: () => import("@/components/r2/components/resultAnalysis/Edit"),
+          component: () => import("@/views/r2/components/resultAnalysis/Edit"),
         }]
         
       },

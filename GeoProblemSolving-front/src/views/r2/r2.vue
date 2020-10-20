@@ -29,8 +29,8 @@
           <!-- <div>Tools Select</div> -->
           <manage-tools
             @selectTools="selectTools"
-            footer-hide
             :initTools="initResource.toolItemList"
+            footer-hide
           ></manage-tools>
         </div>
         <el-divider direction="vertical" class="container_divider"></el-divider>
@@ -359,7 +359,6 @@ export default {
   .container_divider {
     float: left;
     height: 95%;
-
   }
   .tools_container {
     width: 620px;

@@ -4,6 +4,7 @@ package cn.edu.njnu.geoproblemsolving.domain.modeltask;
 
 import cn.edu.njnu.geoproblemsolving.Enums.ResultEnum;
 import cn.edu.njnu.geoproblemsolving.Exception.MyException;
+import cn.edu.njnu.geoproblemsolving.Utils.ResultUtils;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -81,6 +82,18 @@ public class ModelTaskService {
         }
         JSONObject result = jsonObjectResponseEntity.getBody();
         return result;
+    }
+
+    public Object getAllService() {
+        RestTemplate restTemplate = new RestTemplate();
+        String urlStr = "http://223.2.41.253:8080/GeoModeling/taskNode/getAllServices"; ////Step0:根据MD5获取可用的任务服务器
+
+        ResponseEntity<JSONObject> jsonObjectResponseEntity = restTemplate.getForEntity(urlStr, JSONObject.class);//虚拟http请求
+        if (!jsonObjectResponseEntity.getStatusCode().is2xxSuccessful()) {
+            throw new MyException(ResultEnum.ERROR);
+        }
+        JSONObject result = jsonObjectResponseEntity.getBody().getJSONObject("data");
+        return ResultUtils.success(result);
     }
 
 //    public String upload(File file,String userId) {

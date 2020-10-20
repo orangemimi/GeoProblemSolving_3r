@@ -69,18 +69,13 @@ export default {
       contentHeight: 0,
 
       sendXml: "",
-
       mxNodes: [],
-
       dataNodes: [],
-      dataNodesIntermedia: [],
 
       nextStartIndex: 0,
       // updateXml: false,
       stepInfo: this.$route.params,
-      createPositionIndex: 1,
-      lastNode: {},
-    };
+          };
   },
   methods: {
     initSize() {
@@ -90,30 +85,18 @@ export default {
     },
     async initCreate() {
       this.dataNodes = [];
-      this.dataNodesIntermedia = [];
 
-      // let directDataResource = [...this.filterDirectDataResource];
-      // let inDirectDataResource = [...this.filterIndirectDataResource];
-      // console.log(this.filterIndirectDataResource);
       let directDataResource = JSON.parse(JSON.stringify(this.dataItemList));
-      // let inDirectDataResource = JSON.parse(
-      //   JSON.stringify(this.filterIndirectDataResource)
-      // );
       this.instances = JSON.parse(JSON.stringify(this.checkedInstances));
-      // let checkedInstances = [...this.checkedInstances];
       this.getNodeLinkInstance(directDataResource, this.instances);
-      // this.getNodeLinkInstance(inDirectDataResource, checkedInstances);
       this.mxNodes = [];
-      console.log(this.dataNodes, this.instances);
       this.getNodes(this.dataNodes);
       this.createXml();
 
       this.$emit("emitxml", this.sendXml);
-      // await this.createFlowChart();
     },
 
     getNodeLinkInstance(dataResource, checkedInstances) {
-      // console.log(checkedInstances);
       checkedInstances.forEach((instance) => {
         dataResource.forEach((data) => {
           if (
@@ -129,7 +112,6 @@ export default {
                   : (instance["from"] = []);
                 data["to"].push(instance);
                 instance["from"].push(data);
-                // if (!data.hasOwnProperty("from")) {
                 this.dataNodes.includes(data) ? "" : this.dataNodes.push(data);
                 // }
               }
@@ -141,7 +123,6 @@ export default {
             data.fromModelInstance != null
           ) {
             let fromModelInstance = data.fromModelInstance;
-            // console.log(fromModelInstance);
             if (instance.id === fromModelInstance) {
               data.hasOwnProperty("from") ? data["from"] : (data["from"] = []);
               instance.hasOwnProperty("to")
@@ -150,7 +131,6 @@ export default {
               data["from"].push(instance);
               instance["to"].push(data);
               this.dataNodes.includes(data) ? "" : this.dataNodes.push(data);
-              // console.log(instance);
             }
           }
         });
@@ -209,10 +189,9 @@ export default {
             nextInstance.to != [] &&
             nextInstance.to != undefined
           ) {
-            // for (let i = 0; i < nextInstance.to.length; i++) {
             this.nextStartIndex += nextInstance.to.length * 2;
             this.getNextInstance(nextInstance.to, nextInstance.mxIndex);
-            // }
+          
           } else {
             this.nextStartIndex += 2;
           }
@@ -222,8 +201,6 @@ export default {
 
     createXml() {
       let nodes = this.mxNodes;
-      this.createPositionIndex = 0;
-      // console.log(this.mxNodes);
       let xml = "";
 
       let dataNodeStyle =
@@ -252,7 +229,7 @@ export default {
           }
         }
       });
-      console.log(edgeNodes, modelNodes, directNodes, inDirectNodes);
+    
 
       modelNodes.forEach((model, modelIndex) => {
         let pIndex = modelIndex * 3;
@@ -260,7 +237,7 @@ export default {
           model.mxIndex,
           model.name,
           modelNodeStyle,
-          modelIndex * 160,
+          (modelIndex+1) * 160,
           (pIndex + 1) * 150
         );
         let directDataIndex = 0;
@@ -312,9 +289,7 @@ export default {
   created() {
     this.initSize();
   },
-  // mounted() {
-  //   this.getMap();
-  // },
+ 
 };
 </script>
 <style lang='scss' scoped>

@@ -1,21 +1,10 @@
 package cn.edu.njnu.geoproblemsolving.domain.modeltask;
 
-import cn.edu.njnu.geoproblemsolving.domain.support.JsonResult;
 import cn.edu.njnu.geoproblemsolving.Utils.ResultUtils;
+import cn.edu.njnu.geoproblemsolving.domain.support.JsonResult;
 import com.alibaba.fastjson.JSONObject;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.Part;
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
 
 @RestController
 @RequestMapping(value = "/modelTask")
@@ -26,6 +15,11 @@ public class ModelTaskController {
     @RequestMapping(value = "/getModelBehavior/{doi}", method = RequestMethod.GET)
     public Object readProject(@PathVariable("doi") String doi) {
         return ResultUtils.success(modelTaskService.getComputeModel(doi));
+    }
+
+    @RequestMapping(value = "/getAllService", method = RequestMethod.GET)
+    public Object getAllService() {
+        return modelTaskService.getAllService();
     }
 
     @RequestMapping(value = "/createTask/{pid}/{userId}", method = RequestMethod.GET)
