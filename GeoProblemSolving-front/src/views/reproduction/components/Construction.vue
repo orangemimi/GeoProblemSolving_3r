@@ -33,7 +33,7 @@
         </el-button-group>
         <el-button-group>
           <el-button type="info" plain size="small"
-            ><i class="el-icon-connection"></i
+            ><i class="el-icon-share"></i
           ></el-button>
           <el-button type="info" plain size="small"
             ><i class="el-icon-more"></i
@@ -41,7 +41,7 @@
         </el-button-group>
       </el-col>
     </el-row>
-    <el-row style="margin-top:15px">
+    <el-row style="margin-top: 15px">
       <el-col :span="4">
         <el-card
           ><el-button>Context Definition</el-button>
@@ -49,7 +49,10 @@
           <el-button>Simulation Construction</el-button></el-card
         >
       </el-col>
-      <el-col :span="20"></el-col
+      <el-col :span="20">
+        <el-col :span="12">
+          <step-card :cardInfo="{ btnType: 'Context Definition' }"></step-card
+        ></el-col> </el-col
     ></el-row>
     <el-row>
       <el-popover placement="top" width="160" trigger="click">
@@ -67,7 +70,11 @@
 </template>
 
 <script>
+import stepCard from "./StepCard";
 export default {
+  components: {
+    stepCard,
+  },
   data() {
     return {
       projectId: this.$route.params.projectId,

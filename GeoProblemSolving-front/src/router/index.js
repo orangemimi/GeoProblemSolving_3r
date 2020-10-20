@@ -4,7 +4,10 @@ import Router from 'vue-router'
 // import mavonEditor from 'mavon-editor'
 Vue.use(Router)
 // Vue.use(mavonEditor)
-
+const originalPush = Router.prototype.push
+Router.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
 
 const routes = [{
     path: '/',
@@ -18,11 +21,20 @@ const routes = [{
         path: 'staticPage',
         name: 'StaticPage',
         component: resolve => (require(["@/components/navigationContent/staticPage"], resolve))
-      },   
+      },
       {
         path: 'r2/:projectId/builder',
         name: 'r2',
         component: resolve => (require(["@/views/Reproduction/Reproduction"], resolve)),
+        children: [{
+          path: 'construction',
+          name: 'construction',
+          component: () => import("@/views/Reproduction/components/Construction"),
+        }, {
+          path: 'contributor',
+          name: 'contributor',
+          component: () => import("@/views/Reproduction/components/Contributor"),
+        }]
       },
 
       {
@@ -43,7 +55,7 @@ const routes = [{
           name: 'modelItemInfo',
           component: () => import("@/views/r2/components/modelItemInfo"),
         }]
-      },{
+      }, {
         path: 'r2/:projectId/resultAnalysis',
         name: 'resultAnalysis',
         component: resolve => (require(["@/views/r2/resultAnalysis"], resolve)),
@@ -51,12 +63,12 @@ const routes = [{
           path: 'info',
           name: 'resultInfo',
           component: () => import("@/views/r2/components/resultAnalysis/Info"),
-        },{
+        }, {
           path: 'edit',
           name: 'resultEdit',
           component: () => import("@/views/r2/components/resultAnalysis/Edit"),
         }]
-        
+
       },
       {
         path: 'project/:id/permission',

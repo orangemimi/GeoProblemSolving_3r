@@ -1,15 +1,27 @@
 <template>
   <div>
-    <el-col :span="18" :offset="3">
-      <el-card shadow="never">
-        <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
-          <el-tab-pane label="Construction" name="construction">
-            <construction ></construction>
-          </el-tab-pane>
-
-          <el-tab-pane label="Contributors" name="contributors">
-            <contributor></contributor>
-          </el-tab-pane> </el-tabs
+    <el-row>
+      <div>
+        <el-menu
+          class="el-menu-demo"
+          mode="horizontal"
+          :default-active="this.$route.path"
+          @select="handleClick"
+        >
+          <el-menu-item
+            v-for="(item, i) in navList"
+            :key="i"
+            :index="item.name"
+            >{{ item.navItem }}</el-menu-item
+          >
+        </el-menu>
+       
+      </div>
+    </el-row>
+    <el-row></el-row>
+    <el-col :span="18" :offset="3" :style="{ height: contentHeight + 'px' }">
+      <el-card shadow="never" class="scroll-parent"
+        ><vue-scroll class="scroll"> <router-view></router-view> </vue-scroll
       ></el-card>
     </el-col>
   </div>
@@ -26,13 +38,31 @@ export default {
   },
   data() {
     return {
+      navList: [
+        { name: "construction", navItem: "construction" },
+        { name: "contributor", navItem: "contributor" },
+      ],
+
       projectId: this.$route.params.projectId,
       userInfo: this.$store.getters.userInfo,
       projectInfo: {},
       activeName: "construction",
+      contentWidth: 0,
+      contentHeight: 0,
     };
   },
   methods: {
+    handleClick(val) {
+      console.log(val);
+      this.$router.push({
+        name: val,
+      });
+    },
+    initSize() {
+      this.contentWidth = window.innerWidth - 450;
+      this.contentHeight = window.innerHeight - 150;
+    },
+
     async getProjectInfo() {
       if (
         JSON.stringify(this.projectInfo) == "{}" ||
@@ -56,8 +86,23 @@ export default {
   mounted() {
     this.getProjectInfo();
   },
+  async created() {
+    this.initSize();
+  },
 };
 </script>
 
-<style>
+<style lang='scss' scoped>
+.scroll-parent {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  .scroll {
+    width: 100%;
+    height: 100%;
+    .scroll-item {
+      margin-bottom: 5px;
+    }
+  }
+}
 </style>
