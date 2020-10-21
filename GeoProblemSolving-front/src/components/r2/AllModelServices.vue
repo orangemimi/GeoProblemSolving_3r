@@ -5,7 +5,7 @@
     </el-select>
     <div class="toolList" :style="{height:contentHeight+'px'}">
       <vue-scroll :ops="ops">
-        <el-row>Tools selected</el-row>
+        <el-row>All tools</el-row>
         <el-row class="tool_card">
           <el-col :span="8" v-for="tool in filterSelectedTools" :key="tool.index">
             <div style="margin: 5px" @click="useTool(tool)">
@@ -21,7 +21,7 @@
 
 <script>
 import { get, del, post, put } from "@/axios";
-import toolCard from "@/components/r2/ToolCard";
+import toolCard from "./ToolCard";
 export default {
   props: {},
 
@@ -92,6 +92,14 @@ export default {
     },
 
     async getSelectedTools() {
+      let { data } = await get(
+        `/GeoProblemSolving/r/resource/get/${this.projectId}`
+      );
+      this.$set(this, "selectedTools", data.toolItemList);
+      console.log(this.selectedTools);
+    },
+
+    async getAllTools() {
       let { data } = await get(
         `/GeoProblemSolving/r/resource/get/${this.projectId}`
       );

@@ -209,9 +209,9 @@
 <script>
 import toolsSelected from "./components/toolsSelected";
 // import allTools from "./allTools";
-import toolCard from "./components/Resource/ToolCard";
-import { get, del, post, patch } from "../../axios";
-import modelItemInfo from "./components/modelItemInfo";
+import toolCard from "@/components/r2/ToolCard";
+import { get, del, post, patch } from "@/axios";
+import modelItemInfo from "@/components/r2/ModelItemInfo";
 // import conceptMap from "./conceptMap";
 import mapCreate from "./components/mapCreate";
 export default {

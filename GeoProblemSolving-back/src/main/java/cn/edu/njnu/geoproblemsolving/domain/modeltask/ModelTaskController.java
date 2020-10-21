@@ -17,9 +17,9 @@ public class ModelTaskController {
         return ResultUtils.success(modelTaskService.getComputeModel(doi));
     }
 
-    @RequestMapping(value = "/getAllService", method = RequestMethod.GET)
-    public Object getAllService() {
-        return modelTaskService.getAllService();
+    @RequestMapping(value = "/getAllService/{asc}/{page}", method = RequestMethod.GET)
+    public Object getAllService(@PathVariable("asc") String asc,@PathVariable("page") String page) {
+        return modelTaskService.getAllService(asc,page);
     }
 
     @RequestMapping(value = "/createTask/{pid}/{userId}", method = RequestMethod.GET)

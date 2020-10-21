@@ -51,8 +51,11 @@
       </el-col>
       <el-col :span="20">
         <el-col :span="12">
-          <step-card :cardInfo="{ btnType: 'Context Definition' }"></step-card
-        ></el-col> </el-col
+          <step-card
+            :cardInfos="cardInfos"
+            :projectInfo="projectInfo"
+          ></step-card>
+        </el-col> </el-col
     ></el-row>
     <el-row>
       <el-popover placement="top" width="160" trigger="click">
@@ -81,6 +84,10 @@ export default {
       userInfo: this.$store.getters.userInfo,
       projectInfo: {},
       folderCollectVisible: false,
+      cardInfos: [
+        { btnType: "Context Definition" },
+        { btnType: "Simulation Construction" },
+      ],
     };
   },
   methods: {
@@ -110,10 +117,13 @@ export default {
 };
 </script>
 
-<style>
+<style lang='scss' scoped>
 .folder_collect {
   position: fixed;
   bottom: 50px;
   right: 50px;
+}
+.scroll {
+  height: 500px;
 }
 </style>

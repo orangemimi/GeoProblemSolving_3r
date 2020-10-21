@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-row>
-      <el-col :span="24">
+      <el-col :span="24" v-for="(info, index) in infos" :key="index">
         <div class="card">
           <div class="top">
             <div class="title">{{ info.btnType }}</div>
@@ -9,7 +9,12 @@
           </div>
           <div class="content">
             <vue-scroll class="scroll">
-              <component :is="typeMapping(info.btnType)"></component>
+              <div class="content-comp">
+                <component
+                  :is="typeMapping(info.btnType)"
+                  :projectInfo="projectInfo2"
+                ></component>
+              </div>
             </vue-scroll>
           </div>
         </div>
@@ -20,18 +25,23 @@
 
 <script>
 import ContextContent from "./ContextContent";
+import ConstructionContent from "./ConstructionContent";
 import ResourceContent from "./ResourceContent";
 import ResultContent from "./ResultContent";
 import AnalysisContent from "./AnalysisContent";
 export default {
   components: {
     ContextContent,
+    ConstructionContent,
     ResourceContent,
     ResultContent,
     AnalysisContent,
   },
   props: {
-    cardInfo: {
+    cardInfos: {
+      type: Array,
+    },
+    projectInfo: {
       type: Object,
     },
   },
@@ -42,10 +52,18 @@ export default {
       },
       deep: true,
     },
+    projectInfo: {
+      handler(val) {
+        console.log(val);
+        this.projectInfo2 = val;
+      },
+      deep: true,
+    },
   },
   data() {
     return {
-      info: this.cardInfo,
+      infos: this.cardInfos,
+      projectInfo2: this.projectInfo,
     };
   },
   methods: {
@@ -55,6 +73,11 @@ export default {
         case "Context Definition":
           {
             vueType = "ContextContent";
+          }
+          break;
+        case "Simulation Construction":
+          {
+            vueType = "ConstructionContent";
           }
           break;
       }
@@ -69,7 +92,7 @@ export default {
   background: #ffffff;
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
   opacity: 1;
-  height: 500px;
+  //   height: 500px;
   margin: 10px;
   .top {
     background: #444444;
@@ -91,7 +114,10 @@ export default {
   .content {
   }
   .scroll {
-    height: 400px;
+    height: 300px;
+    .content-comp {
+      margin: 10px;
+    }
   }
 }
 </style>

@@ -84,9 +84,9 @@ public class ModelTaskService {
         return result;
     }
 
-    public Object getAllService() {
+    public Object getAllService(String asc,String page) {
         RestTemplate restTemplate = new RestTemplate();
-        String urlStr = "http://223.2.41.253:8080/GeoModeling/taskNode/getAllServices"; ////Step0:根据MD5获取可用的任务服务器
+        String urlStr = "http://223.2.41.253:8080/GeoModeling/loadDeployedModel?asc="+asc+"&page="+page+"&size=10"; ////Step0:根据MD5获取可用的任务服务器
 
         ResponseEntity<JSONObject> jsonObjectResponseEntity = restTemplate.getForEntity(urlStr, JSONObject.class);//虚拟http请求
         if (!jsonObjectResponseEntity.getStatusCode().is2xxSuccessful()) {

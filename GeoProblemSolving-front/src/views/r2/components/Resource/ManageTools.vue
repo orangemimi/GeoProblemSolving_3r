@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import toolCard from "./ToolCard";
+import toolCard from "@/components/r2/ToolCard";
 import { get, del, post, put } from "@/axios";
 import draggable from "vuedraggable";
 

@@ -177,7 +177,7 @@
 
 <script>
 import file from "@/components/dataTemplate/File";
-import { get, del, post, put, patch } from "../../../axios";
+import { get, del, post, put, patch } from "@/axios";
 export default {
   props: {
     pageParamsFrom: {

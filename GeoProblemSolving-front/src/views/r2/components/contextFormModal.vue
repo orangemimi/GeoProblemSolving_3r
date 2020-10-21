@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import { post, get } from "../../../axios";
+import { post, get, patch } from "../../../axios";
 export default {
   props: {
     projectInfo: {
@@ -68,7 +68,7 @@ export default {
   methods: {
     async getContext() {
       let { data } = await get(
-        `/GeoProblemSolving/r/contextDefinition/get/${this.projectInfomation.projectId}`
+        `/GeoProblemSolving/r/contextDefinition/${this.projectInfomation.projectId}`
       );
 
       if (data == null) {
@@ -86,7 +86,7 @@ export default {
             contextForm.userId = this.projectInfomation.userId;
             contextForm.pid = this.projectInfomation.projectId;
             let { data } = await post(
-              `/GeoProblemSolving/r/contextDefinition/save`,
+              `/GeoProblemSolving/r/contextDefinition`,
               contextForm
             );
             this.$message({
@@ -94,8 +94,8 @@ export default {
               type: "success",
             });
           } else {
-            let { data } = await post(
-              `/GeoProblemSolving/r/contextDefinition/update/${this.projectInfomation.projectId}`,
+            let { data } = await patch(
+              `/GeoProblemSolving/r/contextDefinition/${this.projectInfomation.projectId}`,
               this.contextForm
             );
             this.$message({

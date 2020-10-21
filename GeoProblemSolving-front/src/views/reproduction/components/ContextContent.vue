@@ -5,6 +5,7 @@
       :model="contextForm"
       label-width="150px"
       @submit.native.prevent
+      size="mini"
     >
       <el-form-item label="Theme">
         <el-input
@@ -64,12 +65,23 @@
 <script>
 import { post, get } from "../../../axios";
 export default {
+  components: {},
   props: {
     projectInfo: {
       type: Object,
     },
   },
-  components: {},
+  watch: {
+    projectInfo: {
+      handler(val) {
+        if (val != null) {
+          this.projectInfomation = val;
+          this.getContext();
+        }
+      },
+    },
+  },
+
   data() {
     return {
       contextForm: {
@@ -87,10 +99,12 @@ export default {
   },
   methods: {
     async getContext() {
+      console.log(this.projectInfomation);
       let { data } = await get(
-        `/GeoProblemSolving/r/contextDefinition/get/${this.projectInfomation.projectId}`
+        `/GeoProblemSolving/r/contextDefinition/${this.projectInfomation.projectId}`
       );
 
+      console.log(data);
       if (data == null) {
         this.updateContext = false;
       } else {
@@ -106,7 +120,7 @@ export default {
             contextForm.userId = this.projectInfomation.userId;
             contextForm.pid = this.projectInfomation.projectId;
             let { data } = await post(
-              `/GeoProblemSolving/r/contextDefinition/save`,
+              `/GeoProblemSolving/r/contextDefinition`,
               contextForm
             );
             this.$message({
@@ -114,8 +128,8 @@ export default {
               type: "success",
             });
           } else {
-            let { data } = await post(
-              `/GeoProblemSolving/r/contextDefinition/update/${this.projectInfomation.projectId}`,
+            let { data } = await patch(
+              `/GeoProblemSolving/r/contextDefinition/${this.projectInfomation.projectId}`,
               this.contextForm
             );
             this.$message({
@@ -145,10 +159,10 @@ export default {
       this.contextForm.themes.splice(this.contextForm.themes.indexOf(tag), 1);
     },
   },
-  created() {
+  created() {},
+  mounted() {
     this.getContext();
   },
-  mounted() {},
 };
 </script>
 <style lang='scss' scoped>

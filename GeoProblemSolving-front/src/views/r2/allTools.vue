@@ -37,8 +37,8 @@
 </template>
 
 <script>
-import { get, del, post, put } from "../../axios";
-import toolCard from "./components/Resource/ToolCard";
+import { get, del, post, put } from "@/axios";
+import toolCard from "@/components/r2/ToolCard";
 export default {
   props: {},
 

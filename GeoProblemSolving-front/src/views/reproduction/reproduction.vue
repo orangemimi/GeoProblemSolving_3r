@@ -15,13 +15,13 @@
             >{{ item.navItem }}</el-menu-item
           >
         </el-menu>
-       
       </div>
     </el-row>
     <el-row></el-row>
     <el-col :span="18" :offset="3" :style="{ height: contentHeight + 'px' }">
-      <el-card shadow="never" class="scroll-parent"
-        ><vue-scroll class="scroll"> <router-view></router-view> </vue-scroll
+      <el-card shadow="never"
+        ><vue-scroll :style="{ height: contentHeight - 60 + 'px' }">
+          <router-view class="scroll-item"></router-view> </vue-scroll
       ></el-card>
     </el-col>
   </div>
@@ -60,7 +60,7 @@ export default {
     },
     initSize() {
       this.contentWidth = window.innerWidth - 450;
-      this.contentHeight = window.innerHeight - 150;
+      this.contentHeight = window.innerHeight - 200;
     },
 
     async getProjectInfo() {
@@ -93,16 +93,4 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.scroll-parent {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  .scroll {
-    width: 100%;
-    height: 100%;
-    .scroll-item {
-      margin-bottom: 5px;
-    }
-  }
-}
 </style>

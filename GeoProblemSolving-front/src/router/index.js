@@ -49,11 +49,11 @@ const routes = [{
       }, {
         path: 'r2/:projectId/modelConstruction',
         name: 'simulationExecution',
-        component: resolve => (require(["@/views/r2/modelConstruction"], resolve)),
+        component: resolve => (require(["@/views/r2/ModelConstruction"], resolve)),
         children: [{
           path: '/modelItemInfo/:doi',
           name: 'modelItemInfo',
-          component: () => import("@/views/r2/components/modelItemInfo"),
+          component: () => import("@/components/r2/ModelItemInfo"),
         }]
       }, {
         path: 'r2/:projectId/resultAnalysis',
