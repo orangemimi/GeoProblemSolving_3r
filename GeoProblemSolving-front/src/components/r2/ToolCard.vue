@@ -7,7 +7,7 @@
           <el-tooltip placement="bottom" max-width="600">
             <avatar
               :username="item.toolName"
-              :size="40"
+              :size="30"
               style="margin-bottom: 6px"
               :rounded="false"
               v-if="item.toolImg == '' || item.toolImg == undefined"
@@ -80,12 +80,12 @@ export default {
 .cardBody {
   background-color: ghostwhite;
   cursor: pointer;
-  height: 60px;
-  width: 250px;
+  height: 50px;
+  // width: 250px;
 
   .toolImgOuter {
-    height: 40px;
-    width: 40px;
+    height: 30px;
+    width: 30px;
     .toolImg {
       width: auto;
       height: auto;
@@ -94,25 +94,22 @@ export default {
     }
   }
   .card_avatar {
-    width: 40px;
-    margin-right: 10px;
+    width: 30px;
+    margin-right: 5px;
     float: left;
   }
   .card_info {
-    // clear: both;
-    width: 250px;
-
+    width: 130px;
     .card_info_name {
-      // font-size: 14px;
       display: block;
-      width: 180px;
+      width: 90px;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
     }
   }
   >>> .el-card__body {
-    padding: 10px;
+    padding: 8px 5px;
   }
 }
 

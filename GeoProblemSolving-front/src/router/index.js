@@ -25,15 +25,15 @@ const routes = [{
       {
         path: 'r2/:projectId/builder',
         name: 'r2',
-        component: resolve => (require(["@/views/Reproduction/Reproduction"], resolve)),
+        component: resolve => (require(["@/views/reproduction/Reproduction"], resolve)),
         children: [{
           path: 'construction',
           name: 'construction',
-          component: () => import("@/views/Reproduction/components/Construction"),
+          component: () => import("@/views/reproduction/Construction"),
         }, {
           path: 'contributor',
           name: 'contributor',
-          component: () => import("@/views/Reproduction/components/Contributor"),
+          component: () => import("@/views/reproduction/Contributor"),
         }]
       },
 
@@ -45,7 +45,7 @@ const routes = [{
       {
         path: 'r2/:projectId/dataProcessing',
         name: 'r_dataProcessing',
-        component: resolve => (require(["@/views/r2/components/mapCreate"], resolve))
+        component: resolve => (require(["@/components/r2/MapCreate"], resolve))
       }, {
         path: 'r2/:projectId/modelConstruction',
         name: 'simulationExecution',

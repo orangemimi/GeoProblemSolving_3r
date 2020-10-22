@@ -1,12 +1,15 @@
 import mxgraph from './index';
+import {
+  get
+} from '@/axios'
 
 const {
   mxConstants
 } = mxgraph;
 
-
 const outputIcon = './images/1.jpg'
 const inputIcon = './images/2.jpg'
+
 
 
 

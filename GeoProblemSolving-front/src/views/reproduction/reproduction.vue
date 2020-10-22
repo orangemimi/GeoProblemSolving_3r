@@ -18,7 +18,7 @@
       </div>
     </el-row>
     <el-row></el-row>
-    <el-col :span="18" :offset="3" :style="{ height: contentHeight + 'px' }">
+    <el-col :span="22" :offset="1" :style="{ height: contentHeight + 'px' }">
       <el-card shadow="never"
         ><vue-scroll :style="{ height: contentHeight - 60 + 'px' }">
           <router-view class="scroll-item"></router-view> </vue-scroll
@@ -29,8 +29,8 @@
 
 <script>
 import { post, get } from "@/axios";
-import construction from "./components/Construction";
-import contributor from "./components/Contributor";
+import construction from "./Construction";
+import contributor from "./Contributor";
 export default {
   components: {
     construction,
@@ -41,6 +41,7 @@ export default {
       navList: [
         { name: "construction", navItem: "construction" },
         { name: "contributor", navItem: "contributor" },
+        
       ],
 
       projectId: this.$route.params.projectId,

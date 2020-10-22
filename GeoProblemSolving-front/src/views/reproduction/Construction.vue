@@ -50,9 +50,9 @@
         >
       </el-col>
       <el-col :span="20">
-        <el-col :span="12">
+        <el-col :span="24" v-for="(item,index) in cardInfos" :key="index">
           <step-card
-            :cardInfos="cardInfos"
+            :cardInfo="item"
             :projectInfo="projectInfo"
           ></step-card>
         </el-col> </el-col
@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import stepCard from "./StepCard";
+import stepCard from "./components/StepCard";
 export default {
   components: {
     stepCard,
@@ -85,8 +85,9 @@ export default {
       projectInfo: {},
       folderCollectVisible: false,
       cardInfos: [
-        { btnType: "Context Definition" },
+        // { btnType: "Context Definition" },
         { btnType: "Simulation Construction" },
+         { btnType: "Resource Collection" }
       ],
     };
   },

@@ -213,7 +213,7 @@ import toolCard from "@/components/r2/ToolCard";
 import { get, del, post, patch } from "@/axios";
 import modelItemInfo from "@/components/r2/ModelItemInfo";
 // import conceptMap from "./conceptMap";
-import mapCreate from "./components/mapCreate";
+import mapCreate from "@/components/r2/MapCreate";
 export default {
   props: {},
   components: {

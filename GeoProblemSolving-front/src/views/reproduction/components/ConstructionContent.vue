@@ -1,217 +1,22 @@
 <template>
   <div class="main" :style="{ height: contentHeight + 'px' }">
     <el-row :gutter="20" :style="{ height: contentHeight + 'px' }">
-      <el-col :span="4">
-        <el-card class="process_data" shadow="never">
-          <div class="process_data_title">
-            <el-select v-model="typeSelected" style="width: 160px">
-              <el-option
-                v-for="item in typeOptions"
-                :key="item.index"
-                :value="item"
-                >{{ item }}</el-option
-              >
-            </el-select>
-            <div class="toolList" :style="{ height: contentHeight + 'px' }">
-              <vue-scroll :ops="ops">
-                <el-row>Tools selected</el-row>
-                <el-row class="tool_card">
-                  <div v-for="tool in filterSelectedTools" :key="tool.index">
-                    <div style="margin: 5px" @click="useTool(tool)">
-                      <tool-card
-                        :toolFrom="tool"
-                        :isOpenTool="isOpenTool"
-                      ></tool-card>
-                    </div>
-                  </div>
-                </el-row>
-              </vue-scroll>
-            </div>
-          </div>
-        </el-card>
-      </el-col>
-      <el-col :span="16">
-        <el-tabs v-model="activeTabs" type="border-card">
-          <el-tab-pane label="Model Item" name="modelItem">
-            <el-row>
-              <el-card class="process_data" shadow="never">
-                <div>
-                  <div
-                    v-show="
-                      currentModelInfo.toolUrl == '' && instanceFolk.id == ''
-                    "
-                    :style="{ height: contentHeight - 20 + 'px' }"
-                  >
-                    <div class="noCurrentModel">
-                      <i class="el-icon-warning"></i>
-                      Please select one tool from the left panel
-                    </div>
-                  </div>
-                  <div
-                    v-show="
-                      currentModelInfo.toolUrl != '' || instanceFolk.id != ''
-                    "
-                    :style="{ height: contentHeight - 20 + 'px' }"
-                  >
-                    <vue-scroll :ops="ops">
-                      <model-item-info
-                        :pageParamsFrom="pageParams"
-                        :currentModelInfo="currentModelInfo"
-                        :selectedResources="selectedResources"
-                        :instanceFolk="instanceFolk"
-                        @modelInstance="saveModelInstance"
-                      ></model-item-info>
-                    </vue-scroll>
-                  </div>
-                </div>
-              </el-card>
-            </el-row>
-          </el-tab-pane>
-          <el-tab-pane label="Concept Map" name="conceptMap">
-            <el-row>
-              <el-card>
-                <div
-                  class="mxGraph"
-                  :style="{ height: contentHeight - 20 + 'px' }"
-                >
-                  <map-create
-                    :dataItems="selectedResources.dataItemList"
-                    :createMapInstances="checkedInstances"
-                    :initXml="initXml"
-                    @emitxml="emitxml"
-                  ></map-create>
-                </div>
-              </el-card>
-            </el-row>
-          </el-tab-pane>
-        </el-tabs>
-      </el-col>
-      <el-col :span="4">
-        <el-row>
-          <el-card class="process_data" shadow="never">
-            <div class="process_data_title">Data Resources</div>
-            <div>
-              <vue-scroll style="height: 200px">
-                <div
-                  v-for="(data, index) in selectedResources.dataItemList"
-                  :key="index"
-                >
-                  <div class="data_info">
-                    <div class="data_info_name">{{ data.name }}</div>
-                    <div class="data_info_hover">
-                      <i
-                        class="el-icon-download"
-                        @click="downloadDataResource(data)"
-                      ></i>
-                    </div>
-                  </div>
-                </div>
-              </vue-scroll>
-            </div>
-          </el-card>
-        </el-row>
-        <el-row>
-          <el-card shadow="never">
-            <div class="process_data_title">Model Instance</div>
-            <div
-              v-for="(instance, index) in filterModelInstance"
-              :key="index + 'instance'"
-            >
-              <el-card
-                class="box-card"
-                :class="instance.status == 0 ? 'calculating' : 'finishing'"
-              >
-                <div class="instance_head">
-                  <div class="instance_name">{{ instance.name }}</div>
-                  <i
-                    class="el-icon-close"
-                    @click="deleteInstance(instance.id)"
-                  ></i>
-                </div>
-                <div v-if="instance.status == 0" class="calculating_icon">
-                  <i
-                    class="el-icon-loading calculating_icon"
-                    style="
-                      float: left;
-                      width: 20px;
-                      size: 20px;
-                      line-height: 20px;
-                      font-weight: 600;
-                    "
-                  ></i>
-                  <div style="float: left; width: 10px">calculating</div>
-                </div>
-                <div v-else>
-                  <el-checkbox
-                    v-model="instance.checkedForMap"
-                    @change="$forceUpdate()"
-                  ></el-checkbox>
-                  <i
-                    class="el-icon-connection"
-                    @click="folkInstance(instance)"
-                  ></i>
-                </div>
-              </el-card>
-
-              <el-card class="box-card" v-if="instance.status == -1">
-                <div class="instance_head">
-                  <div class="instance_name">{{ instance.name }}</div>
-                  <i
-                    class="el-icon-close"
-                    @click="deleteInstance(instance.id)"
-                  ></i>
-                </div>
-                <div class="error_icon">
-                  <i
-                    class="el-icon-warning"
-                    style="
-                      float: left;
-                      width: 20px;
-                      size: 20px;
-                      line-height: 20px;
-                      font-weight: 600;
-                    "
-                  ></i>
-                  <div style="float: left; width: 10px">ERROR</div>
-                </div>
-              </el-card>
-            </div>
-            <el-checkbox v-model="checkAll" @change="handleCheckAllChange"
-              >Select All</el-checkbox
-            >
-            <el-button @click="mapCreate">Create Map</el-button>
-          </el-card>
-        </el-row>
+      <el-col :span="22">
+        <div :style="{ height: contentHeight + 'px' }">
+          <mx-graph :sendXml="''"></mx-graph>
+        </div>
       </el-col>
     </el-row>
-
-    <div>
-      <el-dialog
-        title="Warning"
-        :visible.sync="deleteInstanceDialog"
-        width="30%"
-      >
-        <span
-          >If you delete this instance, linked resources would also be
-          deleted</span
-        >
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="deleteInstanceDialog = false">Cancle</el-button>
-          <el-button type="primary" @click="handleDeleteInstanceDialogClose"
-            >Confirm</el-button
-          >
-        </span>
-      </el-dialog>
-    </div>
   </div>
 </template>
 
 <script>
-import allTools from "@/components/r2/AllModelServices";
+import allTools from "@/components/r2/AllTools";
 import toolCard from "@/components/r2/ToolCard";
 import { get, del, post, patch } from "@/axios";
 import modelItemInfo from "@/components/r2/ModelItemInfo";
-// import mapCreate from "./components/mapCreate";
+// import mapCreate from "@/components/r2/MapCreate";
+import mxGraph from "./MxGraph";
 export default {
   props: {},
   components: {
@@ -219,6 +24,7 @@ export default {
     toolCard,
     modelItemInfo,
     // mapCreate,
+    mxGraph,
   },
 
   computed: {
@@ -233,28 +39,8 @@ export default {
       };
       return data;
     },
-    filterSelectedTools() {
-      let tools = this.selectedResources.toolItemList;
-      let type = this.typeSelected;
-      if (type == "All") {
-        return tools;
-      } else {
-      }
-    },
-    filterModelInstance() {
-      let data = this.modelInstances;
-      return data.filter((item) => (item.statesJson = JSON.parse(item.states)));
-    },
-
-    filterInheritResources() {
-      let list = this.selectedResources.dataItemList.filter((data) => {
-        return (
-          data.hasOwnProperty("stepInherit") &&
-          data.stepInherit.some((e) => e == this.stepInfo.stepId)
-        );
-      });
-      // console.log(list);
-      return list;
+    sendFlowChartFromXml() {
+      return `<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/>${this.sendXml}</root></mxGraphModel>`;
     },
   },
   data() {
@@ -326,8 +112,13 @@ export default {
       initXml: "",
       // directDataResource: [],
       // inDirectDataResource: [],
+
+      //
+      publicTools: [],
+      personalTools: [],
     };
   },
+
   methods: {
     initSize() {
       //   this.contentWidth = window.innerWidth - 450;
@@ -335,10 +126,34 @@ export default {
     },
     async init() {
       // this.getPageParams();
+      await this.getPublicTools();
+      await this.getPersonalTools();
       await this.getDataItem();
-      await this.getToolItem();
-      await this.getModelInstances();
       await this.getMap();
+    },
+
+    async getPublicTools() {
+      let data = await get(
+        "/GeoProblemSolving/tool/inquiry/?key=privacy&value=Public"
+      );
+      this.$set(this, "publicTools", data);
+    },
+
+    async getPersonalTools() {
+      let data = await get(
+        `/GeoProblemSolving/tool/findByProvider/${this.userId}`
+      );
+      this.$set(this, "personalTools", data);
+    },
+
+    chooseTool(tool) {
+      if (toolInfo.toolName == "Jupyter notebook") {
+        this.jupyterModal = true;
+        return;
+      }
+      this.activeTabs = "modelItem";
+      this.currentModelInfo.toolId = toolInfo.tid;
+      this.currentModelInfo.toolUrl = toolInfo.toolUrl;
     },
 
     async getDataItem() {
@@ -359,27 +174,6 @@ export default {
             item.stepBindId == this.stepInfo.stepId || item.isDirect == true
         );
       }
-    },
-
-    async getToolItem() {
-      let toolItem = await get(
-        `/GeoProblemSolving/r/toolItems/${this.projectId}`
-      );
-      this.$set(this.selectedResources, "toolItemList", toolItem);
-    },
-
-    //get modelinstance
-    async getModelInstances() {
-      // console.log(this.stepInfo);
-      let { data } = await get(
-        `/GeoProblemSolving/r/modelInstance/get/${this.stepInfo.stepId}`
-      );
-      this.modelInstances = data;
-      this.modelInstances.forEach((item) => {
-        if (item.status != 2) {
-          this.getOutputs(item);
-        }
-      });
     },
 
     async getOutputs(instance) {
@@ -430,16 +224,6 @@ export default {
       this.saveModelInstance(data);
     },
 
-    useTool(toolInfo) {
-      if (toolInfo.toolName == "Jupyter notebook") {
-        this.jupyterModal = true;
-        return;
-      }
-      this.activeTabs = "modelItem";
-      this.currentModelInfo.toolId = toolInfo.tid;
-      this.currentModelInfo.toolUrl = toolInfo.toolUrl;
-    },
-
     //findindexof--改进
     saveModelInstance(instance) {
       this.modelInstances.forEach((item, index) => {
@@ -450,69 +234,12 @@ export default {
       this.modelInstances.push(instance);
     },
 
-    folkInstance(instance) {
-      this.instanceFolk = instance;
-    },
-
-    async handleDeleteInstanceDialogClose() {
-      //删除instance
-      //view更新
-      this.modelInstances.forEach((item, index) => {
-        if (item.id == this.deleteInstanceId) {
-          this.modelInstances.splice(index, 1);
-        }
-      });
-      await del(
-        `/GeoProblemSolving/r/modelInstance/delete/${this.deleteInstanceId}`
-      );
-
-      //删除与之相关的dataitem
-      let resource = this.selectedResources;
-      let dataItem = resource.dataItemList;
-      dataItem.forEach((item, itemIndex) => {
-        if (item.toModelInstanceList != null) {
-          item.toModelInstanceList.forEach((id, index) => {
-            if (id == this.deleteInstanceId) {
-              item.toModelInstanceList.splice(index, 1);
-              patch(`/GeoProblemSolving/r/dataItems/${item.id}`, item);
-            }
-          });
-        }
-        if (item.fromModelInstance != null) {
-          if (item.fromModelInstance == this.deleteInstanceId) {
-            dataItem.splice(itemIndex, 1);
-            del(`/GeoProblemSolving/r/dataItems/${item.id}`);
-          }
-        }
-      });
-      this.deleteInstanceDialog = false;
-    },
-
-    deleteInstance(instanceId) {
-      this.deleteInstanceId = instanceId;
-      this.deleteInstanceDialog = true;
-    },
-
-    handleCheckAllChange(val) {
-      this.checkAll = val;
-      this.filterModelInstance.forEach((item) => {
-        item.checkedForMap = this.checkAll; //只改变数据的状态
-      });
-    },
-
     getModelDoi(url) {
       let arr = url.split("/");
       this.modelDoi = arr[arr.length - 1];
     },
 
-    downloadDataResource(data) {
-      window.open(data.url);
-    },
-
     async mapCreate() {
-      // this.dataNodes = [];
-      // this.dataNodesIntermedia = [];
-
       this.filterCreateMapInstances = this.filterModelInstance.filter(
         (instance) => instance.checkedForMap == true
       );
@@ -591,6 +318,7 @@ export default {
       this.initXml = xml;
     },
   },
+
   created() {
     this.initSize();
     if (this.userInfo) {
@@ -602,9 +330,9 @@ export default {
 </script>
 <style  lang='scss' scoped>
 .main {
-  margin: 20px 20px;
+  margin: 20px 0;
 }
-.instance_name {
+.instance-name {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -613,17 +341,17 @@ export default {
   width: 200px;
   text-align: left;
 }
-.data_info {
+.data-info {
   height: 20px;
 }
-.data_info_hover {
+.data-info-hover {
   display: none;
 }
-.data_info_name {
+.data-info-name {
   float: left;
   width: 220px;
 }
-.data_info:hover {
+.data-info:hover {
   cursor: pointer;
   background-color: rgba(99, 142, 197, 0.2);
 
@@ -632,7 +360,7 @@ export default {
   //     transform: translateY(-4px);
   -webkit-transition: all 0.2s ease-out;
   transition: all 0.2s ease-out;
-  .data_info_hover {
+  .data-info-hover {
     display: block;
     float: left;
     // right: 5px;
@@ -654,7 +382,7 @@ export default {
   border-bottom: 2px solid rgb(27, 73, 38);
   text-align: center;
 }
-.calculating_icon {
+.calculating-icon {
   color: rgb(30, 44, 35);
   font-weight: 600;
   text-align: center;
@@ -666,7 +394,7 @@ export default {
   border-bottom: 2px solid rgb(73, 27, 27);
   text-align: center;
 }
-.error_icon {
+.error-icon {
   color: rgb(202, 37, 37);
   font-weight: 600;
   text-align: center;
@@ -680,9 +408,19 @@ export default {
   top: 20%;
   left: 15%;
 }
-.process_data {
-  >>> .el-card__body {
+.process-data {
+  >>> .el-card--body {
     padding: 15px;
+  }
+}
+.tool-top {
+  padding: 5px 0;
+  font-size: 16px;
+  font-weight: 600;
+  height: 40px;
+  .tool-title {
+    float: left;
+    width: 100px;
   }
 }
 </style>

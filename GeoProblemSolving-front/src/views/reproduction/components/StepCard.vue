@@ -1,21 +1,21 @@
 <template>
   <div>
     <el-row>
-      <el-col :span="24" v-for="(info, index) in infos" :key="index">
+      <el-col :span="24">
         <div class="card">
           <div class="top">
             <div class="title">{{ info.btnType }}</div>
             <div class="top-icon"><i class="el-icon-top-right"></i></div>
           </div>
           <div class="content">
-            <vue-scroll class="scroll">
+            <!-- <vue-scroll class="scroll"> -->
               <div class="content-comp">
                 <component
                   :is="typeMapping(info.btnType)"
                   :projectInfo="projectInfo2"
                 ></component>
               </div>
-            </vue-scroll>
+            <!-- </vue-scroll> -->
           </div>
         </div>
       </el-col>
@@ -38,8 +38,8 @@ export default {
     AnalysisContent,
   },
   props: {
-    cardInfos: {
-      type: Array,
+    cardInfo: {
+      type: Object,
     },
     projectInfo: {
       type: Object,
@@ -54,7 +54,6 @@ export default {
     },
     projectInfo: {
       handler(val) {
-        console.log(val);
         this.projectInfo2 = val;
       },
       deep: true,
@@ -62,7 +61,7 @@ export default {
   },
   data() {
     return {
-      infos: this.cardInfos,
+      info: this.cardInfo,
       projectInfo2: this.projectInfo,
     };
   },
@@ -78,6 +77,11 @@ export default {
         case "Simulation Construction":
           {
             vueType = "ConstructionContent";
+          }
+          break;
+        case "Resource Collection":
+          {
+            vueType = "ResourceContent";
           }
           break;
       }

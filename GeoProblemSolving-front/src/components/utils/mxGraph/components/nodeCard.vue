@@ -9,7 +9,7 @@
         />-->
         <!-- <i :class="nodeInfo"></i> -->
         <div>
-          <span>{{nodeInfo.title}}</span>
+          <span>{{nodeInfo.toolName}}</span>
           <div class="bottom clearfix">
             <!-- <time class="time">{{ currentDate }}</time> -->
           </div>
