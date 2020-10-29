@@ -38,6 +38,8 @@ footer {
   width: 100%;
   bottom: 0;
   flex: 0 0 auto;
+  position: fixed;
+  z-index: 999;
 }
 .userState {
   position: absolute;
@@ -72,7 +74,7 @@ footer {
   color: white;
   font-size: 0.8em;
 }
-.menuItemCell{
+.menuItemCell {
   font-weight: 900;
 }
 .menuItemCell:hover {
@@ -82,14 +84,14 @@ footer {
 </style>
 <template>
   <div class="container">
-    <div style="position: fixed;z-index: 99;">
-      <header style="position:inherit;min-width: -webkit-fill-available;">
+    <div style="position: fixed; z-index: 99">
+      <header style="position: inherit; min-width: -webkit-fill-available">
         <img
           src="@/assets/images/OGMS.png"
           id="logo"
           class="pic"
           @click="goHome"
-          style="cursor:pointer;margin-left:5%"
+          style="cursor: pointer; margin-left: 5%"
         />
         <div v-if="useMenuCSS">
           <div class="navPart">
@@ -99,10 +101,10 @@ footer {
               theme="dark"
               :active-name="activeMenu"
               @on-select="turnContent"
-              :style="`z-index:0;background:`+headerBgColor"
+              :style="`z-index:0;background:` + headerBgColor"
               width="auto"
             >
-              <MenuItem name="home" class="menuItem" style="margin-left:35%">
+              <MenuItem name="home" class="menuItem" style="margin-left: 35%">
                 <span>Home</span>
               </MenuItem>
               <MenuItem name="projects" class="menuItem">
@@ -128,7 +130,7 @@ footer {
               theme="dark"
               :active-name="activeMenu"
               @on-select="unlogin"
-              :style="`z-index:0;background:`+headerBgColor"
+              :style="`z-index:0;background:` + headerBgColor"
               v-show="!userState"
               class="menuItem"
             >
@@ -143,7 +145,7 @@ footer {
               mode="horizontal"
               theme="dark"
               @on-select="logged"
-              :style="`z-index:0;background:`+headerBgColor"
+              :style="`z-index:0;background:` + headerBgColor"
               v-show="userState"
               class="menuItem"
             >
@@ -152,19 +154,21 @@ footer {
                   <Icon type="ios-notifications-outline" size="25"></Icon>
                 </Badge>
               </MenuItem>
-              <MenuItem name="personal" style="width:100px">
+              <MenuItem name="personal" style="width: 100px">
                 <Dropdown @on-click="changeSelect" placement="bottom-start">
                   <div @click="toPersonalPage">
                     <img
                       v-bind:src="avatar"
-                      v-if="avatar!=''&&avatar!=undefined&&avatar!=null"
+                      v-if="
+                        avatar != '' && avatar != undefined && avatar != null
+                      "
                       :title="userName"
-                      style="width:40px;height:40px;vertical-align:middle;"
+                      style="width: 40px; height: 40px; vertical-align: middle"
                     />
                     <avatar
                       :username="userName"
                       :size="40"
-                      style="margin-top:10px"
+                      style="margin-top: 10px"
                       :title="userName"
                       v-else
                     ></avatar>
@@ -179,36 +183,89 @@ footer {
           </div>
         </div>
         <div v-else>
-          <Menu mode="horizontal" theme="dark" style="z-index: 0;"></Menu>
-          <Dropdown style="position: fixed;top: 10px;right: 20px;">
-            <Button icon="md-menu" style="color: white;background-color: #808695"></Button>
+          <Menu mode="horizontal" theme="dark" style="z-index: 0"></Menu>
+          <Dropdown style="position: fixed; top: 10px; right: 20px">
+            <Button
+              icon="md-menu"
+              style="color: white; background-color: #808695"
+            ></Button>
             <DropdownMenu slot="list">
-              <CellGroup style="width:200px">
-                <Cell @click.native="turnToURL('/GeoProblemSolving/home')" class="menuItemCell">Home</Cell>
-                <Cell @click.native="turnToURL('/GeoProblemSolving/projectList')" class="menuItemCell">Projects</Cell>
-                <Cell @click.native="turnToURL('/GeoProblemSolving/publicResource')" class="menuItemCell">Resources</Cell>
-                <Cell @click.native="turnToURL('/GeoProblemSolving/toolsCenter')" class="menuItemCell">Tools</Cell>
-                <Cell @click.native="turnToURL('/GeoProblemSolving/help')" class="menuItemCell">Help</Cell>
-                <Divider style="margin: 5px 0"/>
-                <Cell v-show="!userState" @click.native="turnToURL('/GeoProblemSolving/login')" class="menuItemCell">Login</Cell>
-                <Cell v-show="!userState" @click.native="turnToURL('/GeoProblemSolving/register')" class="menuItemCell">Sign up</Cell>
-                <Cell  v-show="userState" @click.native="turnToURL('/GeoProblemSolving/notifications')" class="menuItemCell">Notification</Cell>
-                <Cell  v-show="userState" @click.native="toPersonalPage" class="menuItemCell">Personal Page</Cell>
-                <Cell  v-show="userState" @click.native="logout" class="menuItemCell">Log out</Cell>
+              <CellGroup style="width: 200px">
+                <Cell
+                  @click.native="turnToURL('/GeoProblemSolving/home')"
+                  class="menuItemCell"
+                  >Home</Cell
+                >
+                <Cell
+                  @click.native="turnToURL('/GeoProblemSolving/projectList')"
+                  class="menuItemCell"
+                  >Projects</Cell
+                >
+                <Cell
+                  @click.native="turnToURL('/GeoProblemSolving/publicResource')"
+                  class="menuItemCell"
+                  >Resources</Cell
+                >
+                <Cell
+                  @click.native="turnToURL('/GeoProblemSolving/toolsCenter')"
+                  class="menuItemCell"
+                  >Tools</Cell
+                >
+                <Cell
+                  @click.native="turnToURL('/GeoProblemSolving/help')"
+                  class="menuItemCell"
+                  >Help</Cell
+                >
+                <Divider style="margin: 5px 0" />
+                <Cell
+                  v-show="!userState"
+                  @click.native="turnToURL('/GeoProblemSolving/login')"
+                  class="menuItemCell"
+                  >Login</Cell
+                >
+                <Cell
+                  v-show="!userState"
+                  @click.native="turnToURL('/GeoProblemSolving/register')"
+                  class="menuItemCell"
+                  >Sign up</Cell
+                >
+                <Cell
+                  v-show="userState"
+                  @click.native="turnToURL('/GeoProblemSolving/notifications')"
+                  class="menuItemCell"
+                  >Notification</Cell
+                >
+                <Cell
+                  v-show="userState"
+                  @click.native="toPersonalPage"
+                  class="menuItemCell"
+                  >Personal Page</Cell
+                >
+                <Cell
+                  v-show="userState"
+                  @click.native="logout"
+                  class="menuItemCell"
+                  >Log out</Cell
+                >
               </CellGroup>
             </DropdownMenu>
           </Dropdown>
         </div>
       </header>
     </div>
-    <div class="content" :style="{minHeight:contentHeight}">
-      <router-view @sendNotice="sendMessage" @readNotification="readNotification"></router-view>
+    <div class="content" :style="{ minHeight: contentHeight }">
+      <router-view
+        @sendNotice="sendMessage"
+        @readNotification="readNotification"
+      ></router-view>
     </div>
-    <footer>
+    <footer class="foot-style">
       <h2 class="footerTop">
         <i>Open Geographic Modeling and Simulation</i>
       </h2>
-      <p class="footerBottom">Copyright © 2013-2020 OpenGMS. All rights reserved.</p>
+      <p class="footerBottom">
+        Copyright © 2013-2020 OpenGMS. All rights reserved.
+      </p>
     </footer>
   </div>
 </template>
@@ -218,43 +275,43 @@ export default {
   name: "HelloWorld",
   data() {
     return {
-      activeMenu:"",
+      activeMenu: "",
       //消息机制
       noticeSocket: null,
       unreadNoticeCount: 0,
       timer: null,
       contentHeight: window.innerHeight - 120 + "px",
-      useMenuCSS: false
+      useMenuCSS: false,
     };
   },
   watch: {
-    '$route.name':function (newVal,oldVal) {
-      this.setMenuTitle(newVal)
-    } 
+    "$route.name": function (newVal, oldVal) {
+      this.setMenuTitle(newVal);
+    },
   },
-  created(){
+  created() {
     this.setMenuTitle(this.$route.name);
     var that = this;
-    var timer = window.setInterval(function(){
-      if(that.$store.getters.userState){
+    var timer = window.setInterval(function () {
+      if (that.$store.getters.userState) {
         that.linkSocket();
         window.clearInterval(timer);
       }
-    },10);
+    }, 10);
   },
   mounted() {
     // this.linkSocket();
     this.reSize();
     window.addEventListener("resize", this.reSize);
   },
-  beforeDestroy: function() {
+  beforeDestroy: function () {
     window.removeEventListener("resize", this.reSize);
   },
   updated() {
     $(".userState sup").css("margin-top", "20px");
   },
   components: {
-    Avatar
+    Avatar,
   },
   computed: {
     userState() {
@@ -268,44 +325,44 @@ export default {
     },
     headerBgColor() {
       return this.$route.name === "Home" ? "none" : "";
-    }
+    },
   },
   methods: {
-    turnToURL(url){
+    turnToURL(url) {
       window.location.href = url;
     },
-    linkSocket(){
+    linkSocket() {
       if (this.$store.getters.userState) {
         this.setTimer();
         this.initWebSocket();
         this.getUnreadNoticeCount();
       }
     },
-    setMenuTitle(newVal){
-        switch(newVal){
-          case "PublicResource":{
-            this.activeMenu = "resources";
-            break;
-          }
-          case "toolsCenter":{
-            this.activeMenu = "toolsCenter";
-            break;
-          }
-          case "Help":{
-            this.activeMenu = "help";
-            break;
-          }
-          case "Login":{
-            this.activeMenu = "login";
-            break;
-          }
-          case "Register":{
-            this.activeMenu = "register";
-            break;
-          }
-          default:
-            this.activeMenu = ""
+    setMenuTitle(newVal) {
+      switch (newVal) {
+        case "PublicResource": {
+          this.activeMenu = "resources";
+          break;
         }
+        case "toolsCenter": {
+          this.activeMenu = "toolsCenter";
+          break;
+        }
+        case "Help": {
+          this.activeMenu = "help";
+          break;
+        }
+        case "Login": {
+          this.activeMenu = "login";
+          break;
+        }
+        case "Register": {
+          this.activeMenu = "register";
+          break;
+        }
+        default:
+          this.activeMenu = "";
+      }
     },
     reSize() {
       if (window.innerHeight > 675) {
@@ -328,7 +385,7 @@ export default {
         this.$router.replace({ name: "PublicResource" });
       } else if (name == "toolsCenter") {
         this.$router.replace({ name: "toolsCenter" });
-      }else if (name == "community") {
+      } else if (name == "community") {
         this.$router.replace({ name: "Community" });
       } else if (name == "help") {
         this.$router.replace({ name: "Help" });
@@ -364,7 +421,7 @@ export default {
             "&value=" +
             this.$store.getters.userId
         )
-        .then(res => {
+        .then((res) => {
           let noticeList = res.data;
           let unreadCount = 0;
           for (let i = 0; i < noticeList.length; i++) {
@@ -375,7 +432,7 @@ export default {
           }
           this.$set(this, "unreadNoticeCount", unreadCount);
         })
-        .catch(err => {
+        .catch((err) => {
           console.log("失败的原因是" + err.data);
         });
     },
@@ -442,15 +499,15 @@ export default {
     logout() {
       this.axios
         .get("/GeoProblemSolving/user/logout")
-        .then(res => {
+        .then((res) => {
           this.$store.commit("userLogout");
           this.noticeSocket.close();
           window.location.href = "/GeoProblemSolving/home";
         })
-        .catch(err => {
+        .catch((err) => {
           confirm("logout fail!");
         });
-    }
-  }
+    },
+  },
 };
 </script>

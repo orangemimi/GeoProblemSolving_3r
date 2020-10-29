@@ -1,29 +1,26 @@
-package cn.edu.njnu.geoproblemsolving.domain.reproducibility.instance;
+package cn.edu.njnu.geoproblemsolving.domain.reproducibility.integratemodel.modelaction.dto;
 
-import cn.edu.njnu.geoproblemsolving.domain.support.BaseEntity;
+import cn.edu.njnu.geoproblemsolving.Dto.ToDomainConverter;
+import cn.edu.njnu.geoproblemsolving.domain.reproducibility.integratemodel.modelaction.ModelAction;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 import java.util.Map;
 
 /**
  * @Author Zhiyi
- * @Date 2020/8/19  18:11
+ * @Date 2020/8/19  18:39
  * @Version 1.0.0
  */
+
 @Data
-@Document(collection = "ReModelInstance")
-public class ModelInstanceInfo extends BaseEntity {
-    @Id
-    String id;
+public class AddModelActionDTO implements ToDomainConverter<ModelAction> {
     String stepName;
     String stepId;
     String type;
     String stepDescription;
     String pid;//project id
-    String userName;
+    String user;
     String userId;
     //    List<ModelInstance> modelInstances;
     String states;
@@ -33,9 +30,7 @@ public class ModelInstanceInfo extends BaseEntity {
     String toolUrl;
 
     String md5;
-
-    //模型运行所需的参数 以及
-    Integer status; // 0代表未开始，-1代表运行失败，1代表运行成功, 2代表运行超时(不存在运行中状态，省略)
+    String status;
     String tid;// model taskid
     String ip;
     String port;

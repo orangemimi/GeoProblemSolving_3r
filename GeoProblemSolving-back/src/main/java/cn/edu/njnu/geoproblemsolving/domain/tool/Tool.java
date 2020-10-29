@@ -37,4 +37,5 @@ public class Tool extends BaseEntity {
     private String privacy;
     private String toolImg;
     private String detail;
+    private String doi;//门户用于查找mdl的id--doi
 }

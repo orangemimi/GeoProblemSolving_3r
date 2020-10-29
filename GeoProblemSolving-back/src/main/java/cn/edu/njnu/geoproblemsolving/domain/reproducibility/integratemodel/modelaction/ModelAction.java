@@ -1,4 +1,4 @@
-package cn.edu.njnu.geoproblemsolving.domain.reproducibility.instance;
+package cn.edu.njnu.geoproblemsolving.domain.reproducibility.integratemodel.modelaction;
 
 import cn.edu.njnu.geoproblemsolving.domain.support.BaseEntity;
 import lombok.Data;
@@ -15,7 +15,7 @@ import java.util.Map;
  */
 @Data
 @Document(collection = "ReModelInstance")
-public class ModelInstanceInfo extends BaseEntity {
+public class ModelAction extends BaseEntity {
     @Id
     String id;
     String stepName;

@@ -123,8 +123,6 @@ export default {
       this.$emit("getPersonalTools", data);
     },
     getTool() {
-      console.log(this.$refs["toolItemList"]);
-
       return this.$refs["toolItemList"];
 
       // this.$emit('chooseTool',tool)

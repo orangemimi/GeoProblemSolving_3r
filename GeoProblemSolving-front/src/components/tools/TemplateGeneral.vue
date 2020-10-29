@@ -92,7 +92,7 @@
 </style>
 <template>
   <div>
-    <Row style="margin-bottom:2%;margin-left:20%">
+    <Row style="margin-bottom: 2%; margin-left: 20%">
       <Steps :current="currentStep">
         <Step title="Basic information"></Step>
         <Step title="Details"></Step>
@@ -108,14 +108,29 @@
       >
         <div v-show="this.currentStep === 0">
           <FormItem label="Name:" prop="toolName">
-            <Input v-model="toolInfo.toolName" placeholder="Enter the toolName of your tool"></Input>
+            <Input
+              v-model="toolInfo.toolName"
+              placeholder="Enter the toolName of your tool"
+            ></Input>
           </FormItem>
 
           <FormItem label="Url:" prop="toolUrl">
-            <Input v-model="toolInfo.toolUrl" placeholder="Enter the url of your tool" />
-            <p
-              style="font-style:italic"
-            >If you copy the doi from Open Geographic Modeling System, please enter the ... first</p>
+            <RadioGroup v-model="urlType">
+              <Radio label="Url"></Radio>
+              <Radio label="Doi from OpenGMS"></Radio>
+            </RadioGroup>
+            <div v-show="urlType == 'Url'">
+              <Input
+                v-model="toolInfo.toolUrl"
+                placeholder="Enter the url of your tool"
+              />
+            </div>
+            <div v-show="urlType == 'Doi from OpenGMS'">
+              <Input
+                v-model="toolInfo.doi"
+                placeholder="Enter the doi from 'http://geomodeling.njnu.edu.cn/'"
+              />
+            </div>
           </FormItem>
 
           <FormItem label="Step:" prop="recomStep">
@@ -124,7 +139,12 @@
               multiple
               placeholder="Select the recommended step of your tool"
             >
-              <Option v-for="item in stepList" :key="item.index" :value="item">{{ item }}</Option>
+              <Option
+                v-for="item in stepList"
+                :key="item.index"
+                :value="item"
+                >{{ item }}</Option
+              >
             </Select>
           </FormItem>
 
@@ -148,8 +168,9 @@
               type="dashed"
               size="small"
               @click="addCreateToolTag(inputToolTag)"
-              style="margin-left:2.5%"
-            >Add tag</Button>
+              style="margin-left: 2.5%"
+              >Add tag</Button
+            >
             <div>
               <Tag
                 color="primary"
@@ -157,13 +178,14 @@
                 :key="index"
                 closable
                 @on-close="deleteCreateToolTag(index)"
-              >{{ item }}</Tag>
+                >{{ item }}</Tag
+              >
             </div>
             <div>
               <span>Example:</span>
-              <Tag style="cursor:default">vector</Tag>
-              <Tag style="cursor:default">raster</Tag>
-              <Tag style="cursor:default">evaluation</Tag>
+              <Tag style="cursor: default">vector</Tag>
+              <Tag style="cursor: default">raster</Tag>
+              <Tag style="cursor: default">evaluation</Tag>
             </div>
           </FormItem>
 
@@ -176,12 +198,18 @@
 
           <FormItem label="Image:" prop="toolImg">
             <div class="inline_style">
-              <div class="demo-upload-list" v-if="toolInfo.toolImg!=''">
+              <div class="demo-upload-list" v-if="toolInfo.toolImg != ''">
                 <template>
                   <img :src="toolInfo.toolImg" />
                   <div class="demo-upload-list-cover">
-                    <Icon type="ios-eye-outline" @click.native="handleView()"></Icon>
-                    <Icon type="ios-trash-outline" @click.native="handleRemove()"></Icon>
+                    <Icon
+                      type="ios-eye-outline"
+                      @click.native="handleView()"
+                    ></Icon>
+                    <Icon
+                      type="ios-trash-outline"
+                      @click.native="handleRemove()"
+                    ></Icon>
                   </div>
                 </template>
               </div>
@@ -189,20 +217,24 @@
                 <Upload
                   ref="upload"
                   :show-upload-list="false"
-                  :format="['jpg','jpeg','png', 'gif']"
+                  :format="['jpg', 'jpeg', 'png', 'gif']"
                   :max-size="2048"
                   :before-upload="handleBeforeUpload"
                   action
-                  style="display: inline-block;width:58px;"
+                  style="display: inline-block; width: 58px"
                   type="drag"
                 >
-                  <div style="width: 58px;height:58px;line-height: 58px;">
+                  <div style="width: 58px; height: 58px; line-height: 58px">
                     <Icon type="ios-camera" size="20"></Icon>
                   </div>
                 </Upload>
               </div>
               <Modal title="View Image" v-model="visible">
-                <img :src="toolInfo.toolImg" v-if="visible" style="width: 100%" />
+                <img
+                  :src="toolInfo.toolImg"
+                  v-if="visible"
+                  style="width: 100%"
+                />
               </Modal>
             </div>
           </FormItem>
@@ -223,14 +255,14 @@ import { post } from "../../axios";
 export default {
   components: {
     tinymce,
-    Avatar
+    Avatar,
   },
   props: {
     step: {
-      type: Number
-    }
+      type: Number,
+    },
   },
-  
+
   data() {
     return {
       toolInfo: {
@@ -241,7 +273,8 @@ export default {
         categoryTag: [],
         privacy: "Private",
         detail: "",
-        toolImg: ""
+        toolImg: "",
+        doi: "",
       },
       stepList: [
         "General step",
@@ -252,45 +285,46 @@ export default {
         "Model effectiveness evaluation",
         "Geographical simulation",
         "Quantitative and qualitative analysis",
-        "Decision-making for management"
+        "Decision-making for management",
       ],
       toolInfoRule: {
         toolName: [
           {
             required: true,
             message: "The name cannot be empty",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         toolUrl: [
           {
             required: true,
             message: "The url cannot be empty",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
         description: [
           {
             required: true,
             message: "The tool description cannot be empty",
-            trigger: "blur"
-          }
+            trigger: "blur",
+          },
         ],
 
         privacy: [
           {
             required: true,
             message: "Is this tool can be used by public or not?",
-            trigger: "change"
-          }
-        ]
+            trigger: "change",
+          },
+        ],
       },
       inputToolTag: "",
       visible: false,
       createToolFlag: null,
       pageParams: { pageId: "", userId: "", userName: "" },
       //step
-      currentStep: this.step
+      currentStep: this.step,
+      urlType: "Url",
     };
   },
 
@@ -319,7 +353,7 @@ export default {
 
     handleRemove() {
       this.toolInfo.toolImg = "";
-    }
+    },
   },
 
   watch: {
@@ -327,15 +361,15 @@ export default {
       handler(val) {
         this.$emit("generalInfo", this.toolInfo);
       },
-      deep: true
+      deep: true,
     },
     //监听step切换
     step: {
       handler(val) {
         this.currentStep = val;
       },
-      deep: true
-    }
-  }
+      deep: true,
+    },
+  },
 };
 </script>

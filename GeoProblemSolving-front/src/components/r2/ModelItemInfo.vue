@@ -58,7 +58,7 @@
                   </p>
                 </el-col>
 
-                <el-row v-if="modelInEvent.datasetItem[0].type == `internal`">
+                <el-row v-if="modelInEvent.datasetItem.type == `internal`">
                   <div v-if="filterUdxNode(modelInEvent)">
                     <el-table
                       border
@@ -298,51 +298,51 @@ export default {
   },
 
   computed: {
-    stateList2: {
-      get() {
-        let stateList = this.ordinaryStateList;
-        let datasetItem = this.datasetItem;
-        for (let i = 0; i < stateList.length; i++) {
-          let events = stateList[i].Event;
-          for (let j = 0; j < events.length; j++) {
-            if (events[j].type == "response") {
-              let event = events[j];
-              let template = {};
-              if (event.hasOwnProperty("ResponseParameter")) {
-                template = datasetItem.filter((dataset) => {
-                  return (
-                    dataset.name === event.ResponseParameter[0].datasetReference
-                  );
-                });
-              } else if (event.hasOwnProperty("ControlParameter")) {
-                template = datasetItem.filter((dataset) => {
-                  return (
-                    dataset.name === event.ControlParameter[0].datasetReference
-                  );
-                });
-              }
-              events[j]["datasetItem"] = template;
-            } else if (events[j].type == "noresponse") {
-              //如果是输出
-              let event = events[j];
-              let template = {};
-              if (event.hasOwnProperty("DispatchParameter")) {
-                template = datasetItem.filter((dataset) => {
-                  return (
-                    dataset.name === event.DispatchParameter[0].datasetReference
-                  );
-                });
-              }
-              events[j]["datasetItem"] = template;
-            }
-          }
-        }
-        return stateList;
-      },
-      set(newValue) {
-        return newValue;
-      },
-    },
+    // stateList2: {
+    //   get() {
+    //     let stateList = this.ordinaryStateList;
+    //     let datasetItem = this.datasetItem;
+    //     for (let i = 0; i < stateList.length; i++) {
+    //       let events = stateList[i].Event;
+    //       for (let j = 0; j < events.length; j++) {
+    //         if (events[j].type == "response") {
+    //           let event = events[j];
+    //           let template = {};
+    //           if (event.hasOwnProperty("ResponseParameter")) {
+    //             template = datasetItem.filter((dataset) => {
+    //               return (
+    //                 dataset.name === event.ResponseParameter[0].datasetReference
+    //               );
+    //             });
+    //           } else if (event.hasOwnProperty("ControlParameter")) {
+    //             template = datasetItem.filter((dataset) => {
+    //               return (
+    //                 dataset.name === event.ControlParameter[0].datasetReference
+    //               );
+    //             });
+    //           }
+    //           events[j]["datasetItem"] = template;
+    //         } else if (events[j].type == "noresponse") {
+    //           //如果是输出
+    //           let event = events[j];
+    //           let template = {};
+    //           if (event.hasOwnProperty("DispatchParameter")) {
+    //             template = datasetItem.filter((dataset) => {
+    //               return (
+    //                 dataset.name === event.DispatchParameter[0].datasetReference
+    //               );
+    //             });
+    //           }
+    //           events[j]["datasetItem"] = template;
+    //         }
+    //       }
+    //     }
+    //     return stateList;
+    //   },
+    //   set(newValue) {
+    //     return newValue;
+    //   },
+    // },
 
     // filterDirectDataResource() {
     //   return this.resources.dataItemList.filter(
@@ -376,7 +376,7 @@ export default {
 
     async getModelInfo() {
       let data = await get(
-        `/GeoProblemSolving/modelTask/getModelBehavior/${this.doi}`
+        `/GeoProblemSolving/modelTask/ModelBehavior/${this.doi}`
       ); //获得模型所有信息
       this.md5 = data.md5;
       this.modelIntroduction = data;
@@ -385,7 +385,7 @@ export default {
       this.datasetItem =
         data.mdlJson.ModelClass[0].Behavior[0].RelatedDatasets[0].DatasetItem;
       //预处理过程 STEP0
-      this.stateList = Object.assign([], this.stateList2);
+      this.stateList = data.convertMdlJson;
     },
 
     async initTask() {
@@ -539,11 +539,11 @@ export default {
           //判断如果是参数的话，重新绑定成为一个文件 之后上传 返回url绑定到mdl中去
           if (
             events[j].type == "response" &&
-            events[j].datasetItem[0].hasOwnProperty("UdxDeclaration") &&
-            events[j].datasetItem[0].UdxDeclaration[0].UdxNode != "" &&
+            events[j].datasetItem.hasOwnProperty("UdxDeclaration") &&
+            events[j].datasetItem.UdxDeclaration[0].UdxNode != "" &&
             !events[
               j
-            ].datasetItem[0].UdxDeclaration[0].UdxNode[0].UdxNode[0].hasOwnProperty(
+            ].datasetItem.UdxDeclaration[0].UdxNode[0].UdxNode[0].hasOwnProperty(
               "UdxNode"
             )
           ) {
@@ -551,7 +551,7 @@ export default {
             let uploadFileForm = new FormData();
 
             let udxNodeList =
-              events[j].datasetItem[0].UdxDeclaration[0].UdxNode[0].UdxNode;
+              events[j].datasetItem.UdxDeclaration[0].UdxNode[0].UdxNode;
             for (let k = 0; k < udxNodeList.length; k++) {
               if (udxNodeList[k].hasOwnProperty("value")) {
                 // content += `<XDO name="${udxNodeList[k].name}" kernelType="${udxNodeList[k].type}" value="${udxNodeList[k].value}" />`;
@@ -690,16 +690,16 @@ export default {
     },
 
     filterUdxNode(event) {
-      if (event.datasetItem[0].hasOwnProperty("UdxDeclaration")) {
-        if (event.datasetItem[0].UdxDeclaration[0].UdxNode != "") {
+      if (event.datasetItem.hasOwnProperty("UdxDeclaration")) {
+        if (event.datasetItem.UdxDeclaration[0].UdxNode != "") {
           if (
-            event.datasetItem[0].UdxDeclaration[0].UdxNode[0].UdxNode[0].hasOwnProperty(
+            event.datasetItem.UdxDeclaration[0].UdxNode[0].UdxNode[0].hasOwnProperty(
               "UdxNode"
             )
           ) {
             return false;
           } else {
-            let udxNode = event.datasetItem[0].UdxDeclaration[0].UdxNode;
+            let udxNode = event.datasetItem.UdxDeclaration[0].UdxNode;
             return udxNode;
           }
         }

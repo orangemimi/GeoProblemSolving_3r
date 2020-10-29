@@ -287,7 +287,7 @@ export default {
     async init() {
       this.initLoading();
       let data = await get(
-        `/GeoProblemSolving/modelTask/getModelBehavior/${this.doi}`
+        `/GeoProblemSolving/modelTask/ModelBehavior/${this.doi}`
       ); //获得模型所有信息
       this.md5 = data.md5;
       this.modelIntroduction = data;

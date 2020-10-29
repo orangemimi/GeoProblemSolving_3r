@@ -17,6 +17,11 @@ public class ModelTaskController {
         return ResultUtils.success(modelTaskService.getComputeModel(doi));
     }
 
+    @RequestMapping(value = "/ModelBehavior/{doi}", method = RequestMethod.GET)
+    public JsonResult getConvertModelBehavior(@PathVariable("doi") String doi) {
+        return modelTaskService.getConvertComputeModel(doi);
+    }
+
     @RequestMapping(value = "/getAllService/{asc}/{page}", method = RequestMethod.GET)
     public Object getAllService(@PathVariable("asc") String asc,@PathVariable("page") String page) {
         return modelTaskService.getAllService(asc,page);

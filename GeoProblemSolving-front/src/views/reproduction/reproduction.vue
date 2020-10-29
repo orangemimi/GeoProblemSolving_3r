@@ -19,10 +19,11 @@
     </el-row>
     <el-row></el-row>
     <el-col :span="22" :offset="1" :style="{ height: contentHeight + 'px' }">
-      <el-card shadow="never"
-        ><vue-scroll :style="{ height: contentHeight - 60 + 'px' }">
-          <router-view class="scroll-item"></router-view> </vue-scroll
-      ></el-card>
+      <el-card shadow="never">
+        <!-- <vue-scroll :style="{ height: contentHeight - 60 + 'px' }"> -->
+        <router-view class="scroll-item"></router-view>
+        <!-- </vue-scroll> -->
+      </el-card>
     </el-col>
   </div>
 </template>
@@ -41,7 +42,6 @@ export default {
       navList: [
         { name: "construction", navItem: "construction" },
         { name: "contributor", navItem: "contributor" },
-        
       ],
 
       projectId: this.$route.params.projectId,

@@ -1112,7 +1112,8 @@ export default {
         recomStep: [],
         categoryTag: [],
         toolImg: "",
-        privacy: "Private"
+        privacy: "Private",
+        doi:""
       };
       this.currentStep = 0;
       this.createToolModal = true;

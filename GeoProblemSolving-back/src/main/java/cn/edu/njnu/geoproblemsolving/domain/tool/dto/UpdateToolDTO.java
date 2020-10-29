@@ -23,4 +23,5 @@ public class UpdateToolDTO implements ToDomainConverter<Tool> {
     private String privacy;
     private String toolImg;
     private String detail;
+    private String doi;
 }

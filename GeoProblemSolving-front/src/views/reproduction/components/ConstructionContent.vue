@@ -1,7 +1,7 @@
 <template>
-  <div class="main" :style="{ height: contentHeight + 'px' }">
-    <el-row :gutter="20" :style="{ height: contentHeight + 'px' }">
-      <el-col :span="22">
+  <div class="main">
+    <el-row :gutter="20">
+      <el-col :span="24">
         <div :style="{ height: contentHeight + 'px' }">
           <mx-graph :sendXml="''"></mx-graph>
         </div>

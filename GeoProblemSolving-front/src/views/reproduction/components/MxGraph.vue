@@ -27,38 +27,49 @@
           >
           <el-button @click="undo" type="text" size="mini">Undo</el-button>
           <el-button @click="redo" type="text" size="mini">Redo</el-button>
-          <!-- <el-button @click="exportPic" type="text" size="mini">导出图片</el-button> -->
+          <el-button @click="saveTask" type="success" size="mini"
+            >Save Task</el-button
+          >
+          <el-button @click="getCells" size="mini"> checkcell</el-button>
         </div>
         <vue-scroll style="height: 630px; width: 100%">
           <div class="graphContainer" ref="container"></div>
         </vue-scroll>
+
+        <!-- <div class="outline-wrapper">
+          <h4>导航器</h4>
+          <div id="graphOutline" />
+        </div> -->
       </div>
 
       <div class="editCellContainer">
         <!-- <edit-cell :visible="editCellVisible" @currentGraph="grapg"></edit-cell> -->
-        <div>Node Info</div>
-        <data-item
-          :cell="cell"
-          ref="dataItem"
-          @getDataItem="getDataItem"
-        ></data-item>
-        <!-- <div class="editCellForm">
-          <el-form
-            ref="cellForm"
-            :model="cellForm"
-            :rules="cellFormRules"
-            size="mini"
-          >
-            <el-form-item label="Node name" prop="name">
-              <el-input v-model="cellForm.name"></el-input>
-            </el-form-item>
-          </el-form>
-        </div> -->
-
-        <el-button @click="editCellVisible = false">Close the dialog</el-button>
-        <el-button type="primary" @click="submitCellForm('cellForm')"
-          >Submit</el-button
-        >
+        <div v-if="toolClick" class="normalContaniner">
+          <div>Node Info</div>
+          <!-- <vue-scroll style="height: 630px; width: 100%">
+            <data-item-info :cell="dataNode"></data-item-info>
+          </vue-scroll> -->
+        </div>
+        <div v-show="toolDoubleClick" class="normalContaniner">
+          <div>Node Info</div>
+          <vue-scroll style="height: 630px; width: 100%">
+            <data-item-toolbar
+              :cell="cell"
+              ref="dataItem"
+              @getState="getState"
+              @getStateList="getStateList"
+            ></data-item-toolbar>
+          </vue-scroll>
+        </div>
+        <div v-show="dataClick" class="expandContaniner">
+          <div>Node Info</div>
+          <data-item-info :cell="dataNode"></data-item-info>
+        </div>
+        <div v-if="dataDoubleClick">
+          {{ dataNode }}
+          <div>Node Info</div>
+          <data-item-info :cell="dataNode"></data-item-info>
+        </div>
       </div>
 
       <div class="dialogs">
@@ -84,7 +95,8 @@ import editCell from "@/components/utils/mxGraph/components/editCell";
 import FileSaver from "file-saver";
 import allTools from "@/components/r2/AllTools";
 import { get } from "@/axios";
-import dataItem from "./DataItem";
+import dataItemToolbar from "./DataItemToolbar";
+import dataItemInfo from "./DataItemInfo";
 
 const {
   mxGraph,
@@ -111,7 +123,7 @@ export default {
       type: String,
     },
   },
-  components: { nodeCard, editCell, allTools, dataItem },
+  components: { nodeCard, editCell, allTools, dataItemToolbar, dataItemInfo },
   watch: {
     sendXml: {
       handler(val) {
@@ -122,25 +134,9 @@ export default {
       },
       deep: true,
     },
-
-    cell: {
-      async handler(val) {
-        console.log(val);
-
-        await this.$refs.dataItem.init2();
-
-        // console.log(document.getElementsByClassName("event-desc"));
-        await this.initToolbar("right");
-      },
-      deep: true,
-    },
   },
-  // updated() {
-  //   this.$nextTick(() => {
-  //     this.$refs.dataItem.init2();
-  //     console.log(this.$refs.dataItem.$refs.cellItem);
-  //   });
-  // },
+
+  computed: {},
 
   data() {
     return {
@@ -175,13 +171,26 @@ export default {
       userInfo: this.$store.getters.userInfo,
       doi: "",
       cell: {}, //双击事件 cell
+      state: {},
+      inputItemList: [],
+      outputItemList: [],
+      mxGraphSelectionModel: {},
+      nodeActiveName: "info",
+      dataNode: {},
+
+      toolClick: false,
+      toolDoubleClick: false,
+      dataClick: false,
+      dataDoubleClick: false,
+      toolListInGraph: [],
+      dataInputInGraph: [],
+      dataLinkInGraph: [], //下一模型的输入数据
+      dataOutputInGraph: [],
+      stateList: [],
     };
   },
   methods: {
     async init() {
-      // await this.getPublicTools();
-      // await this.getPersonalTools();
-
       this.initSize();
       this.createGraph();
       this.initConnectStyle();
@@ -194,7 +203,7 @@ export default {
 
       this.getGraphXml();
 
-      this.initToolbar("left");
+      this.initToolbar("toolItemList");
     },
 
     getPublicTools(val) {
@@ -205,9 +214,35 @@ export default {
       this.$set(this, "personalTools", val);
       this.toolItemList = this.personalTools;
     },
-    getDataItem(val) {
+    getState(val) {
+      console.log("state", val);
+      // this.state = val;
+      this.getInputItemList(val);
+      this.getOutputItemList(val);
+    },
+
+    getStateList(val) {
       console.log(val);
-      this.toolItemList = val;
+      this.stateList = val;
+      // this.stateList.forEach((state) => {
+      //   this.getInputItemList(state);
+      //   this.getOutputItemList(state);
+      // });
+    },
+
+    getInputItemList(state) {
+      console.log(state);
+      this.inputItemList = state.Event.filter((value) => {
+        return value.type === "response";
+      });
+      this.initToolbar("inputItemList");
+    },
+
+    getOutputItemList(state) {
+      this.outputItemList = state.Event.filter((value) => {
+        return value.type === "noresponse";
+      });
+      this.initToolbar("outputItemList");
     },
 
     initSize() {
@@ -222,36 +257,73 @@ export default {
     initGraph() {
       this.graph.convertValueToString = (cell) => {
         // 从value中获取显示的内容
-        return cell.toolName;
+        return cell.name;
       };
+
+      let outline = new mxOutline(
+        this.graph,
+        document.getElementById("graphOutline")
+      );
+
+      this.setCursor();
     },
+    setCursor() {},
 
     listenGraphEvent() {
       // 监听双击事件
       this.graph.addListener(mxEvent.DOUBLE_CLICK, (graph, evt) => {
-        // const cell = evt.properties.cell;
-        this.cell = evt.properties.cell;
-        this.getCellInfo(this.cell);
-        // this.handleSelectionChange(evt.properties);
-        // if (cell.source == null && cell.target == null) {
-        //   // console.log("node");
-        //   this.editCellVisible = true;
-        // } else {
-        //   // console.log("line");
-        //   this.editCellVisible = true;
-        // }
-
-        // console.info(cell); // 在控制台输出双击的cell
+        // DOUBLE_CLICK
+        const cell = evt.properties.cell;
+        if (!cell) {
+          return;
+        }
+        const clickToolType = cell.style.includes("toolType");
+        const dataType =
+          cell.style.includes("dataInputType") ||
+          cell.style.includes("dataOutputType");
+        if (clickToolType) {
+          this.cell = cell;
+          this.toolDoubleClick = true;
+          this.dataDoubleClick = this.dataClick = this.toolClick = false;
+        } else if (dataType) {
+          this.dataNode = cell;
+          this.dataDoubleClick = true;
+          this.toolDoubleClick = this.toolClick = this.dataClick = false;
+        }
       });
 
       // 监听单击事件
       //单击空白处 dialog隐藏
       this.graph.addListener(mxEvent.CLICK, (sender, evt) => {
-        // const cell = evt.properties.cell;
-        if (sender.isMouseDown == false) {
-          this.editCellVisible = false;
+        const cell = evt.properties.cell;
+        if (!cell) {
           return;
         }
+        const clickToolType = cell.style.includes("toolType");
+        const dataType =
+          cell.style.includes("dataInputType") ||
+          cell.style.includes("dataOutputType");
+        if (clickToolType) {
+          // 使用 mxGraph 事件中心，触发自定义事件
+          // this.cell = cell;
+          this.toolClick = true;
+          this.toolDoubleClick = this.dataClick = this.dataDoubleClick = false;
+        } else if (dataType) {
+          this.dataNode = cell;
+          console.log(this.dataNode, dataType);
+          this.dataClick = true;
+          this.toolDoubleClick = this.toolClick = this.dataDoubleClick = false;
+        }
+
+        // if (evt.properties.hasOwnProperty("cell")) {
+        //   this.cell = evt.properties.cell;
+        //   // this.getCellInfo(this.cell);
+        // } else {
+        //   if (sender.isMouseDown == false) {
+        //     // this.cell = {};
+        //     return;
+        //   }
+        // }
       });
 
       //连接线
@@ -261,12 +333,23 @@ export default {
       // });
 
       // 监听 mxGraph 事件
-      const mxGraphSelectionModel = this.graph.getSelectionModel();
-      mxGraphSelectionModel.addListener(
+      this.mxGraphSelectionModel = this.graph.getSelectionModel();
+      this.mxGraphSelectionModel.addListener(
         mxEvent.CHANGE,
         this.handleSelectionChange
       );
     },
+
+    // async getCellInfo(cell) {
+    //   this.cellForm.name = cell.name;
+    //   let arr = cell.doi.split("/");
+    //   this.doi = arr[arr.length - 1];
+
+    //   let data = await get(
+    //     `/GeoProblemSolving/modelTask/ModelBehaviorthis.doi}`
+    //   ); //获得模型所有信息
+    //   console.log(data);
+    // },
 
     initConnectStyle() {
       //允许连线
@@ -337,91 +420,50 @@ export default {
       };
     },
 
-    addCell(toolItem, x, y) {
-      const styleObj = {
-        fillColor: "#f8f5ec",
-        strokeColor: "rgb(200, 200, 200)",
-        strokeWidth: "1",
-        shape: "rectangle",
-        align: mxConstants.ALIGN_CENTER,
-        // verticalAlign: mxConstants.ALIGN_,
-        imageAlign: mxConstants.ALIGN_CENTER,
-        imageVerticalAlign: mxConstants.ALIGN_TOP,
-        // image: outputIcon,
-      };
-
-      const style = Object.keys(styleObj)
-        .map((attr) => `${attr}=${styleObj[attr]}`)
-        .join(";");
-      const parent = this.graph.getDefaultParent();
-
-      this.graph.getModel().beginUpdate();
-
-      try {
-        let vertex = this.graph.insertVertex(
-          parent,
-          null,
-          null,
-          x,
-          y,
-          200, //width
-          50, //height
-          style
-        );
-        vertex.toolName = toolItem.toolName;
-        vertex.toolUrl = toolItem.toolUrl;
-        this.cellForm.name = toolItem.toolName; //form表单
-      } finally {
-        //   this.graph.getModel.ac
-        this.graph.getModel().endUpdate();
-        // this.editCellVisible = true;
-      }
-    },
-    async getCellInfo(cell) {
-      this.cellForm.name = cell.toolName;
-      let arr = cell.toolUrl.split("/");
-      this.doi = arr[arr.length - 1];
-
-      let data = await get(
-        `/GeoProblemSolving/modelTask/getModelBehavior/${this.doi}`
-      ); //获得模型所有信息
-      console.log(data);
-      // this.md5 = data.md5;
-      // this.ordinaryStateList =
-      //   data.mdlJson.ModelClass[0].Behavior[0].StateGroup[0].States[0].State;
-      // this.datasetItem =
-      //   data.mdlJson.ModelClass[0].Behavior[0].RelatedDatasets[0].DatasetItem;
-      // //预处理过程 STEP0
-      // this.stateList = Object.assign([], this.stateList2);
-    },
-
     initToolbar(panel) {
-      let refDiv;
-      if (panel == "left") {
-        refDiv = "allTools";
-      } else {
-        refDiv = "dataItem";
+      let refType;
+      let listName = [];
+      let styleIn = {};
+      if (panel == "toolItemList") {
+        refType = "allTools";
+        listName = this.toolItemList;
+        styleIn = {
+          toolType: "",
+          fillColor: "#f8f5ec",
+          shape: "rectangle",
+        };
+      } else if (panel == "inputItemList") {
+        refType = "dataItem";
+        listName = this.inputItemList;
+        styleIn = {
+          dataInputType: "",
+          fillColor: "#fff8f8",
+          shape: "rectangle",
+        };
+      } else if (panel == "outputItemList") {
+        refType = "dataItem";
+        listName = this.outputItemList;
+        styleIn = {
+          dataOutputType: "",
+          fillColor: "#f0f8ff",
+          shape: "rectangle",
+        };
       }
-      console.log(refDiv);
-      const domArray = this.$refs[refDiv].$refs.toolItemList;
-
-      console.log(domArray);
-      // console.log(this.$refs.allTools.getTool());
+      const domArray = this.$refs[refType].$refs[panel];
 
       if (!(domArray instanceof Array) || domArray.length <= 0) {
         return;
       }
-
+      // console.log(listName);
       domArray.forEach((dom, domIndex) => {
-        const toolItem = this.toolItemList[domIndex];
+        const toolItem = listName[domIndex];
 
         const dropHandler = (graph, evt, cell, x, y) => {
-          this.addCell(toolItem, x, y);
+          this.addCell(toolItem, x, y, panel, styleIn);
         };
 
         const createDragPreview = () => {
           const elt = document.createElement("div");
-
           elt.style.border = "2px dotted black";
           elt.style.width = `200px`;
           elt.style.height = `50px`;
@@ -441,9 +483,88 @@ export default {
       });
     },
 
+    addCell(item, x, y, type, styleIn) {
+      console.log(item);
+      let styleObj = {
+        ...styleIn,
+        strokeColor: "rgb(200, 200, 200)",
+        strokeWidth: "1.5",
+        shape: "rectangle",
+        align: mxConstants.ALIGN_CENTER,
+        // verticalAlign: mxConstants.ALIGN_,
+        imageAlign: mxConstants.ALIGN_CENTER,
+        imageVerticalAlign: mxConstants.ALIGN_TOP,
+      };
+      if (
+        item.type == "response" &&
+        (item.optional == "False" || item.optional == "false")
+      ) {
+        styleObj.strokeColor = "#d13030";
+      }
+
+      this.graph.getModel().beginUpdate();
+
+      try {
+        let vertex = this.addCellToContainer(styleObj, x, y);
+        if (type == "toolItemList") {
+          vertex.name = item.toolName;
+          vertex.doi = item.doi;
+          vertex.md5 = item.md5;
+          vertex.step = "1";
+          vertex.iterationNum = "1";
+        } else {
+          if (!this.selectionCells[0].style.includes("toolType")) {
+            this.$message.error("Please select a model node!");
+            return;
+          }
+          vertex.name = item.name;
+          vertex.eventId = item.eventId;
+          vertex.stateId = item.stateId;
+          vertex.md5 = item.md5;
+          vertex.doi = this.selectionCells[0].doi;
+
+          if (type == "inputItemList") {
+            this.addEdge(vertex, this.selectionCells[0]);
+          } else if (type == "outputItemList") {
+            this.addEdge(this.selectionCells[0], vertex);
+          }
+        }
+      } finally {
+        this.graph.getModel().endUpdate();
+      }
+    },
+    addCellToContainer(styleObj, x, y) {
+      const style = Object.keys(styleObj)
+        .map((attr) => `${attr}=${styleObj[attr]}`)
+        .join(";");
+
+      return this.graph.insertVertex(
+        this.graph.getDefaultParent(),
+        null,
+        null,
+        x,
+        y,
+        200, //width
+        50, //height
+        style
+      );
+    },
+
+    addEdge(source, target) {
+      this.graph.insertEdge(
+        this.graph.getDefaultParent(),
+        null,
+        null,
+        source,
+        target,
+        null
+      );
+    },
+
     getGraphXml() {
       let encoder = new mxCodec();
       this.graphXml = encoder.encode(this.graph.getModel());
+      // console.log(this.graphXml, this.graph.getModel());
     },
 
     exportGraph() {
@@ -499,14 +620,14 @@ export default {
         if (valid) {
           this.graph.getModel().beginUpdate();
           let cell = this.graph.getSelectionCell();
-          if (cell.toolName == this.cellForm.name) {
+          if (cell.name == this.cellForm.name) {
             this.$message({
               message: "Name changed is as same as before",
               type: "warning",
             });
           } else {
             try {
-              cell.toolName = this.cellForm.name;
+              cell.name = this.cellForm.name;
               this.graph.refresh(cell); // 刷新cell
               this.$message({
                 message: "Refresh the node successfully!",
@@ -600,6 +721,130 @@ export default {
       this.undoMng.redo();
       // console.info("前进的Cells", this.getUndoRedoCell());
     },
+
+    //保存task
+    saveTask() {
+      if (this.models.length < 1) {
+        this.$message.error("Please select at least one model.");
+        return;
+      }
+      let xml = this.generateXml("save");
+    },
+    getCells() {
+      // this.toolListInGraph = this.dataOutputInGraph = this.dataInputInGraph = this.dataLinkInGraph = [];
+      let toolListInGraph = [];
+      let dataOutputInGraph = [];
+      let dataInputInGraph = [];
+      let dataLinkInGraph = [];
+
+      console.log(this.graph.getModel());
+      let edges = Object.values(this.graph.getModel().cells).filter(
+        (cell) =>
+          !cell.hasOwnProperty("vertex") && cell.hasOwnProperty("source")
+      );
+      console.log(edges);
+      Object.values(this.graph.getModel().cells).forEach((cell) => {
+        if (cell.style != undefined) {
+          if (cell.style.includes("toolType")) {
+            toolListInGraph.push(cell);
+          } else if (
+            cell.style.includes("dataOutputType") &&
+            cell.target == null
+          ) {
+            dataOutputInGraph.push(cell);
+          } else if (cell.style.includes("dataInputType")) {
+            console.log(cell.source);
+            if (cell.source == null) {
+              dataInputInGraph.push(cell);
+            } else {
+              dataLinkInGraph.push(cell);
+            }
+          }
+        }
+      });
+      this.toolListInGraph = toolListInGraph;
+      this.dataOutputInGraph = dataOutputInGraph;
+      this.dataInputInGraph = dataInputInGraph;
+      this.dataLinkInGraph = dataLinkInGraph;
+      console.log(
+        toolListInGraph,
+        dataOutputInGraph,
+        dataInputInGraph,
+        dataLinkInGraph
+      );
+    },
+
+    generateXml(type) {
+      let version = "1.0";
+      let uid = this.generateGUID();
+      let dataLinks = [];
+      let xml = "";
+      let name = "testIntegrateModel";
+
+      xml += `<TaskConfiguration uid='${uid}' name='${name}' version='${version}'>\n`;
+
+      xml += "\t<Models>\n";
+
+      this.toolListInGraph.forEach((model) => {
+        xml += `\t\t<Model name='${model.name}' pid='${model.md5}' description=''/>\n`;
+      });
+      xml += `\t</Models>\n`;
+
+      //modelAction标签
+      xml += `\t<ModelActions>\n`;
+
+      this.toolListInGraph.forEach((tool) => {
+        xml += `<ModelAction id='${tool.id}' name = '${tool.name}' description = '' 
+        model='${tool.md5} ' step ='${tool.step}' iterationNum='${modelActions.iterationNum}'>\n\t\t\t<Inputs>\n`;
+
+        let inputList = this.dataInputInGraph.filter(
+          (event) =>
+            event.md5 == tool.md5 && event.url != "" && event.url != undefined
+        );
+
+        let outputList = this.dataOutputInGraph.filter(
+          (event) => event.md5 == tool.md5
+        );
+
+        inputList.forEach((inputData) => {
+          xml += `<DataConfiguration id='${inputData.eventId}' state='${inputData.stateName}' event='${inputData.name}`;
+
+          inputData.type = "url";
+          xml += `<Data value='${inputData.url} type="${inputData.type}"/>`;
+
+          xml += `</DataConfiguration>`;
+        });
+        xml += `</Inputs></Outputs>`;
+
+        this.dataOutputInGraph.forEach((inputData) => {
+          xml += `<DataConfiguration id='${inputData.eventId}' state='${inputData.stateName}' event='${inputData.eventName}</DataConfiguration>`;
+        });
+
+        xml += "\t\t\t</Inputs>\n" + "\t\t\t<Outputs>\n";
+        tool.outputData.forEach((out) => {
+          out.url = "";
+          xml += `\t\t\t\t<DataConfiguration id='${out.eventId}' state='${out.stateName}' event='${out.name}'/>\n`;
+        });
+        xml += "\t\t\t</Outputs>\n" + "\t\t</ModelAction>\n";
+      });
+      xml += "\t</ModelActions>\n";
+    },
+
+    getInputOutputInXml() {},
+
+    generateGUID() {
+      let s = [];
+      let hexDigits = "0123456789abcdef";
+      for (let i = 0; i < 36; i++) {
+        s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+      }
+      s[14] = "4"; // bits 12-15 of the time_hi_and_version field to 0010
+      s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1); // bits 6-7 of the clock_seq_hi_and_reserved to 01
+      s[8] = s[13] = s[18] = s[23] = "-";
+
+      let uuid = s.join("");
+      return uuid;
+    },
   },
   async mounted() {
     await this.$refs.allTools.init2();
@@ -641,8 +886,23 @@ export default {
     }
   }
 
+  .editCellContainer {
+    position: relative;
+    right: 0;
+    width: 280px;
+    padding: 0 5px;
+    // z-index: 999;
+    // .normalContaniner {
+    //   width: 200px;
+    // }
+
+    // .expandContaniner {
+    //   width: 262px;
+    // }
+  }
+
   .mainContainer {
-    width: 1000px;
+    width: 990px;
     .toolbarTop {
       background: rgb(251, 251, 251);
       padding-left: 10px;
@@ -653,17 +913,30 @@ export default {
       overflow: hidden;
       height: 100%;
       width: 100%;
-      min-width: 1110px;
-      min-height: 650px;
+      min-width: 930px;
+      min-height: 630px;
       background: rgb(251, 251, 251)
         url("./../../../assets/images/mxgraph/grid.gif") 0 0 repeat;
       border-radius: 4px;
     }
   }
 
-  .editCellContainer {
-    // position: relative;
-    width: 500px;
+  .outline-wrapper {
+    border: 1px solid #dedede;
+    background: #fff;
+    position: fixed;
+    right: 30px;
+    bottom: 40px;
+    border-radius: 4px;
+    z-index: 10;
+    > h4 {
+      padding: 6px;
+      font-size: 12px;
+      border-bottom: 1px solid #e6e6e6;
+    }
+    #graphOutline {
+      width: 200px;
+    }
   }
 }
 </style>

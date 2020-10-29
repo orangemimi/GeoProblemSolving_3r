@@ -5,11 +5,14 @@ package cn.edu.njnu.geoproblemsolving.domain.modeltask;
 import cn.edu.njnu.geoproblemsolving.Enums.ResultEnum;
 import cn.edu.njnu.geoproblemsolving.Exception.MyException;
 import cn.edu.njnu.geoproblemsolving.Utils.ResultUtils;
+import cn.edu.njnu.geoproblemsolving.domain.support.JsonResult;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import static cn.edu.njnu.geoproblemsolving.Utils.Utils.convertMdl;
 
 
 @Service
@@ -31,6 +34,18 @@ public class ModelTaskService {
         }
         JSONObject result = jsonObjectResponseEntity.getBody().getJSONObject("data");
         return result;
+    }
+
+    public JsonResult getConvertComputeModel(String doi) {//根据pid.md5获得
+        RestTemplate restTemplate = new RestTemplate();
+        String urlStr = "http://geomodeling.njnu.edu.cn/computableModel/getInfo/" + doi; ////Step0:根据MD5获取可用的任务服务器
+
+        ResponseEntity<JSONObject> jsonObjectResponseEntity = restTemplate.getForEntity(urlStr, JSONObject.class);//虚拟http请求
+        if (!jsonObjectResponseEntity.getStatusCode().is2xxSuccessful()) {
+            throw new MyException(ResultEnum.ERROR);
+        }
+        JSONObject result = jsonObjectResponseEntity.getBody().getJSONObject("data");
+        return ResultUtils.success(convertMdl(result));
     }
 
     public JSONObject createTask(String pid, String userId) {
