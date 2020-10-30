@@ -93,7 +93,7 @@ export default {
   },
 
   methods: {
-    init2() {
+    initSetTimeOut() {
       return new Promise(function (reslove, reject) {
         // 模拟异步，加载组件
         setTimeout(function () {

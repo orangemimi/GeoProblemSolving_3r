@@ -27,10 +27,10 @@
           >
           <el-button @click="undo" type="text" size="mini">Undo</el-button>
           <el-button @click="redo" type="text" size="mini">Redo</el-button>
-          <el-button @click="saveTask" type="success" size="mini"
+          <el-button @click="saveGraph" type="success" size="mini"
             >Save Task</el-button
           >
-          <el-button @click="getCells" size="mini"> checkcell</el-button>
+          <!-- <el-button @click="saveGraph" size="mini"> checkcell</el-button> -->
         </div>
         <vue-scroll style="height: 630px; width: 100%">
           <div class="graphContainer" ref="container"></div>
@@ -53,83 +53,12 @@
         <div v-show="toolDoubleClick" class="normalContaniner">
           <div>Node Info</div>
           <vue-scroll style="height: 630px; width: 100%">
-            <!-- <data-item-toolbar
+            <data-item-toolbar
               :cell="cell"
               ref="dataItem"
-              @getState="getState"
-              @getStateList="getStateList"
-            ></data-item-toolbar> -->
-            <div class="main">
-              <el-row
-                class="state-container"
-                v-for="(state, index) in stateList"
-                :key="index"
-              >
-                <el-col class="leftContainer" :span="24">
-                  <div class="modelState">
-                    <p class="state-name">{{ state.name }}</p>
-                  </div>
-                </el-col>
-                <el-col class="dataContainer" :span="22" :offset="1">
-                  <div class="params-group">
-                    <el-row
-                      v-if="inEventList(state).length !== 0"
-                      class="stateTitle"
-                      >Input</el-row
-                    >
-                    <div class="event">
-                      <div
-                        class="event-desc"
-                        v-for="(modelInEvent, inEventIndex) in inEventList(
-                          state
-                        )"
-                        :key="inEventIndex"
-                        ref="inputItemList"
-                      >
-                        <el-card :title="modelInEvent.name">
-                          <div
-                            v-show="
-                              modelInEvent.optional == 'False' ||
-                              modelInEvent.optional == 'false'
-                            "
-                            class="event_option"
-                          >
-                            *
-                          </div>
-                          <div class="event_name">
-                            {{ modelInEvent.name }}
-                          </div>
-                        </el-card>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="params-group">
-                    <el-row
-                      v-if="outEventList(state).length !== 0"
-                      class="stateTitle"
-                      >Output</el-row
-                    >
-                    <div class="event">
-                      <div
-                        class="event-desc"
-                        v-for="(modelOutEvent, outEventIndex) in outEventList(
-                          state
-                        )"
-                        :key="outEventIndex"
-                        ref="outputItemList"
-                      >
-                        <el-card :title="modelOutEvent.name">
-                          <div class="event_name">
-                            {{ modelOutEvent.name }}
-                          </div>
-                        </el-card>
-                      </div>
-                    </div>
-                  </div>
-                </el-col>
-              </el-row>
-            </div>
+              @getInAndOut="getInAndOut"
+              :key="dataItemToolbarKey"
+            ></data-item-toolbar>
           </vue-scroll>
         </div>
         <div v-show="dataClick" class="expandContaniner">
@@ -257,9 +186,13 @@ export default {
       dataInputInGraph: [],
       dataLinkInGraph: [], //下一模型的输入数据
       dataOutputInGraph: [],
+      linkEdgeList: [],
+
       stateList: [],
+      dataItemToolbarKey: 0,
     };
   },
+
   methods: {
     async init() {
       this.initSize();
@@ -277,62 +210,6 @@ export default {
       this.initToolbar("toolItemList");
     },
 
-    //toolbar
-    async getModelInfo() {
-      let data = await get(
-        `/GeoProblemSolving/modelTask/ModelBehavior/${this.doi}`
-      ); //获得模型所有信息
-      // this.md5 = data.md5;
-      this.modelIntroduction = data;
-      this.stateList = data.convertMdlJson;
-      this.stateListSort();
-      // this.getInputItemList(val);
-      // this.getOutputItemList(val);
-    },
-    stateListSort() {
-      this.stateList.forEach((state) => {
-        let eventsInput = state.Event.filter((value) => {
-          return value.type === "response";
-        });
-        let eventsOutput = state.Event.filter((value) => {
-          return value.type === "noresponse";
-        });
-        state.Event = [...eventsInput, ...eventsOutput];
-      });
-      console.log(this.stateList);
-    },
-    inEventList(state) {
-      let events = state.Event.filter((value) => {
-        return value.type === "response";
-      });
-
-      return events;
-    },
-
-    outEventList(state) {
-      let events = state.Event.filter((value) => {
-        return value.type === "noresponse";
-      });
-      return events;
-    },
-    filterUdxNode(event) {
-      if (event.datasetItem.hasOwnProperty("UdxDeclaration")) {
-        if (event.datasetItem.UdxDeclaration[0].UdxNode != "") {
-          if (
-            event.datasetItem.UdxDeclaration[0].UdxNode[0].UdxNode[0].hasOwnProperty(
-              "UdxNode"
-            )
-          ) {
-            return false;
-          } else {
-            let udxNode = event.datasetItem.UdxDeclaration[0].UdxNode;
-            return udxNode;
-          }
-        }
-      }
-    },
-    //toolbar--end
-
     getPublicTools(val) {
       this.$set(this, "publicTools", val);
     },
@@ -341,34 +218,12 @@ export default {
       this.$set(this, "personalTools", val);
       this.toolItemList = this.personalTools;
     },
-    // getState(val) {
-    //   console.log("state", val);
-    //   // this.state = val;
-    //   this.getInputItemList(val);
-    //   this.getOutputItemList(val);
-    // },
 
-    getStateList(val) {
-      console.log(val);
-      this.stateList = val;
-      // this.stateList.forEach((state) => {
-      //   this.getInputItemList(state);
-      //   this.getOutputItemList(state);
-      // });
-    },
-
-    getInputItemList(state) {
-      console.log(state);
-      this.inputItemList = state.Event.filter((value) => {
-        return value.type === "response";
-      });
+    getInAndOut(input, output) {
+      // this.state = val;
+      this.inputItemList = input;
+      this.outputItemList = output;
       this.initToolbar("inputItemList");
-    },
-
-    getOutputItemList(state) {
-      this.outputItemList = state.Event.filter((value) => {
-        return value.type === "noresponse";
-      });
       this.initToolbar("outputItemList");
     },
 
@@ -398,7 +253,7 @@ export default {
 
     listenGraphEvent() {
       // 监听双击事件
-      this.graph.addListener(mxEvent.DOUBLE_CLICK, (graph, evt) => {
+      this.graph.addListener(mxEvent.DOUBLE_CLICK, async (graph, evt) => {
         // DOUBLE_CLICK
         const cell = evt.properties.cell;
         if (!cell) {
@@ -409,10 +264,13 @@ export default {
           cell.style.includes("dataInputType") ||
           cell.style.includes("dataOutputType");
         if (clickToolType) {
-          this.cell = cell;
-          this.doi = cell.doi;
-          this.getModelInfo();
+          this.dataItemToolbarKey++;
+
+          await this.$refs.dataItem.initSetTimeOut();
           this.toolDoubleClick = true;
+          this.inputItemList = this.outputItemList = [];
+          this.cell = cell;
+
           this.dataDoubleClick = this.dataClick = this.toolClick = false;
         } else if (dataType) {
           this.dataNode = cell;
@@ -439,6 +297,7 @@ export default {
           this.toolDoubleClick = this.dataClick = this.dataDoubleClick = false;
         } else if (dataType) {
           this.dataNode = cell;
+          // console.log(this.dataNode, dataType);
           this.dataClick = true;
           this.toolDoubleClick = this.toolClick = this.dataDoubleClick = false;
         }
@@ -549,7 +408,6 @@ export default {
           fillColor: "#f8f5ec",
           shape: "rectangle",
         };
-        const domArray = this.$refs[refType].$refs[panel];
       } else if (panel == "inputItemList") {
         refType = "dataItem";
         listName = this.inputItemList;
@@ -558,21 +416,22 @@ export default {
           fillColor: "#fff8f8",
           shape: "rectangle",
         };
-        const domArray = this.$refs[panel];
       } else if (panel == "outputItemList") {
+        refType = "dataItem";
         listName = this.outputItemList;
         styleIn = {
           dataOutputType: "",
           fillColor: "#f0f8ff",
           shape: "rectangle",
         };
-        const domArray = this.$refs[panel];
       }
       const domArray = this.$refs[refType].$refs[panel];
 
       if (!(domArray instanceof Array) || domArray.length <= 0) {
         return;
       }
+      // console.log(listName);
+      // console.log(domArray);
       domArray.forEach((dom, domIndex) => {
         const toolItem = listName[domIndex];
 
@@ -602,7 +461,7 @@ export default {
     },
 
     addCell(item, x, y, type, styleIn) {
-      console.log(item);
+      // console.log(item);
       let styleObj = {
         ...styleIn,
         strokeColor: "rgb(200, 200, 200)",
@@ -623,34 +482,36 @@ export default {
       this.graph.getModel().beginUpdate();
 
       try {
-        let vertex = this.addCellToContainer(styleObj, x, y);
         if (type == "toolItemList") {
+          let vertex = this.addCellToContainer(styleObj, x, y);
           vertex.name = item.toolName;
           vertex.doi = item.doi;
-          vertex.md5 = item.md5;
           vertex.step = "1";
           vertex.iterationNum = "1";
         } else {
-          if (!this.selectionCells[0].style.includes("toolType")) {
-            this.$message.error("Please select a model node!");
-            return;
-          }
+          let selectionCell = this.selectionCells[0];
+          // console.log(selectionCell.md5, item.md5);
+          // if (selectionCell.md5 != item.md5) {
+          //   return;
+          // }
+          let vertex = this.addCellToContainer(styleObj, x, y);
+
           vertex.name = item.name;
           vertex.eventId = item.eventId;
-          vertex.stateId = item.stateId;
+          vertex.stateName = item.stateName;
           vertex.md5 = item.md5;
-          vertex.doi = this.selectionCells[0].doi;
 
           if (type == "inputItemList") {
-            this.addEdge(vertex, this.selectionCells[0]);
+            this.addEdge(vertex, selectionCell);
           } else if (type == "outputItemList") {
-            this.addEdge(this.selectionCells[0], vertex);
+            this.addEdge(selectionCell, vertex);
           }
         }
       } finally {
         this.graph.getModel().endUpdate();
       }
     },
+
     addCellToContainer(styleObj, x, y) {
       const style = Object.keys(styleObj)
         .map((attr) => `${attr}=${styleObj[attr]}`)
@@ -841,111 +702,132 @@ export default {
     },
 
     //保存task
-    saveTask() {
-      if (this.models.length < 1) {
+    async saveGraph() {
+      if (this.graph.getModel().cells.length < 1) {
         this.$message.error("Please select at least one model.");
         return;
       }
-      let xml = this.generateXml("save");
+      await this.getCells();
+      this.generateXml();
     },
-    getCells() {
+
+    async getCells() {
       // this.toolListInGraph = this.dataOutputInGraph = this.dataInputInGraph = this.dataLinkInGraph = [];
       let toolListInGraph = [];
       let dataOutputInGraph = [];
       let dataInputInGraph = [];
       let dataLinkInGraph = [];
+      let dataLineInputInGrapg = [];
 
-      console.log(this.graph.getModel());
-      let edges = Object.values(this.graph.getModel().cells).filter(
-        (cell) =>
-          !cell.hasOwnProperty("vertex") && cell.hasOwnProperty("source")
-      );
-      console.log(edges);
       Object.values(this.graph.getModel().cells).forEach((cell) => {
         if (cell.style != undefined) {
           if (cell.style.includes("toolType")) {
             toolListInGraph.push(cell);
-          } else if (
-            cell.style.includes("dataOutputType") &&
-            cell.target == null
-          ) {
+          } else if (cell.style.includes("dataOutputType")) {
             dataOutputInGraph.push(cell);
           } else if (cell.style.includes("dataInputType")) {
-            console.log(cell.source);
-            if (cell.source == null) {
-              dataInputInGraph.push(cell);
-            } else {
-              dataLinkInGraph.push(cell);
-            }
+            cell.type = "url";
+            dataInputInGraph.push(cell);
           }
         }
       });
+
+      let links = Object.values(this.graph.getModel().cells).filter(
+        (cell) =>
+          !cell.hasOwnProperty("vertex") &&
+          cell.hasOwnProperty("source") &&
+          cell.source.style.includes("dataOutputType")
+      );
+      this.linkEdgeList = links;
+
+      links.forEach((link) => {
+        dataInputInGraph.forEach((data, index) => {
+          if (data == link.target) {
+            data.type = "link";
+          }
+        });
+      });
+
+      await Promise.all(
+        toolListInGraph.map(async (tool) => {
+          let data = await get(
+            `/GeoProblemSolving/modelTask/ModelBehaviorOrdinary/${tool.doi}`
+          );
+          tool.md5 = data.md5;
+        })
+      );
+
       this.toolListInGraph = toolListInGraph;
       this.dataOutputInGraph = dataOutputInGraph;
       this.dataInputInGraph = dataInputInGraph;
       this.dataLinkInGraph = dataLinkInGraph;
-      console.log(
-        toolListInGraph,
-        dataOutputInGraph,
-        dataInputInGraph,
-        dataLinkInGraph
-      );
+
+      console.log(toolListInGraph, dataInputInGraph, dataOutputInGraph);
     },
 
-    generateXml(type) {
+    generateXml() {
       let version = "1.0";
       let uid = this.generateGUID();
       let dataLinks = [];
       let xml = "";
       let name = "testIntegrateModel";
 
-      xml += `<TaskConfiguration uid='${uid}' name='${name}' version='${version}'>\n`;
+      xml += `<TaskConfiguration uid='${uid}' name='${name}' version='${version}'>`;
 
-      xml += "\t<Models>\n";
+      xml += "<Models>";
 
+      //没有md5-->只有doi       xml += `<Model name='${model.name}' pid='${model.md5}' description='' doi='${model.doi}'/>`;
       this.toolListInGraph.forEach((model) => {
-        xml += `\t\t<Model name='${model.name}' pid='${model.md5}' description=''/>\n`;
+        xml += `<Model name='${model.name}' description='' pid='${model.md5}'/>`;
       });
-      xml += `\t</Models>\n`;
+      xml += `</Models>`;
 
       //modelAction标签
-      xml += `\t<ModelActions>\n`;
+      xml += `<ModelActions>`;
 
       this.toolListInGraph.forEach((tool) => {
         xml += `<ModelAction id='${tool.id}' name = '${tool.name}' description = '' 
-        model='${tool.md5} ' step ='${tool.step}' iterationNum='${modelActions.iterationNum}'>\n\t\t\t<Inputs>\n`;
+        model='${tool.md5} ' step ='${tool.step}' iterationNum='${tool.iterationNum}'>`;
 
         let inputList = this.dataInputInGraph.filter(
-          (event) =>
-            event.md5 == tool.md5 && event.url != "" && event.url != undefined
+          (event) => event.md5 == tool.md5
         );
-
         let outputList = this.dataOutputInGraph.filter(
           (event) => event.md5 == tool.md5
         );
 
-        inputList.forEach((inputData) => {
-          xml += `<DataConfiguration id='${inputData.eventId}' state='${inputData.stateName}' event='${inputData.name}`;
+        xml += `<Inputs>`;
+        inputList.forEach((item) => {
+          xml += `<DataConfiguration id='${item.eventId}' state='${item.stateName}' event='${item.name}'>`;
 
-          inputData.type = "url";
-          xml += `<Data value='${inputData.url} type="${inputData.type}"/>`;
-
+          if (item.type == "url") {
+            xml += `<Data value='${item.url}' type="${item.type}"/>`;
+          } else if (item.type == "link") {
+            let link = this.linkEdgeList.filter(
+              (el) => el.target.eventId == item.eventId
+            );
+            xml += `<Data link='${link[0].target.eventId}' type="${item.type}"/>`;
+          }
           xml += `</DataConfiguration>`;
         });
-        xml += `</Inputs></Outputs>`;
+        xml += `</Inputs>`;
+        xml += `<Outputs>`;
 
-        this.dataOutputInGraph.forEach((inputData) => {
-          xml += `<DataConfiguration id='${inputData.eventId}' state='${inputData.stateName}' event='${inputData.eventName}</DataConfiguration>`;
+        outputList.forEach((item) => {
+          xml += `<DataConfiguration id='${item.eventId}' state='${item.stateName}' event='${item.name}' />`;
         });
 
-        xml += "\t\t\t</Inputs>\n" + "\t\t\t<Outputs>\n";
-        tool.outputData.forEach((out) => {
-          out.url = "";
-          xml += `\t\t\t\t<DataConfiguration id='${out.eventId}' state='${out.stateName}' event='${out.name}'/>\n`;
-        });
-        xml += "\t\t\t</Outputs>\n" + "\t\t</ModelAction>\n";
+        xml += "</Outputs></ModelAction>";
       });
-      xml += "\t</ModelActions>\n";
+      xml += "</ModelActions>";
+
+      //data links标签
+      xml += "<DataLinks>";
+      this.linkEdgeList.forEach((item) => {
+        xml += `<DataLink from='${item.source.eventId}'  to='${item.target.eventId}'  tool='' config='' />`;
+      });
+      xml += "</DataLinks></TaskConfiguration>";
+      console.log(xml);
     },
 
     getInputOutputInXml() {},
@@ -965,7 +847,7 @@ export default {
     },
   },
   async mounted() {
-    await this.$refs.allTools.init2();
+    await this.$refs.allTools.initSetTimeOut();
     await this.init();
   },
   created() {
@@ -1055,94 +937,6 @@ export default {
     #graphOutline {
       width: 200px;
     }
-  }
-
-  //toolbar
-  .main {
-    position: relative;
-    width: 200px;
-  }
-
-  .state-desc {
-    margin: 0px 0px 15px 0px;
-    padding: 4px 0px;
-    line-height: 2;
-    background-color: #f3f3f3;
-    font-size: 16px;
-    font-style: italic;
-  }
-  .el-tabs__item {
-    font-size: 16px;
-  }
-  .el-tabs__item:hover {
-    color: #00bbd8;
-    background-color: #b5dce244;
-  }
-  .el-tabs__item.is-active {
-    color: #00bbd8;
-  }
-  .el-tabs__active-bar {
-    background-color: #00bbd8;
-  }
-
-  .leftContainer {
-    background-color: rgba(142, 200, 255, 0.2);
-    border-radius: 5px;
-    // box-shadow: 0px 0px 4px rgb(203, 207, 212);
-    width: 100%;
-    .modelState {
-      color: rgb(37, 44, 66);
-      font-size: 14px;
-    }
-  }
-
-  .stateTitle {
-    font-size: 16px;
-    font-weight: 600;
-    color: rgb(87, 173, 253);
-    font-style: italic;
-  }
-
-  .event {
-    .event:hover {
-      background-color: #c4d9f734;
-    }
-    .event_option {
-      color: red;
-      float: left;
-      width: 10px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-    .event_name {
-      font-size: 14px;
-      font-weight: 600;
-      padding-left: 10px;
-
-      /* padding: 10px 0; */
-    }
-    >>> .el-card__body {
-      padding: 5px;
-      width: 200px;
-    }
-    .event-desc:hover {
-      cursor: pointer;
-    }
-  }
-
-  .des {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    /* !autoprefixer: off */
-    -webkit-box-orient: vertical;
-    font-size: 14px;
-  }
-  .title {
-    font-weight: 600;
-    font-size: 20px;
-    margin: 20px 0 10px 0;
   }
 }
 </style>

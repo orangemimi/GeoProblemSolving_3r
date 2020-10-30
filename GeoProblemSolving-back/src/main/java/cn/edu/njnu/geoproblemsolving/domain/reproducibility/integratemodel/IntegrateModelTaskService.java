@@ -1,9 +1,9 @@
-package cn.edu.njnu.geoproblemsolving.domain.reproducibility.integratemodel.modeltask;
+package cn.edu.njnu.geoproblemsolving.domain.reproducibility.integratemodel;
 
 import cn.edu.njnu.geoproblemsolving.Exception.MyException;
 import cn.edu.njnu.geoproblemsolving.Utils.ResultUtils;
-import cn.edu.njnu.geoproblemsolving.domain.reproducibility.integratemodel.modeltask.dto.AddIntegrateModelTaskDTO;
-import cn.edu.njnu.geoproblemsolving.domain.reproducibility.integratemodel.modeltask.dto.UpdateIntegratedModelTaskDTO;
+import cn.edu.njnu.geoproblemsolving.domain.reproducibility.integratemodel.dto.AddIntegrateModelTaskDTO;
+import cn.edu.njnu.geoproblemsolving.domain.reproducibility.integratemodel.dto.UpdateIntegratedModelTaskDTO;
 import cn.edu.njnu.geoproblemsolving.domain.support.JsonResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

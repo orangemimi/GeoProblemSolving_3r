@@ -12,7 +12,8 @@ public class ModelTaskController {
     @Autowired
     ModelTaskService modelTaskService;
 
-    @RequestMapping(value = "/getModelBehavior/{doi}", method = RequestMethod.GET)
+    //不转换stateList
+    @RequestMapping(value = "/ModelBehaviorOrdinary/{doi}", method = RequestMethod.GET)
     public Object readProject(@PathVariable("doi") String doi) {
         return ResultUtils.success(modelTaskService.getComputeModel(doi));
     }

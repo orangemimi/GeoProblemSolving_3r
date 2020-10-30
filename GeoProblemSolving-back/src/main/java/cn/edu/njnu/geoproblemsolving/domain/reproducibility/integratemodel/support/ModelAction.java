@@ -1,4 +1,4 @@
-package cn.edu.njnu.geoproblemsolving.domain.reproducibility.integratemodel.modelaction;
+package cn.edu.njnu.geoproblemsolving.domain.reproducibility.integratemodel.support;
 
 import cn.edu.njnu.geoproblemsolving.domain.support.BaseEntity;
 import lombok.Data;

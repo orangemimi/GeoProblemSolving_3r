@@ -16,10 +16,12 @@ public class Utils {
 
         for (int j = 0; j < jsonStates.size(); j++) {
             String stateId =jsonStates.getJSONObject(j).getString("id");
+            String stateName =jsonStates.getJSONObject(j).getString("name");
             for (int i = 0; i < jsonStates.getJSONObject(j).getJSONArray("Event").size(); i++) {
                 JSONObject event = (JSONObject) jsonStates.getJSONObject(j).getJSONArray("Event").get(i);
                 event.put("eventId", UUID.randomUUID().toString());
-                event.put("stateId", stateId);
+//                event.put("stateId", stateId);
+                event.put("stateName", stateName);
                 event.put("md5", md5);
 
                 if (event.containsKey("ResponseParameter")) {
