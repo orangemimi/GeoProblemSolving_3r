@@ -1,6 +1,5 @@
 package cn.edu.njnu.geoproblemsolving.domain.reproducibility.context;
 
-import cn.edu.njnu.geoproblemsolving.Utils.ResultUtils;
 import cn.edu.njnu.geoproblemsolving.domain.reproducibility.context.dto.AddContextDefinitionDTO;
 import cn.edu.njnu.geoproblemsolving.domain.reproducibility.context.dto.UpdateContextDefinitionDTO;
 import cn.edu.njnu.geoproblemsolving.domain.support.JsonResult;
@@ -20,16 +19,16 @@ public class ContextDefinitionController {
 
     @RequestMapping(value = "/{pid}", method = RequestMethod.GET)
     public JsonResult getStepInfo(@PathVariable("pid") String pid) {
-        return ResultUtils.success(contextDefinitionService.getContextDefinition(pid));
+        return contextDefinitionService.getContextDefinition(pid);
     }
 
     @RequestMapping(value = "/{pid}", produces = {"application/json;charset=UTF-8"}, method = RequestMethod.PATCH)
     public JsonResult updateStepInfo(@PathVariable("pid") String pid, @RequestBody UpdateContextDefinitionDTO updateContextDefinitionDTO) {
-        return ResultUtils.success(contextDefinitionService.updateContextDefinition(pid, updateContextDefinitionDTO));
+        return contextDefinitionService.updateContextDefinition(pid, updateContextDefinitionDTO);
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
     public JsonResult saveStepInfo(@RequestBody AddContextDefinitionDTO addContextDefinitionDTO) {
-        return ResultUtils.success(contextDefinitionService.saveContextDefinition(addContextDefinitionDTO));
+        return contextDefinitionService.saveContextDefinition(addContextDefinitionDTO);
     }
 }

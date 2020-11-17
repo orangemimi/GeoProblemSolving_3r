@@ -8,14 +8,12 @@
             <div class="top-icon"><i class="el-icon-top-right"></i></div>
           </div>
           <div class="content">
-            <!-- <vue-scroll class="scroll"> -->
-              <div class="content-comp">
-                <component
-                  :is="typeMapping(info.btnType)"
-                  :projectInfo="projectInfo2"
-                ></component>
-              </div>
-            <!-- </vue-scroll> -->
+            <div class="content-comp">
+              <component
+                :is="typeMapping(info.btnType)"
+                :projectInfo="projectInfo2"
+              ></component>
+            </div>
           </div>
         </div>
       </el-col>
@@ -115,13 +113,8 @@ export default {
       width: 20px;
     }
   }
-  .content {
-  }
-  .scroll {
-    height: 300px;
-    .content-comp {
-      margin: 10px;
-    }
+  .content-comp {
+    margin: 10px;
   }
 }
 </style>

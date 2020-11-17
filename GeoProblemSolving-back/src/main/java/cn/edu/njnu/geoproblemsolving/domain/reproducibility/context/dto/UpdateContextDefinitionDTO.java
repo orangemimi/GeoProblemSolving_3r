@@ -2,7 +2,6 @@ package cn.edu.njnu.geoproblemsolving.domain.reproducibility.context.dto;
 
 import cn.edu.njnu.geoproblemsolving.Dto.ToDomainConverter;
 import cn.edu.njnu.geoproblemsolving.domain.reproducibility.context.ContextDefinition;
-import cn.edu.njnu.geoproblemsolving.domain.reproducibility.map.support.resource.output.OutputResource;
 import lombok.Data;
 
 import java.util.List;
@@ -18,7 +17,7 @@ public class UpdateContextDefinitionDTO implements ToDomainConverter<ContextDefi
     String purpose;
     String object;//sumulation object
     String methods;
+    String boundary;
     String scale;
     String discussion;
-    OutputResource outputResource;
 }

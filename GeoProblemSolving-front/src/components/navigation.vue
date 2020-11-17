@@ -38,8 +38,8 @@ footer {
   width: 100%;
   bottom: 0;
   flex: 0 0 auto;
-  position: fixed;
-  z-index: 999;
+  /* position: fixed; */
+  /* z-index: 999; */
 }
 .userState {
   position: absolute;
@@ -259,14 +259,14 @@ footer {
         @readNotification="readNotification"
       ></router-view>
     </div>
-    <footer class="foot-style">
+    <!-- <footer class="foot-style">
       <h2 class="footerTop">
         <i>Open Geographic Modeling and Simulation</i>
       </h2>
       <p class="footerBottom">
         Copyright © 2013-2020 OpenGMS. All rights reserved.
       </p>
-    </footer>
+    </footer> -->
   </div>
 </template>
 <script>

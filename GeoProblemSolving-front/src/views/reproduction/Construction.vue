@@ -50,18 +50,29 @@
         >
       </el-col>
       <el-col :span="20">
-        <el-col :span="24" v-for="(item,index) in cardInfos" :key="index">
+        <el-col :span="10" :key="index">
           <step-card
-            :cardInfo="item"
+            :cardInfo="{ btnType: 'Context Definition' }"
+            :projectInfo="projectInfo"
+          ></step-card>
+        </el-col>
+        <el-col :span="14" :key="index">
+          
+          <step-card
+            :cardInfo="{ btnType: 'Resource Collection' }"
+            :projectInfo="projectInfo"
+          ></step-card>
+        </el-col>
+        <el-col :span="24">
+          <step-card
+            :cardInfo="{ btnType: 'Simulation Construction' }"
             :projectInfo="projectInfo"
           ></step-card>
         </el-col> </el-col
     ></el-row>
     <el-row>
-      <el-popover placement="top" width="160" trigger="click">
-        <p>pop</p>
-        <div style="text-align: right; margin: 0"></div>
-
+      <el-popover placement="top" width="460" trigger="click">
+        <div><history-record></history-record></div>
         <el-button type="success" class="folder_collect" slot="reference" circle
           ><i class="el-icon-folder-opened"></i
         ></el-button>
@@ -74,9 +85,11 @@
 
 <script>
 import stepCard from "./components/StepCard";
+import historyRecord from "./components/Record";
 export default {
   components: {
     stepCard,
+    historyRecord,
   },
   data() {
     return {
@@ -85,9 +98,8 @@ export default {
       projectInfo: {},
       folderCollectVisible: false,
       cardInfos: [
-        // { btnType: "Context Definition" },
-        { btnType: "Simulation Construction" },
-         { btnType: "Resource Collection" }
+        { btnType: "Context Definition" },
+        { btnType: "Resource Collection" },
       ],
     };
   },

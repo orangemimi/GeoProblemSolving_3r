@@ -120,4 +120,17 @@ export class Graph extends mxgraph {
     };
 
   }
+  importModelXML(xmlTxt) {
+    //xml to json
+    this.getModel().beginUpdate();
+    try {
+      const doc = mxUtils.parseXml(xmlTxt);
+      const root = doc.documentElement;
+      const dec = new mxCodec(root.ownerDocument);
+      dec.decode(root, this.getModel());
+    } finally {
+      this.getModel().endUpdate();
+    }
+    this._restoreModel();
+  }
 }

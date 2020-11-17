@@ -1,8 +1,5 @@
 package cn.edu.njnu.geoproblemsolving.domain.reproducibility.support;
 
-import cn.edu.njnu.geoproblemsolving.domain.reproducibility.context.ContextDefinition;
-import cn.edu.njnu.geoproblemsolving.domain.reproducibility.map.FlowChart;
-import cn.edu.njnu.geoproblemsolving.domain.reproducibility.resource.Resource;
 import cn.edu.njnu.geoproblemsolving.domain.support.BaseEntity;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -16,14 +13,16 @@ import lombok.Data;
 
 @Data
 public class DocumentationInfo extends BaseEntity {
-    String name;
-    JSONObject creator;
+    String projectId;
+
+    String title;
+    String description;
+    String privacy;
+
+    JSONObject manager;
     JSONArray members;
-    String author;
     Boolean isPublished;
-    ContextDefinition contextDefinition;
-    Resource resourceCollection;
-    FlowChart flowChart;
+
     String version; //版本号
 
     /**

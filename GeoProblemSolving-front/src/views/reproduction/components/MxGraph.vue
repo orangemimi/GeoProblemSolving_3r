@@ -1,6 +1,26 @@
 <template>
-  <div class>
-    <div class="customToolbarContainer">
+  <div class="main">
+    <div class="mainContainerMask" v-show="isNewTaskContainerShow">
+      <div class="taskInfoForm">
+        <el-form ref="taskInfoForm" :model="taskInfo" label-width="180px">
+          <el-form-item label="Task Name">
+            <el-input v-model="taskInfo.taskName"></el-input>
+          </el-form-item>
+          <el-form-item label="Task Description">
+            <el-input v-model="taskInfo.taskDescription"></el-input>
+          </el-form-item>
+        </el-form>
+      </div>
+
+      <!-- 进入，如果没有task，则弹出创建一个新画布 -->
+      <div class="taskInfoBtn">
+        <el-button @click="createNewTask">Create a New Task</el-button>
+        <div class="newTaskBtnTip">
+          Please Enter the task name and description to create your task!
+        </div>
+      </div>
+    </div>
+    <div class="customToolbarContainer" v-show="!isNewTaskContainerShow">
       <div class="toolbarContainer">
         <el-row>
           <all-tools
@@ -12,7 +32,7 @@
       </div>
       <div class="mainContainer">
         <div class="toolbarTop">
-          <!-- <el-button @click="saveGraph" type="text" size="mini">Output</el-button> -->
+          <!-- <el-button @click="updateGraph" type="text" size="mini">Output</el-button> -->
           <el-button @click="exportGraph" type="text" size="mini"
             >Export as XML</el-button
           >
@@ -27,10 +47,15 @@
           >
           <el-button @click="undo" type="text" size="mini">Undo</el-button>
           <el-button @click="redo" type="text" size="mini">Redo</el-button>
-          <el-button @click="saveGraph" type="success" size="mini"
+          <!-- 创建一个新的画布  均为create-->
+          <el-button @click="showCreateNewTask" type="success" size="mini"
+            >New Task</el-button
+          >
+          <!-- 保存现有的画布 均为update-->
+          <el-button @click="updateGraph" type="warning" size="mini"
             >Save Task</el-button
           >
-          <!-- <el-button @click="saveGraph" size="mini"> checkcell</el-button> -->
+          <el-button @click="runGraph" size="mini"> Run Task</el-button>
         </div>
         <vue-scroll style="height: 630px; width: 100%">
           <div class="graphContainer" ref="container"></div>
@@ -65,10 +90,9 @@
           <div>Node Info</div>
           <data-item-info :cell="dataNode"></data-item-info>
         </div>
-        <div v-if="dataDoubleClick">
-          {{ dataNode }}
+        <div v-show="dataDoubleClick">
           <div>Node Info</div>
-          <data-item-info :cell="dataNode"></data-item-info>
+          <!-- <data-item-info :cell="dataNode"></data-item-info> -->
         </div>
       </div>
 
@@ -85,18 +109,31 @@
         </el-dialog>
       </div>
     </div>
+    <div class="integrateTaskContainer">
+      <!-- <edit-cell :visible="editCellVisible" @currentGraph="grapg"></edit-cell> -->
+      Integrate Tasks
+      <integrate-tasks
+        :currentTask="currentTask"
+        @selectTask="selectTask"
+      ></integrate-tasks>
+    </div>
   </div>
 </template>
 
 <script>
 import mxgraph from "@/components/utils/mxGraph/index";
+
+// import { Graph } from "@/components/utils/mxGraph/graph";
 import nodeCard from "@/components/utils/mxGraph/components/nodeCard";
 import editCell from "@/components/utils/mxGraph/components/editCell";
 import FileSaver from "file-saver";
+
 import allTools from "@/components/r2/AllTools";
-import { get } from "@/axios";
+import { get, post, patch } from "@/axios";
 import dataItemToolbar from "./DataItemToolbar";
 import dataItemInfo from "./DataItemInfo";
+
+import integrateTasks from "./IntegrateTasks";
 
 const {
   mxGraph,
@@ -123,7 +160,15 @@ export default {
       type: String,
     },
   },
-  components: { nodeCard, editCell, allTools, dataItemToolbar, dataItemInfo },
+
+  components: {
+    nodeCard,
+    editCell,
+    allTools,
+    dataItemToolbar,
+    dataItemInfo,
+    integrateTasks,
+  },
   watch: {
     sendXml: {
       handler(val) {
@@ -140,10 +185,12 @@ export default {
 
   data() {
     return {
+      userInfo: this.$store.getters.userInfo,
+      projectId: this.$route.params.projectId,
       contentHeight: 0,
       graph: null,
       editCellVisible: false,
-      graphXml: "",
+      // graphXml: "",
       selectEdge: {},
       selectVertex: {},
       selectionCells: [],
@@ -190,6 +237,14 @@ export default {
 
       stateList: [],
       dataItemToolbarKey: 0,
+      taskInfo: {
+        taskName: "",
+        taskDescription: "",
+      },
+
+      isNewTaskContainerShow: true,
+
+      currentTask: {},
     };
   },
 
@@ -255,51 +310,49 @@ export default {
       // 监听双击事件
       this.graph.addListener(mxEvent.DOUBLE_CLICK, async (graph, evt) => {
         // DOUBLE_CLICK
-        const cell = evt.properties.cell;
+        let cell = evt.properties.cell;
         if (!cell) {
           return;
         }
-        const clickToolType = cell.style.includes("toolType");
-        const dataType =
-          cell.style.includes("dataInputType") ||
-          cell.style.includes("dataOutputType");
+        let clickToolType = cell.style.includes("toolType");
+        let dataType = cell.style.includes("data");
         if (clickToolType) {
           this.dataItemToolbarKey++;
-
+          console.log(this.dataItemToolbarKey);
           await this.$refs.dataItem.initSetTimeOut();
           this.toolDoubleClick = true;
-          this.inputItemList = this.outputItemList = [];
           this.cell = cell;
-
           this.dataDoubleClick = this.dataClick = this.toolClick = false;
-        } else if (dataType) {
-          this.dataNode = cell;
-          this.dataDoubleClick = true;
-          this.toolDoubleClick = this.toolClick = this.dataClick = false;
         }
+        // else if (dataType) {
+        //   this.dataDoubleClick = true;
+        //   this.dataNode = cell;
+        //   this.toolDoubleClick = this.toolClick = this.dataClick = false;
+        // }
       });
 
       // 监听单击事件
       //单击空白处 dialog隐藏
       this.graph.addListener(mxEvent.CLICK, (sender, evt) => {
-        const cell = evt.properties.cell;
+        let cell = evt.properties.cell;
         if (!cell) {
           return;
         }
         const clickToolType = cell.style.includes("toolType");
-        const dataType =
-          cell.style.includes("dataInputType") ||
-          cell.style.includes("dataOutputType");
+        const dataType = cell.style.includes("data");
         if (clickToolType) {
           // 使用 mxGraph 事件中心，触发自定义事件
           // this.cell = cell;
           this.toolClick = true;
           this.toolDoubleClick = this.dataClick = this.dataDoubleClick = false;
         } else if (dataType) {
-          this.dataNode = cell;
-          // console.log(this.dataNode, dataType);
-          this.dataClick = true;
           this.toolDoubleClick = this.toolClick = this.dataDoubleClick = false;
+          this.dataClick = true;
+          this.dataNode = {
+            doi: cell.doi,
+            stateName: cell.stateName,
+            name: cell.name, //eventName
+          };
         }
 
         // if (evt.properties.hasOwnProperty("cell")) {
@@ -368,6 +421,8 @@ export default {
       new mxRubberband(this.graph);
 
       mxCellEditor.prototype.blurEnabled = true;
+      //
+      this.mxEvent.disableContextMenu(this.document.body);
 
       //失焦
       //   if(this.graph.)
@@ -490,16 +545,14 @@ export default {
           vertex.iterationNum = "1";
         } else {
           let selectionCell = this.selectionCells[0];
-          // console.log(selectionCell.md5, item.md5);
-          // if (selectionCell.md5 != item.md5) {
-          //   return;
-          // }
           let vertex = this.addCellToContainer(styleObj, x, y);
 
           vertex.name = item.name;
           vertex.eventId = item.eventId;
           vertex.stateName = item.stateName;
           vertex.md5 = item.md5;
+          vertex.doi = item.doi;
+          vertex.optional = item.optional;
 
           if (type == "inputItemList") {
             this.addEdge(vertex, selectionCell);
@@ -542,13 +595,17 @@ export default {
 
     getGraphXml() {
       let encoder = new mxCodec();
-      this.graphXml = encoder.encode(this.graph.getModel());
+      let graphXml = encoder.encode(this.graph.getModel());
+      let xml = mxUtils.getPrettyXml(graphXml);
+      console.log(xml);
+      return xml;
       // console.log(this.graphXml, this.graph.getModel());
     },
 
     exportGraph() {
-      this.getGraphXml();
-      let xml = mxUtils.getPrettyXml(this.graphXml);
+      let graphXml = this.getGraphXml();
+      console.log(graphXml);
+      let xml = mxUtils.getPrettyXml(graphXml);
       const blob = new Blob([xml], {
         type: "text/plain;charset=utf-8",
       });
@@ -701,14 +758,85 @@ export default {
       // console.info("前进的Cells", this.getUndoRedoCell());
     },
 
+    //创建一个新的画布
+    showCreateNewTask() {
+      this.taskInfo = {
+        taskName: "",
+        taskDescription: "",
+      };
+      this.isNewTaskContainerShow = true;
+    },
+    async createNewTask() {
+      let postJson = {
+        projectId: this.projectId,
+        userName: this.userInfo.userName,
+        userId: this.userInfo.userId,
+        ...this.taskInfo,
+      };
+      // console.log(postJson);
+      let data = await post(`/GeoProblemSolving/r/integrateTasks`, postJson);
+      this.currentTask = data;
+      this.isNewTaskContainerShow = false;
+      console.log(data);
+    },
+
     //保存task
-    async saveGraph() {
+    async updateGraph() {
       if (this.graph.getModel().cells.length < 1) {
         this.$message.error("Please select at least one model.");
         return;
       }
       await this.getCells();
-      this.generateXml();
+      let xml = this.generateXml();
+      let graphXml = this.getGraphXml();
+      let modelActions = this.generateTaskModelInfo();
+      let postJson = {
+        xml: xml,
+        mxgraph: graphXml,
+        // modelActions: modelActions,modelACTIONlIST
+        taskName: this.taskInfo.taskName,
+        taskDescription: this.taskInfo.taskDescription,
+      };
+      // console.log(postJson);
+      let data = await patch(
+        `/GeoProblemSolving/r/integrateTasks/${this.currentTask.id}`,
+        postJson
+      );
+      console.log(data);
+    },
+
+    selectTask(val) {
+      this.currentTask = val;
+      this.taskInfo = val;
+      let mxgraph = val.mxgraph;
+      this.importModelXML(mxgraph);
+      this.isNewTaskContainerShow = false;
+      console.log(val);
+    },
+
+    importModelXML(xmlTxt) {
+      //xml to json
+      this.graph.getModel().beginUpdate();
+      try {
+        const doc = mxUtils.parseXml(xmlTxt);
+        const root = doc.documentElement;
+        const dec = new mxCodec(root.ownerDocument);
+        dec.decode(root, this.graph.getModel());
+      } finally {
+        this.graph.getModel().endUpdate();
+      }
+      // this._restoreModel();
+    },
+
+    async runGraph() {
+      let xml = this.generateXml();
+      let file = new File([xml], this.taskInfo.taskName + ".xml", {
+        type: "text/xml",
+      });
+      let formData = new FormData();
+      formData.append("file", file);
+      formData.append("taskName", this.taskInfo.taskName);
+      let data = await post(`/GeoProblemSolving/r/integrateTasks`, formData);
     },
 
     async getCells() {
@@ -761,8 +889,6 @@ export default {
       this.dataOutputInGraph = dataOutputInGraph;
       this.dataInputInGraph = dataInputInGraph;
       this.dataLinkInGraph = dataLinkInGraph;
-
-      console.log(toolListInGraph, dataInputInGraph, dataOutputInGraph);
     },
 
     generateXml() {
@@ -770,7 +896,7 @@ export default {
       let uid = this.generateGUID();
       let dataLinks = [];
       let xml = "";
-      let name = "testIntegrateModel";
+      let name = this.taskInfo.taskName;
 
       xml += `<TaskConfiguration uid='${uid}' name='${name}' version='${version}'>`;
 
@@ -828,9 +954,8 @@ export default {
       });
       xml += "</DataLinks></TaskConfiguration>";
       console.log(xml);
+      return xml;
     },
-
-    getInputOutputInXml() {},
 
     generateGUID() {
       let s = [];
@@ -841,9 +966,71 @@ export default {
       s[14] = "4"; // bits 12-15 of the time_hi_and_version field to 0010
       s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1); // bits 6-7 of the clock_seq_hi_and_reserved to 01
       s[8] = s[13] = s[18] = s[23] = "-";
-
       let uuid = s.join("");
       return uuid;
+    },
+
+    generateTaskModelInfo() {
+      let addModelActions = [];
+      //拼接集成模型中的models部分
+      let tools = this.toolListInGraph;
+      tools.forEach((tool) => {
+        let addModelAction = {
+          id: tool.id,
+          modelOid: tool.doi,
+          md5: tool.md5,
+          name: tool.name,
+          description: tool.description,
+          outputData: [],
+          inputData: [],
+          step: tool.step,
+          iterationNum: tool.iterationNum,
+        };
+
+        let inputList = this.dataInputInGraph.filter(
+          (event) => event.md5 == tool.md5
+        );
+        let outputList = this.dataOutputInGraph.filter(
+          (event) => event.md5 == tool.md5
+        );
+
+        inputList.forEach((item) => {
+          let inputData = {
+            eventId: item.eventId,
+            data: item.data,
+            eventName: item.name,
+            optional: item.optional,
+            stateName: item.stateName,
+          };
+          if (item.type == "url") {
+            inputData.type = item.type;
+            inputData.value = item.value;
+            inputData.fileName = item.fileName; //文件名
+            inputData.suffix = item.suffix; //文件类型
+          } else if (item.type == "link") {
+            let link = this.linkEdgeList.filter(
+              (el) => el.target.eventId == item.eventId
+            );
+            inputData.link = item.link;
+            inputData.linkEvent = item.link[0].target.eventId;
+          }
+          addModelAction.inputData.push();
+        });
+
+        outputList.forEach((item) => {
+          addModelAction.inputData.push({
+            eventId: item.eventId,
+            data: item.data,
+            eventName: item.name,
+            optional: item.optional,
+            stateName: item.stateName,
+          });
+        });
+        addModelActions.push(addModelAction);
+      });
+
+      console.log(addModelActions);
+      return addModelActions;
     },
   },
   async mounted() {
@@ -857,85 +1044,116 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-.customToolbarContainer {
+.main {
   width: 100%;
   height: 100%;
   display: flex;
   position: relative;
-
-  .toolbarContainer {
+  .mainContainerMask {
+    // display: flex;
     position: relative;
-    width: 160px;
-    // margin: 0 5px;
-    // background-color: rgb(251, 251, 251);
-    .toolbarTitle {
-      font-size: 20px;
-      font-weight: 600;
-      text-align: center;
-      margin: 5px 0;
+    width: 1200px;
+    .taskInfoForm {
+      margin: 100px 190px;
+      width: 700px;
     }
-
-    .items {
-      margin-top: 2px;
-      .item {
-        margin: 0 10px;
-        width: 120px;
-        text-align: center;
-        margin-bottom: 5px;
+    .taskInfoBtn {
+      // margin: 80px 50px;
+      text-align: center;
+      .newTaskBtnTip {
+        margin-top: 10px;
+        font-style: italic;
+        color: rgb(102, 102, 102);
+        font-size: 14px;
       }
     }
+    z-index: 999;
   }
 
-  .editCellContainer {
+  .integrateTaskContainer {
     position: relative;
     right: 0;
-    width: 280px;
+    width: 195px;
     padding: 0 5px;
-    // z-index: 999;
-    // .normalContaniner {
-    //   width: 200px;
-    // }
-
-    // .expandContaniner {
-    //   width: 262px;
-    // }
+    box-shadow: 0px 0px 5px rgb(207, 207, 207);
   }
 
-  .mainContainer {
-    width: 990px;
-    .toolbarTop {
-      background: rgb(251, 251, 251);
-      padding-left: 10px;
-      border-radius: 4px;
-      margin-bottom: 10px;
-    }
-    .graphContainer {
-      overflow: hidden;
-      height: 100%;
-      width: 100%;
-      min-width: 930px;
-      min-height: 630px;
-      background: rgb(251, 251, 251)
-        url("./../../../assets/images/mxgraph/grid.gif") 0 0 repeat;
-      border-radius: 4px;
-    }
-  }
+  .customToolbarContainer {
+    width: 1200px;
+    height: 100%;
+    display: flex;
+    position: relative;
 
-  .outline-wrapper {
-    border: 1px solid #dedede;
-    background: #fff;
-    position: fixed;
-    right: 30px;
-    bottom: 40px;
-    border-radius: 4px;
-    z-index: 10;
-    > h4 {
-      padding: 6px;
-      font-size: 12px;
-      border-bottom: 1px solid #e6e6e6;
+    .toolbarContainer {
+      position: relative;
+      width: 160px;
+      // margin: 0 5px;
+      // background-color: rgb(251, 251, 251);
+      .toolbarTitle {
+        font-size: 20px;
+        font-weight: 600;
+        text-align: center;
+        margin: 5px 0;
+      }
+
+      .items {
+        margin-top: 2px;
+        .item {
+          margin: 0 10px;
+          width: 120px;
+          text-align: center;
+          margin-bottom: 5px;
+        }
+      }
+      // z-index: 1;
     }
-    #graphOutline {
-      width: 200px;
+
+    .editCellContainer {
+      position: relative;
+      right: 0px;
+      width: 275px;
+      padding: 0 5px;
+      margin-right: 5px;
+      box-shadow: 0px 0px 5px rgb(207, 207, 207);
+    }
+
+    .mainContainer {
+      width: 790px;
+
+      .toolbarTop {
+        background: rgb(251, 251, 251);
+        padding-left: 10px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+      }
+      .graphContainer {
+        overflow: hidden;
+        height: 100%;
+        width: 100%;
+        min-width: 930px;
+        min-height: 630px;
+        background: rgb(251, 251, 251)
+          url("./../../../assets/images/mxgraph/grid.gif") 0 0 repeat;
+        border-radius: 4px;
+      }
+    }
+
+    .outline-wrapper {
+      border: 1px solid #dedede;
+      background: #fff;
+      position: fixed;
+      right: 30px;
+      bottom: 40px;
+      border-radius: 4px;
+      z-index: 10;
+      > h4 {
+        padding: 6px;
+        font-size: 12px;
+        border-bottom: 1px solid #e6e6e6;
+      }
+      #graphOutline {
+        width: 200px;
+      }
     }
   }
 }

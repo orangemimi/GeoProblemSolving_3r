@@ -1,5 +1,5 @@
 <template>
-  <div class="main" v-if="currentEvent != undefined">
+  <div class="mainContain" v-if="JSON.stringify(currentEvent) != '{}'">
     <el-row>
       <div class="data">
         <div class="dataTitle">State name:</div>
@@ -73,8 +73,9 @@
             </el-table>
           </div>
           <div v-else>
+            <!-- {{ currentEvent.value }} -->
             <el-select
-              v-model="currentEvent.url"
+              v-model="currentEvent.value"
               clearable
               placeholder="Please select data"
             >
@@ -89,8 +90,9 @@
         </vue-scroll>
       </el-row>
       <el-row v-else>
+        <!-- {{ currentEvent.value }} -->
         <el-select
-          v-model="currentEvent.url"
+          v-model="currentEvent.value"
           clearable
           placeholder="Please select data"
         >
@@ -123,7 +125,6 @@ export default {
   watch: {
     cell: {
       handler(val) {
-        console.log(val);
         if (val != "") {
           this.doi = val.doi;
           this.currentCell = val;
@@ -135,25 +136,6 @@ export default {
   },
 
   computed: {
-    currentEvent() {
-      if (this.stateList == "") {
-        return;
-      }
-      let stateList = this.stateList;
-      let currentCell = this.currentCell;
-      let current;
-      let event = stateList.forEach((state) => {
-        if (state.id == currentCell.stateId) {
-          let events = state.Event;
-          current = events.filter((event) => {
-            return event.name == currentCell.name;
-          });
-          current = { state, Event, ...current[0] };
-        }
-      });
-      return current;
-    },
-
     filterEvent() {
       let event = this.currentEvent;
       if (event.datasetItem.hasOwnProperty("UdxDeclaration")) {
@@ -183,6 +165,7 @@ export default {
       currentCell: this.cell,
       dataItemList: [],
       projectId: this.$route.params.projectId,
+      currentEvent: {},
     };
   },
 
@@ -199,6 +182,26 @@ export default {
       this.md5 = data.md5;
       this.modelIntroduction = data;
       this.stateList = data.convertMdlJson;
+      this.currentEvent = this.convertStateList();
+    },
+    convertStateList() {
+      if (this.stateList == "") {
+        return;
+      }
+      let stateList = this.stateList;
+      let currentCell = this.currentCell;
+      let current;
+      let event = stateList.forEach((state) => {
+        if (state.name == currentCell.stateName) {
+          let events = state.Event;
+          current = events.filter((event) => {
+            return event.name == currentCell.name;
+          });
+          current = { state, Event, ...current[0] };
+        }
+      });
+      console.log(current);
+      return current;
     },
 
     async getResources() {
@@ -231,6 +234,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.mainContain {
+  width: 100%;
+}
 .data {
   font-size: 15px;
   .dataTitle {

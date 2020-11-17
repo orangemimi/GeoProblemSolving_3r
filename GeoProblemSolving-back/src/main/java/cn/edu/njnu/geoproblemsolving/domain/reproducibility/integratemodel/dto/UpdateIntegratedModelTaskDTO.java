@@ -2,7 +2,6 @@ package cn.edu.njnu.geoproblemsolving.domain.reproducibility.integratemodel.dto;
 
 import cn.edu.njnu.geoproblemsolving.Dto.ToDomainConverter;
 import cn.edu.njnu.geoproblemsolving.domain.reproducibility.integratemodel.IntegrateModelTask;
-import cn.edu.njnu.geoproblemsolving.domain.reproducibility.integratemodel.modelaction.ModelAction;
 import lombok.Data;
 
 import java.util.List;
@@ -15,12 +14,11 @@ import java.util.Map;
  */
 @Data
 public class UpdateIntegratedModelTaskDTO implements ToDomainConverter<IntegrateModelTask> {
-    String taskId;
     String taskName;
-    String description;
+    String taskDescription;
 
     List<Map<String,String>> models;
-    List<ModelAction> modelActions;
+    List<String> modelActions;
 
     String xml;
     String mxgraph;

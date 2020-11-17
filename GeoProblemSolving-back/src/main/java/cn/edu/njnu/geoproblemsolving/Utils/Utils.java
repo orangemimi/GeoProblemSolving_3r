@@ -11,6 +11,7 @@ public class Utils {
 
         JSONObject jsonObject = JSON.parseObject(JSONObject.toJSONString(data.getJSONObject("mdlJson")));
         String md5 = data.getString("md5");
+        String doi = data.getString("oid");
         JSONArray jsonStates = jsonObject.getJSONArray("ModelClass").getJSONObject(0).getJSONArray("Behavior").getJSONObject(0).getJSONArray("StateGroup").getJSONObject(0).getJSONArray("States").getJSONObject(0).getJSONArray("State");
         JSONArray datasetItem = jsonObject.getJSONArray("ModelClass").getJSONObject(0).getJSONArray("Behavior").getJSONObject(0).getJSONArray("RelatedDatasets").getJSONObject(0).getJSONArray("DatasetItem");
 
@@ -23,6 +24,7 @@ public class Utils {
 //                event.put("stateId", stateId);
                 event.put("stateName", stateName);
                 event.put("md5", md5);
+                event.put("doi", doi);
 
                 if (event.containsKey("ResponseParameter")) {
                     String datasetReference = ((JSONObject) event.getJSONArray("ResponseParameter").get(0)).getString("datasetReference");

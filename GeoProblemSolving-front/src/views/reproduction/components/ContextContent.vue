@@ -1,5 +1,5 @@
 <template>
-  <div class>
+  <div class="main">
     <el-form
       ref="contextForm"
       :model="contextForm"
@@ -63,7 +63,7 @@
 </template>
 
 <script>
-import { post, get } from "../../../axios";
+import { post, get, patch } from "../../../axios";
 export default {
   components: {},
   props: {
@@ -95,16 +95,14 @@ export default {
       tagInputVisible: false,
       projectInfomation: this.projectInfo,
       updateContext: true,
+      userInfo: this.$store.getters.userInfo,
     };
   },
   methods: {
     async getContext() {
-      console.log(this.projectInfomation);
-      let { data } = await get(
+      let data = await get(
         `/GeoProblemSolving/r/contextDefinition/${this.projectInfomation.projectId}`
       );
-
-      console.log(data);
       if (data == null) {
         this.updateContext = false;
       } else {
@@ -117,21 +115,23 @@ export default {
         if (valid) {
           if (!this.updateContext) {
             let contextForm = this.contextForm;
-            contextForm.userId = this.projectInfomation.userId;
+            contextForm.userId = this.userInfo.userId;
             contextForm.pid = this.projectInfomation.projectId;
-            let { data } = await post(
+            let data = await post(
               `/GeoProblemSolving/r/contextDefinition`,
               contextForm
             );
+            this.saveRecord(data, "created");
             this.$message({
               message: "You have save the context successfully",
               type: "success",
             });
           } else {
-            let { data } = await patch(
+            let data = await patch(
               `/GeoProblemSolving/r/contextDefinition/${this.projectInfomation.projectId}`,
               this.contextForm
             );
+            this.saveRecord(data, "updated");
             this.$message({
               message: "You have update the context successfully",
               type: "success",
@@ -141,6 +141,17 @@ export default {
       });
       this.$emit("closeForm", false);
     },
+
+    async saveRecord(context, tag) {
+      let record = {};
+      record.eventId = context.id;
+      record.eventType = "contextDefinition";
+      record.projectId = this.projectInfomation.projectId;
+      record.userId = this.userInfo.userId;
+      record.content = `${this.userInfo.userName} has ${tag} a context definition in this reproducible project`;
+      let data = await post(`/GeoProblemSolving/r/records`, record);
+    },
+
     showTagInput() {
       this.tagInputVisible = true;
       this.$nextTick((_) => {
@@ -166,4 +177,8 @@ export default {
 };
 </script>
 <style lang='scss' scoped>
+.main {
+  margin: 0 20px;
+  height: 450px;
+}
 </style>

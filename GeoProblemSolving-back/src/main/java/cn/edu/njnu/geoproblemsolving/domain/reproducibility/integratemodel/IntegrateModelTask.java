@@ -1,6 +1,5 @@
 package cn.edu.njnu.geoproblemsolving.domain.reproducibility.integratemodel;
 
-import cn.edu.njnu.geoproblemsolving.domain.reproducibility.integratemodel.modelaction.ModelAction;
 import cn.edu.njnu.geoproblemsolving.domain.support.BaseEntity;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -20,20 +19,20 @@ import java.util.Map;
 public class IntegrateModelTask extends BaseEntity {
     @Id
     String id;
-    String pid;//project id
+    String projectId;//project id
     String userName;
     String userId;
 
     String taskId;//tid-->mangerserver fanhui
     String taskName;//自己起的
-    String description;
+    String taskDescription;
 
     List<Map<String,String>> models;
 
-    List<ModelAction> modelActions;
+    List<String> modelActions;
 
     String xml;
-    String mxGraph;
+    String mxgraph;
 
     Boolean integrate;
 

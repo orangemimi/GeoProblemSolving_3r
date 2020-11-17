@@ -1,6 +1,5 @@
 package cn.edu.njnu.geoproblemsolving.domain.reproducibility.context;
 
-import cn.edu.njnu.geoproblemsolving.domain.reproducibility.map.support.resource.output.OutputResource;
 import cn.edu.njnu.geoproblemsolving.domain.support.BaseEntity;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -26,6 +25,6 @@ public class ContextDefinition extends BaseEntity {
     String object;//sumulation object
     String methods;
     String scale;
+    String boundary;
     String discussion;
-    OutputResource outputResource;
 }
