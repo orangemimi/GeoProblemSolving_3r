@@ -1,29 +1,25 @@
-package cn.edu.njnu.geoproblemsolving.domain.reproducibility.nodeList;
+package cn.edu.njnu.geoproblemsolving.domain.reproducibility.nodeList.dto;
 
+import cn.edu.njnu.geoproblemsolving.Dto.ToDomainConverter;
+import cn.edu.njnu.geoproblemsolving.domain.reproducibility.nodeList.Method;
+import cn.edu.njnu.geoproblemsolving.domain.reproducibility.nodeList.Node;
 import cn.edu.njnu.geoproblemsolving.domain.reproducibility.nodeList.condition.ConditionCollection;
 import cn.edu.njnu.geoproblemsolving.domain.reproducibility.nodeList.dataparameter.DataItem;
 import cn.edu.njnu.geoproblemsolving.domain.reproducibility.nodeList.dependency.DependencyCollection;
 import cn.edu.njnu.geoproblemsolving.domain.reproducibility.nodeList.model.ModelItem;
 import cn.edu.njnu.geoproblemsolving.domain.reproducibility.nodeList.tool.ToolCollection;
-import cn.edu.njnu.geoproblemsolving.domain.support.BaseEntity;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
 /**
- * @Author     ：Zhiyi
- * @Date       ：2020/11/12 14:43
+ * @Author ：Zhiyi
+ * @Date ：2020/11/18 22:52
  * @modified By：
- * @version:     1.0.0
+ * @version: 1.0.0
  */
-
 @Data
-@Document(collection = "ReMethod")
-public class Method extends BaseEntity {
-    @Id
-    String id;
+public class AddMethodDTO implements ToDomainConverter<Method> {
     String userId;
     String pid;//projectId
     List<Node> nodeList;
@@ -34,5 +30,4 @@ public class Method extends BaseEntity {
     ToolCollection toolCollection;
     ConditionCollection conditionCollection;
     DependencyCollection dependencyCollection;
-
 }

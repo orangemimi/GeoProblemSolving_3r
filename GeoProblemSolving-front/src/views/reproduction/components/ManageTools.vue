@@ -139,7 +139,7 @@ export default {
             initTools.every((e) => e.toolName != item.toolName)
           );
         }
-        console.log(tools);
+        // console.log(tools);
         this.$set(this, "publicTools", tools);
 
         if (type == "All") {
@@ -172,7 +172,7 @@ export default {
             initTools.every((e) => e.toolName != item.toolName)
           );
         }
-        console.log(tools);
+        // console.log(tools);
         this.$set(this, "personalTools", tools);
         if (type == "All") {
           return tools;
@@ -277,7 +277,7 @@ export default {
         updateTime,
         ...param
       } = removeToolInfo;
-      console.log(param);
+      // console.log(param);
 
       this.sentTools.splice(index, 1);
       if (removeToolInfo.privacy == "Public") {

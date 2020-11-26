@@ -50,14 +50,13 @@
         >
       </el-col>
       <el-col :span="20">
-        <el-col :span="10" :key="index">
+        <el-col :span="10">
           <step-card
             :cardInfo="{ btnType: 'Context Definition' }"
             :projectInfo="projectInfo"
           ></step-card>
         </el-col>
-        <el-col :span="14" :key="index">
-          
+        <el-col :span="14">
           <step-card
             :cardInfo="{ btnType: 'Resource Collection' }"
             :projectInfo="projectInfo"

@@ -13,5 +13,6 @@ window.mxStylesheet = mxgraph.mxStylesheet;
 window.mxDefaultToolbar = mxgraph.mxDefaultToolbar;
 window.mxConstants = mxgraph.mxConstants;
 window.mxUndoManager = mxgraph.mxUndoManager;
+window.mxCellOverlay = mxgraph.mxCellOverlay;
 
 export default mxgraph;

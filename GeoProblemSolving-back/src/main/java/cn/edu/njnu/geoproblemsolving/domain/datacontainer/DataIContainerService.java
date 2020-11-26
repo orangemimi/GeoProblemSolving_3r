@@ -2,8 +2,6 @@ package cn.edu.njnu.geoproblemsolving.domain.datacontainer;
 
 import cn.edu.njnu.geoproblemsolving.Enums.ResultEnum;
 import cn.edu.njnu.geoproblemsolving.Exception.MyException;
-import cn.edu.njnu.geoproblemsolving.Utils.ResultUtils;
-import cn.edu.njnu.geoproblemsolving.domain.support.JsonResult;
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -45,7 +43,8 @@ public class DataIContainerService {
 
     public ResponseEntity<byte[]> download(String id) {
         RestTemplate restTemplate = new RestTemplate();
-        String urlStr = "http://" + dataContainer + ":8082/data?uid=" + id;
+//        String urlStr = "http://" + dataContainer + ":8082/data?uid=" + id;
+        String urlStr = "http://" + dataContainer + ":8082/data/" + id;
         ResponseEntity<byte []> response = restTemplate.exchange(urlStr, HttpMethod.GET,
                 null, byte[].class);
         return  response;
@@ -56,18 +55,20 @@ public class DataIContainerService {
         MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
         form.add("serverNode", "china");
         form.add("userId", userId);
-        form.add("ogmsdata", resource);
+        form.add("datafile", resource);
         form.add("name", userName);
         form.add("origination", "GeoProblemSolving_3r");
 
-        String urlStr = "http://" + dataContainer + ":8082/dataNoneConfig";
+        String urlStr = "http://" + dataContainer + ":8082/data";
+//        String urlStr = "http://" + dataContainer + ":8082/dataNoneConfig";
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<JSONObject> jsonObjectResponseEntity = restTemplate.postForEntity(urlStr, form, JSONObject.class);
         if (!jsonObjectResponseEntity.getStatusCode().is2xxSuccessful()) {
             throw new MyException(ResultEnum.ERROR);
         }
         JSONObject result = jsonObjectResponseEntity.getBody();//获得上传数据的URL
-        String urlResult = result.getJSONObject("data").getString("source_store_id");
+//        String urlResult = result.getJSONObject("data").getString("source_store_id");
+        String urlResult = result.getJSONObject("data").getString("id");
         return urlResult;
     }
 }

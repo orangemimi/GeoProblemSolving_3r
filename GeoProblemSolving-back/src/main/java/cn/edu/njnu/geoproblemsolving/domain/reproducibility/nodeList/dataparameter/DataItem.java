@@ -2,7 +2,6 @@ package cn.edu.njnu.geoproblemsolving.domain.reproducibility.nodeList.dataparame
 
 import cn.edu.njnu.geoproblemsolving.domain.support.ReNodeInfo;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
 
 /**
  * @Author ：Zhiyi
@@ -11,9 +10,8 @@ import org.springframework.data.annotation.Id;
  */
 @Data
 public class DataItem extends ReNodeInfo {
-    @Id
-    String id;
-
     String reference;//对应上文中的限制条件
     String value;// data->url; parameter->value
+    Boolean isDirect;
+    String eventId;
 }

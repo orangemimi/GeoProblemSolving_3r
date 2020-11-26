@@ -1,8 +1,8 @@
 package cn.edu.njnu.geoproblemsolving.domain.reproducibility.nodeList.model.support;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
+
+import java.util.Map;
 
 /**
  * @version : 1.0
@@ -11,13 +11,10 @@ import lombok.Data;
  * @modified By：
  */
 @Data
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type",visible = true)
-@JsonSubTypes({@JsonSubTypes.Type(value = ResponseEvent.class, name = "response")
-        , @JsonSubTypes.Type(value = NoResponseEvent.class, name = "noresponse")
-})
 public class Event {
     String name;
     String description;
-    String optional;
+    String dataRef;
     String type;
+    Map<String,Object> datasetItem;
 }

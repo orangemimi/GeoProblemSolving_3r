@@ -55,13 +55,13 @@ public class DataContainerController {
         String userId = (String) request.getSession().getAttribute("userId");
         String userName = (String) request.getSession().getAttribute("userName");
         MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
-        Part part = multiRequest.getPart("file");
+        Part part = multiRequest.getPart("datafile");
         String header = part.getHeader("Content-Disposition");
         String filename2 = header.substring(header.indexOf("filename=\"") + 10, header.lastIndexOf("\""));//filename=" (整个字符串长度为10，所以要加10)
         //  获取文件后缀名
         String suffix = "." + FilenameUtils.getExtension(filename2);
         File file = File.createTempFile(part.getName(), suffix);//创建临时文件
-        FileUtils.copyInputStreamToFile(multiRequest.getPart("file").getInputStream(), file);
+        FileUtils.copyInputStreamToFile(part.getInputStream(), file);
         return ResultUtils.success(dataIContainerService.upload(file,userId,userName));
     }
 

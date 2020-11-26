@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "dataContainerIpAndPort",
+      "type": "java.lang.String",
+      "description": "Description for dataContainerIpAndPort."
+  }
+] }

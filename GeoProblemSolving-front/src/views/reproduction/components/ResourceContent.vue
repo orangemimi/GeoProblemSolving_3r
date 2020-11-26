@@ -17,7 +17,6 @@
       <div class="tools_container">
         <!-- <div>Tools Select</div> -->
         <manage-tools
-          @selectTools="selectTools"
           :initTools="toolItemList"
           footer-hide
         ></manage-tools>

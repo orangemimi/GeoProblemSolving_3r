@@ -2,10 +2,8 @@ package cn.edu.njnu.geoproblemsolving.domain.reproducibility.nodeList.model.supp
 
 import cn.edu.njnu.geoproblemsolving.domain.support.ReNodeInfo;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @Author     ：Zhiyi
@@ -16,7 +14,5 @@ import java.util.Map;
 
 @Data
 public class State extends ReNodeInfo {
-    @Id
-    String id;
-    List<Map<String,Object>> eventList;
+    List<Event> Event;
 }

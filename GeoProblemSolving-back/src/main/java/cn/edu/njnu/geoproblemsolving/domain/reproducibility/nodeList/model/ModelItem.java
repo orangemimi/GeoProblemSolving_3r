@@ -1,9 +1,8 @@
 package cn.edu.njnu.geoproblemsolving.domain.reproducibility.nodeList.model;
 
-import cn.edu.njnu.geoproblemsolving.domain.reproducibility.nodeList.model.support.State;
+import cn.edu.njnu.geoproblemsolving.domain.reproducibility.nodeList.model.support.Event;
 import cn.edu.njnu.geoproblemsolving.domain.support.ReNodeInfo;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
 
 import java.util.List;
 /**
@@ -14,9 +13,9 @@ import java.util.List;
  */
 
 @Data
-public class Model extends ReNodeInfo {
-    @Id
-    String id;
+public class ModelItem extends ReNodeInfo {
     String modelRef;//标识用的那个model的id
-    List<State> stateList;
+    String nodeRef;//标识node
+
+    List<Event> stateList;
 }
